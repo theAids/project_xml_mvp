@@ -1,0 +1,41 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Site.master.cs" Inherits="Project_XML.SiteMaster" %>
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head runat="server">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title><%: Page.Title %> - Project HK</title>
+    <asp:PlaceHolder runat="server">
+        <%: Styles.Render("~/Content/data") %>
+        <%: Scripts.Render("~/bundles/modernizr") %>
+       
+    </asp:PlaceHolder>
+    <webopt:BundleReference runat="server" Path="~/Content/css" />
+
+
+
+</head>
+<body>
+    <form runat="server">
+        <asp:ScriptManager runat="server">
+            <Scripts>
+                <%--To learn more about bundling scripts in ScriptManager see http://go.microsoft.com/fwlink/?LinkID=301884 --%>
+                <%--Framework Scripts--%>
+                <asp:ScriptReference Name="jquery" />
+                <asp:ScriptReference Name="bootstrap" />
+                <%--Site Scripts--%>
+            </Scripts>
+        </asp:ScriptManager>
+
+        <div class="container-fluid">
+            <div class="row">
+                <asp:ContentPlaceHolder ID="Master_Page" runat="server"></asp:ContentPlaceHolder>
+            </div>
+        </div>
+    </form>
+</body>
+<%: Scripts.Render("~/Scripts/data") %>
+</html>

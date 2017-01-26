@@ -11,6 +11,6 @@
 packages/
 **/bin
 logs/
-Project_HK/obj/
+Project_XML/obj/
 .vs/
 Deployment_Package/
