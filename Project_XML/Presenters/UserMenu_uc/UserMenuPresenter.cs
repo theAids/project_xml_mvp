@@ -31,7 +31,7 @@ namespace Project_XML.Presenters.UserMenu_uc
                 case "Administrator":
                     view.SideMenu = new List<string>()
                             {
-                                "<li id='exportPanel'><a href='ExportPanel.aspx'><span class='glyphicon glyphicon-folder-close icon'></span>Database<span class='sr-only'>(current)</span></a></li>",
+                                "<li id='exportPanel'><a href='ExportPanel.aspx'><span class='glyphicon glyphicon-folder-close icon'></span>Export XML<span class='sr-only'>(current)</span></a></li>",
                                 "<li id='tableauPanel'><a href='#'><span class='glyphicon glyphicon-signal icon'></span>Tableau</a></li>",
                                 "<li id='userAdminPanel'><a href='../Views/UserAdmin.aspx'><span class='glyphicon glyphicon-user icon'></span>User Admin</a></li>"
                             };
@@ -39,7 +39,7 @@ namespace Project_XML.Presenters.UserMenu_uc
                 case "User":
                     view.SideMenu = new List<string>()
                             {
-                                "<li id='exportPanel'><a href='ExportPanel.aspx'><span class='glyphicon glyphicon-folder-close icon'></span>Database<span class='sr-only'>(current)</span></a></li>",
+                                "<li id='exportPanel'><a href='ExportPanel.aspx'><span class='glyphicon glyphicon-folder-close icon'></span>Export XML<span class='sr-only'>(current)</span></a></li>",
                                 "<li id='tableauPanel'><a href='#'><span class='glyphicon glyphicon-signal icon'></span>Tableau</a></li>"
                             };
                     break;

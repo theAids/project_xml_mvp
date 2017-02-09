@@ -4,7 +4,7 @@
 
 /* Move down content because we have a fixed navbar that is 50px tall */
 body {
-  padding-top: 88px;
+  padding-top: 48px;
   height: 100%;
 }
 
@@ -39,7 +39,7 @@ body {
 @media (min-width: 768px) {
   .sidebar {
     position: fixed;
-    top: 88px;
+    top: 48px;
     bottom: 0;
     left: 0;
     z-index: 1000;
@@ -50,6 +50,14 @@ body {
     background-color: #222222;
     border-right: 1px solid #eee;
   }
+}
+
+.sidebar > img{
+    max-width: 150px;
+    margin-bottom: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
 }
 
 .sidebar a{
@@ -130,15 +138,18 @@ ul.navbar-right{
     db and log panel size
 */
 
-.db-panel {
-    min-height: 500px;
-    height: 500px;
+.db-panel{
+    min-height: 660px;
+    height: 660px;
     overflow-y: auto;
 }
 
-.log-panel {
-    min-height: 459px;
-    height: 459px;
+.log-panel{
+    min-height: 320px;
+    height: 320px;
+}
+
+.log-panel-body {
     overflow-y: auto;
 }
 
@@ -179,7 +190,8 @@ ul.navbar-right{
 
 /* input field css */
 
-.form-group.required .control-label:after{
+.required .control-label:after,
+.required .panel-heading:after{
     content: "*";
     color:red;
 }
@@ -204,4 +216,47 @@ ul.navbar-right{
 
 .alert-danger.disabled{
     color: #2d2d30;
+}
+
+
+/*
+ *  Date Report Panel
+ */
+
+.dataPanel{
+    margin: 10px;
+}
+
+.accounts-table{
+    max-height: 263px;
+   /* height: 263px;*/
+    overflow: auto;
+}
+
+.btn-export{
+    background-color: #ffe600;
+    color: #000000;
+}
+
+.btn-export > span{
+    margin-left: 5px;
+}
+
+.btn-export-panel{
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.sub-report{
+    min-height: 320px;
+    height: 320px;
+}
+
+.sub-report .doc-table{
+    overflow: auto;
+}
+
+.correction-data, .delete-data {
+    display: none;
 }

@@ -13,15 +13,6 @@ namespace Project_XML.Views.UserControls {
     public partial class UserMenu {
         
         /// <summary>
-        /// BrandImg control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Image BrandImg;
-        
-        /// <summary>
         /// currentUser control.
         /// </summary>
         /// <remarks>
@@ -38,6 +29,15 @@ namespace Project_XML.Views.UserControls {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.LinkButton logout_btn;
+        
+        /// <summary>
+        /// BrandImg control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Image BrandImg;
         
         /// <summary>
         /// sideMenu control.

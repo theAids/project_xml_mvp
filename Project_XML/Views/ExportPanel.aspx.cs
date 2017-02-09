@@ -23,7 +23,7 @@ namespace Project_XML.Views
                 return curr.Text;
             }
         }
-
+        /*
         public List<ConnectionStringModel> ConnStrings
         {
             set
@@ -31,7 +31,7 @@ namespace Project_XML.Views
                 db_connection.DataSource = value;
                 db_connection.DataBind();
             }
-        }
+        }*/
 
         public string LogMsg
         {

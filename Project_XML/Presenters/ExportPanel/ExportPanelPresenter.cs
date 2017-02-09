@@ -28,7 +28,7 @@ namespace Project_XML.Presenters.ExportPanel
         {
             if (!PageIsPostback)
             {
-                view.ConnStrings = DbConnManager.GetConnectionStrings(); // database table source      
+                //view.ConnStrings = DbConnManager.GetConnectionStrings(); // database table source      
             }
             view.LogPath = Directory.CreateDirectory(server.MapPath("~/logs")).FullName; // set log directory
         }

@@ -10,7 +10,7 @@ namespace Project_XML.Presenters.ExportPanel
     public interface IExportPanelView
     {
         string Username { get; }
-        List<ConnectionStringModel> ConnStrings { set; }
+       // List<ConnectionStringModel> ConnStrings { set; }
         string LogMsg { set; get; }
         string LogPath { set; get; }
     }

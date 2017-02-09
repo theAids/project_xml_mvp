@@ -271,6 +271,10 @@
                 });
 
                 $('#userAdminPanel').addClass('active');
+
+                $('#userAdminPanel').siblings().each(function () {
+                    $(this).removeClass('active');
+                });
             });
 
             /*Re-bind datable for asyncpost

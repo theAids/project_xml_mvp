@@ -3,8 +3,6 @@
 <nav class="navbar navbar-inverse navbar-fixed-top nav-ey">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand" href="#">
-                <asp:Image ID="BrandImg" runat="server" ImageUrl="~/Content/images/EY_Logo.png" /></a>
             <a class="navbar-brand" href="#"><span>Project HK</span></a>
         </div>
         <ul class="nav navbar-nav navbar-right">
@@ -27,6 +25,7 @@
 
 <!-- Side Bar -->
 <div class="col-sm-3 col-md-2 sidebar">
+    <asp:Image ID="BrandImg" runat="server" ImageUrl="~/Content/images/EY_logo_hr.png" />
     <ul class="nav navbar-inverse nav-sidebar">
         <asp:PlaceHolder runat="server" ID="sideMenu" />
     </ul>
