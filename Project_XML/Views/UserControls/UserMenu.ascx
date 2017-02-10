@@ -25,7 +25,7 @@
 
 <!-- Side Bar -->
 <div class="col-sm-3 col-md-2 sidebar">
-    <asp:Image ID="BrandImg" runat="server" ImageUrl="~/Content/images/EY_logo_hr.png" />
+    <asp:Image ID="BrandImg" runat="server" ImageUrl="~/Content/images/EY_logo_hr.gif" />
     <ul class="nav navbar-inverse nav-sidebar">
         <asp:PlaceHolder runat="server" ID="sideMenu" />
     </ul>

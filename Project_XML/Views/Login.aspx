@@ -31,7 +31,7 @@
             <!-- Logo and project title -->
             <div class="text-center">
                 <div class="logo-panel">
-                    <asp:Image ID="ey_logo_hr" CssClass="logo-ey" ImageUrl="~/Content/images/EY_logo_hr.png" runat="server" />
+                    <asp:Image ID="ey_logo_hr" CssClass="logo-ey" ImageUrl="~/Content/images/EY_logo_hr.gif" runat="server" />
                     <h3><b>Project HK</b></h3>
                 </div>
             </div>
