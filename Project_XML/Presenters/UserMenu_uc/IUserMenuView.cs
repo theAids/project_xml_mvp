@@ -8,7 +8,7 @@ namespace Project_XML.Presenters.UserMenu_uc
 {
     public interface IUserMenuView
     {
-        string UserName { set;}
+        string CurrentUser { set;}
         List<string> SideMenu { set; }
         void AttachPresenter(UserMenuPresenter presenter);
     }

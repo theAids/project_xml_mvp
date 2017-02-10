@@ -38,16 +38,16 @@
             <!-- / Logo and project title -->
             <div class="row">
                 <div class="col-sm-8 col-md-4 col-md-offset-4 col-sm-offset-2">
-                    <asp:Panel runat="server" ID="loginErr_msg" Visible="false" ForeColor="Red">Incorrect password or account does not exist.</asp:Panel>
+                    <asp:Panel runat="server" ID="loginErrorPanel" Visible="false" ForeColor="Red">Incorrect password or account does not exist.</asp:Panel>
                     <div class="form-group">
                         <asp:TextBox runat="server" ID="username" CssClass="form-control" name="username" placeholder="Username" autofocus="true" />
                     </div>
                     <div class="form-group">
-                        <asp:TextBox ID="pword" class="form-control" placeholder="Password" name="password" TextMode="Password" value="" runat="server" />
+                        <asp:TextBox ID="pword" class="form-control" placeholder="Password" name="pword" TextMode="Password" value="" runat="server" />
                     </div>
-                    <asp:Button ID="loginbtn" class="btn btn-lg btn-login btn-block" OnClick="loginbtn_Click" runat="server" Text="Login" />
+                    <asp:Button ID="loginbtn" class="btn btn-lg btn-login btn-block" OnClick="LoginUser" runat="server" Text="Login" />
                     <div class="checkbox">
-                        <label><asp:CheckBox runat="server" ID="remChk" text="Remember Me"/></label>
+                        <label><asp:CheckBox runat="server" ID="rememberMe" text="Remember Me"/></label>
                     </div>
                 </div>
             </div>

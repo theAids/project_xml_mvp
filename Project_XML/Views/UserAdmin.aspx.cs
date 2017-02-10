@@ -24,45 +24,45 @@ namespace Project_XML.Views
             }
         }
 
-        public string addUserPanel
+        public string AddUserPanel
         {
-            set { userAdd_status_panel.CssClass = value; }
+            set { addUserPanel.CssClass = value; }
         }
-        public string addUserIcon
+        public string AddUserIcon
         {
-            set { userAdd_status_icon.CssClass = value; }
+            set { addUsericon.CssClass = value; }
         }
-        public string addUserMsg
+        public string AddUserMsg
         {
-            set { userAdd_status_lit.Text = value; }
+            set { addUserMsg.Text = value; }
         }
-        public bool addUserPanel_vis
+        public bool AddUserPanel_vis
         {
-            set { userAdd_status_panel.Visible = value;}
+            set { addUserPanel.Visible = value;}
         }
-        public string editUserPanel
+        public string EditUserPanel
         {
-            set { userEdit_status_panel.CssClass = value; }
+            set { editUserPanel.CssClass = value; }
         }
-        public string editUserIcon
+        public string EditUserIcon
         {
-            set { userEdit_status_icon.CssClass = value; }
+            set { editUserIcon.CssClass = value; }
         }
-        public string editUserMsg
+        public string EditUserMsg
         {
-            set { userEdit_status_lit.Text = value; }
+            set { editUserMsg.Text = value; }
         }
-        public bool editUserPanel_vis
+        public bool EditUserPanel_vis
         {
-            set { userEdit_status_panel.Visible = value; }
+            set { editUserPanel.Visible = value; }
         }
-        public string usernameLabel
+        public string Username
         {
-            set { username_label.Text = value; }
+            set { usernameEdit.Text = value; }
         }
         public string CurrentUser
         {
-            set { current_user.Value = value; }
+            set { currentUser.Value = value; }
         }
         /***************** Code-behind**********************/
 
@@ -86,29 +86,29 @@ namespace Project_XML.Views
             presenter.InitView(Page.IsPostBack, HttpContext.Current);
         }
 
-        protected void Add_User(object sender, EventArgs e)
+        protected void AddUser(object sender, EventArgs e)
         {
-            unameVal.Validate();
-            presenter.AddUser(Page.IsValid, uname.Text, fname.Text, lname.Text, pword1.Text, roleList.SelectedItem.Value);
+            usernameValidate.Validate();
+            presenter.AddUser(Page.IsValid, usernameAdd.Text, fnameAdd.Text, lnameAdd.Text, pwordAdd1.Text, roleAdd.SelectedItem.Value);
             userTableUpdate.Update();
         }
 
-        protected void Edit_User(object sender, EventArgs e)
+        protected void EditUser(object sender, EventArgs e)
         {
-            Debug.WriteLine("Edit Pword:"+pword1_edit.Text);
-            presenter.EditUser(Page.IsValid, hidden.Value.ToString(), fname_edit.Text, lname_edit.Text, pword1_edit.Text, roleList_edit.SelectedItem.Value);
+            //Debug.WriteLine("Edit Pword:"+pword1_edit.Text);
+            presenter.EditUser(Page.IsValid, usernameVal.Value.ToString(), fnameEdit.Text, lnameEdit.Text, pwordEdit1.Text, roleEdit.SelectedItem.Value);
             userTableUpdate.Update();
         }
 
-        protected void Remove_User(object sender, CommandEventArgs e)
+        protected void RemoveUser(object sender, CommandEventArgs e)
         {
             presenter.RemoveUser(Convert.ToInt64(e.CommandArgument));
             userTableUpdate.Update();
         }
         
-        protected void User_Exists(object sender, ServerValidateEventArgs e)
+        protected void UserExists(object sender, ServerValidateEventArgs e)
         {
-            e.IsValid = presenter.UserExists(uname.Text);
+            e.IsValid = presenter.UserExists(usernameAdd.Text);
         }
 
         protected void UnauthenticatedRedirect(object sender, EventArgs e)

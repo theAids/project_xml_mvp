@@ -25,13 +25,13 @@ namespace Project_XML.Presenters.Login
 
         }
 
-        public void ValidateUser(string username, string password, bool isValid)
+        public void ValidateUser(string username, string pword, bool rememberMe, bool isValid)
         {
             if (!isValid)
                 return;
 
             DbAccountManager db = new DbAccountManager();
-            UserAccountModel user = db.ValidateUser(HttpUtility.HtmlEncode(username.Trim()), HttpUtility.HtmlEncode(password.Trim()));
+            UserAccountModel user = db.ValidateUser(HttpUtility.HtmlEncode(username.Trim()), HttpUtility.HtmlEncode(pword.Trim()));
 
             if (user != null)
             {
@@ -42,19 +42,19 @@ namespace Project_XML.Presenters.Login
                                                                                    , ticket.Name
                                                                                    , ticket.IssueDate
                                                                                    , ticket.Expiration
-                                                                                   , view.rememberMe
+                                                                                   , rememberMe
                                                                                    , string.Format("{0} {1}|{2}", user.firstname, user.lastname, user.role));
                 authCookie.Value = FormsAuthentication.Encrypt(newTicket);
 
-                if (view.rememberMe)
+                if (rememberMe)
                     authCookie.Expires = ticket.Expiration;
-                view.cookie = authCookie;
+                view.Cookie = authCookie;
 
                 LoginSuccessRedirect(this, null);
             }
             else
             {
-                view.login_err = true;
+                view.loginErrorPanel_vis = true;
                 return;
             }
         }

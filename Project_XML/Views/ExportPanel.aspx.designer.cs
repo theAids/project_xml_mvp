@@ -22,31 +22,85 @@ namespace Project_XML.Views {
         protected global::Project_XML.Views.UserControls.UserMenu UserMenu1;
         
         /// <summary>
-        /// selectAllAccountsChk control.
+        /// newContact control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox selectAllAccountsChk;
+        protected global::System.Web.UI.WebControls.TextBox newContact;
         
         /// <summary>
-        /// NewDataBtn control.
+        /// newYear control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton NewDataBtn;
+        protected global::System.Web.UI.WebControls.DropDownList newYear;
         
         /// <summary>
-        /// CheckBox1 control.
+        /// newAttentionNote control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox CheckBox1;
+        protected global::System.Web.UI.WebControls.TextBox newAttentionNote;
+        
+        /// <summary>
+        /// accountList control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater accountList;
+        
+        /// <summary>
+        /// newDataBtn control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton newDataBtn;
+        
+        /// <summary>
+        /// corrContact control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox corrContact;
+        
+        /// <summary>
+        /// corrfileSerialNumber control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList corrfileSerialNumber;
+        
+        /// <summary>
+        /// corrAttentionNote control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox corrAttentionNote;
+        
+        /// <summary>
+        /// corrDocRefList control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater corrDocRefList;
         
         /// <summary>
         /// LinkButton1 control.
@@ -58,13 +112,40 @@ namespace Project_XML.Views {
         protected global::System.Web.UI.WebControls.LinkButton LinkButton1;
         
         /// <summary>
-        /// CheckBox2 control.
+        /// delContact control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox CheckBox2;
+        protected global::System.Web.UI.WebControls.TextBox delContact;
+        
+        /// <summary>
+        /// delFileSerialNumber control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList delFileSerialNumber;
+        
+        /// <summary>
+        /// delAttentionNote control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox delAttentionNote;
+        
+        /// <summary>
+        /// delDocRefList control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater delDocRefList;
         
         /// <summary>
         /// LinkButton2 control.
@@ -101,5 +182,14 @@ namespace Project_XML.Views {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Literal logPanel;
+        
+        /// <summary>
+        /// fileSerialNumberList control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater fileSerialNumberList;
     }
 }

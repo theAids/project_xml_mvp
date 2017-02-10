@@ -22,67 +22,58 @@ namespace Project_XML.Views {
         protected global::Project_XML.Views.UserControls.UserMenu UserMenu1;
         
         /// <summary>
-        /// userEdit_status_panel control.
+        /// editUserPanel control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel userEdit_status_panel;
+        protected global::System.Web.UI.WebControls.Panel editUserPanel;
         
         /// <summary>
-        /// userEdit_status_icon control.
+        /// editUserIcon control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label userEdit_status_icon;
+        protected global::System.Web.UI.WebControls.Label editUserIcon;
         
         /// <summary>
-        /// userEdit_status_lit control.
+        /// editUserMsg control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal userEdit_status_lit;
+        protected global::System.Web.UI.WebControls.Literal editUserMsg;
         
         /// <summary>
-        /// username_label control.
+        /// usernameEdit control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label username_label;
+        protected global::System.Web.UI.WebControls.Label usernameEdit;
         
         /// <summary>
-        /// hidden control.
+        /// fnameEdit control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.HiddenField hidden;
+        protected global::System.Web.UI.WebControls.TextBox fnameEdit;
         
         /// <summary>
-        /// fname_edit control.
+        /// lnameEdit control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox fname_edit;
-        
-        /// <summary>
-        /// lname_edit control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox lname_edit;
+        protected global::System.Web.UI.WebControls.TextBox lnameEdit;
         
         /// <summary>
         /// oldpass control.
@@ -94,31 +85,31 @@ namespace Project_XML.Views {
         protected global::System.Web.UI.WebControls.CustomValidator oldpass;
         
         /// <summary>
-        /// oldpasswd_edit control.
+        /// oldPwordEdit control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox oldpasswd_edit;
+        protected global::System.Web.UI.WebControls.TextBox oldPwordEdit;
         
         /// <summary>
-        /// pword1_edit control.
+        /// pwordEdit1 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox pword1_edit;
+        protected global::System.Web.UI.WebControls.TextBox pwordEdit1;
         
         /// <summary>
-        /// pword2_edit control.
+        /// pwordEdit2 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox pword2_edit;
+        protected global::System.Web.UI.WebControls.TextBox pwordEdit2;
         
         /// <summary>
         /// edit_btn control.

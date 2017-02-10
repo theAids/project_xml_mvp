@@ -29,25 +29,20 @@
                                 <div class="col-sm-6">
                                     <!-- Contact field -->
                                     <div class="form-group">
-                                        <label class="control-label" for="ContactField1">Contact:</label>
-                                        <input type="text" class="form-control" id="ContactField1" />
+                                        <label class="control-label" for="newContact">Contact:</label>
+                                        <asp:TextBox runat="server" ID="newContact" CssClass="form-control" />
                                     </div>
                                     <!-- Return Year Field -->
                                     <div class="form-group required">
-                                        <label class="control-label" for="YearField1">Return Year:</label>
-                                        <select class="form-control" id="YearField1">
-                                            <option>2017</option>
-                                            <option>2016</option>
-                                            <option>2015</option>
-                                            <option>2014</option>
-                                        </select>
+                                        <label class="control-label" for="newYear">Return Year:</label>
+                                        <asp:DropDownList runat="server" ID="newYear" CssClass="form"></asp:DropDownList>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
                                     <!-- Attention Note Field -->
                                     <div class="form-group">
-                                        <label class="control-label" for="AttentionNoteField">Attention Note:</label>
-                                        <textarea rows="2" style="resize: none" class="form-control" id="AttentionNoteText"></textarea>
+                                        <label class="control-label" for="newAttentionNote">Attention Note:</label>
+                                        <asp:TextBox runat="server" ID="newAttentionNote" CssClass="form-control" TextMode="MultiLine" Rows="2"></asp:TextBox>
                                     </div>
                                 </div>
                             </div>
@@ -57,36 +52,37 @@
                                     <div class="panel panel-default accounts-table required">
                                         <div class="panel-heading"><b>Accounts</b></div>
                                         <div class="table-responsive">
-                                            <table class="table table-striped">
-                                                <thead>
+                                            <asp:Repeater runat="server" ID="accountList">
+                                                <HeaderTemplate>
+                                                    <table class="table table-striped">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>
+                                                                    <input type="checkbox" id="selectAllAccountsBox" class="form-control" /></th>
+                                                                <th>Account Number</th>
+                                                                <th>Account Holder</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                </HeaderTemplate>
+                                                <ItemTemplate>
                                                     <tr>
-                                                        <th>
-                                                            <asp:CheckBox runat="server" ID="selectAllAccountsChk" /></th>
-                                                        <th>Account Number</th>
-                                                        <th>Account Holder</th>
+                                                        <td class="accountCheckBox">
+                                                            <input type="checkbox" name="accountCheckGroup" class="form-control" value="" /></td>
+                                                        <td class="newAcctNumber">3099984</td>
+                                                        <td class="newAcctHolder">Adrian Perez</td>
                                                     </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>
-                                                            <input type="checkbox" />
-                                                        </td>
-                                                        <td>3099984</td>
-                                                        <td>Adrian Perez</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>
-                                                            <input type="checkbox" /></td>
-                                                        <td>3099985</td>
-                                                        <td>Stock Holdings Lmt.</td>
-                                                    </tr>
-                                                </tbody>
+                                                </ItemTemplate>
+                                                <FooterTemplate>
+                                                    </tbody>
                                             </table>
+                                                </FooterTemplate>
+                                            </asp:Repeater>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="btn-export-panel">
-                                    <asp:LinkButton runat="server" ID="NewDataBtn" class="btn btn-export btn-md">Export XML<span class="glyphicon glyphicon-download-alt"></span></asp:LinkButton>
+                                    <asp:LinkButton runat="server" ID="newDataBtn" class="btn btn-export btn-md">Export XML<span class="glyphicon glyphicon-download-alt"></span></asp:LinkButton>
                                 </div>
                             </div>
                         </div>
@@ -98,62 +94,58 @@
                                 <div class="col-sm-6">
                                     <!-- Contact field -->
                                     <div class="form-group">
-                                        <label class="control-label" for="ContactField2">Contact:</label>
-                                        <input type="text" class="form-control" id="ContactField2" />
+                                        <label class="control-label" for="corrContact">Contact:</label>
+                                        <asp:TextBox runat="server" ID="corrContact" CssClass="form-control"></asp:TextBox>
                                     </div>
-                                    <!-- Message Ref ID -->
+                                    <!-- File Serial Number List -->
                                     <div class="form-group required">
-                                        <label class="control-label" for="MsgRefId">Message Ref ID:</label>
-                                        <select class="form-control" id="MsgRefId">
-                                            <option>2017109898720170123125101</option>
-                                            <option>2017109898720170123125103</option>
-                                            <option>2017109898720170123125104</option>
-                                        </select>
+                                        <label class="control-label" for="corrFileSerialNumber">File Serial Number:</label>
+                                        <asp:DropDownList runat="server" ID="corrfileSerialNumber" CssClass="form-control"></asp:DropDownList>
                                     </div>
                                 </div>
 
                                 <div class="col-sm-6">
                                     <!-- Attention note field -->
                                     <div class="form-group">
-                                        <label class="control-label" for="AttentionNoteField">Attention Note:</label>
-                                        <textarea rows="2" style="resize: none" class="form-control" id="AttentionNoteText"></textarea>
+                                        <label class="control-label" for="corrAttentionNote">Attention Note:</label>
+                                        <asp:TextBox runat="server" ID="corrAttentionNote" CssClass="form-control" TextMode="MultiLine" Rows="2"></asp:TextBox>
                                     </div>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-sm-12">
-                                    <!-- Accounts table -->
+                                    <!-- Doc Ref table -->
                                     <div class="panel panel-default accounts-table required">
                                         <div class="panel-heading"><b>Accounts</b></div>
                                         <div class="table-responsive">
-                                            <table class="table table-striped">
-                                                <thead>
+                                            <asp:Repeater runat="server" ID="corrDocRefList">
+                                                <HeaderTemplate>
+                                                    <table class="table table-striped">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>
+                                                                    <input type="checkbox" id="selectAllDocsBox_corr" class="form-control" /></th>
+                                                                <th>Doc Ref ID</th>
+                                                                <th>Account Number</th>
+                                                                <th>Account Holder</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                </HeaderTemplate>
+                                                <ItemTemplate>
                                                     <tr>
-                                                        <th>
-                                                            <asp:CheckBox runat="server" ID="CheckBox1" /></th>
-                                                        <th>Doc Ref ID</th>
-                                                        <th>Account Number</th>
-                                                        <th>Account Holder</th>
+                                                        <td class="corrDocCheckBox">
+                                                            <input type="checkbox" name="corrDocCheckGroup" class="form-control" /></td>
+                                                        <td class="corrDocRefId">00001234</td>
+                                                        <td class="corrDocAcctNumber">3099984</td>
+                                                        <td class="corrDocAcctHolder">Adrian Perez</td>
                                                     </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>
-                                                            <input type="checkbox" />
-                                                        </td>
-                                                        <td>00001234</td>
-                                                        <td>3099984</td>
-                                                        <td>Adrian Perez</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>
-                                                            <input type="checkbox" /></td>
-                                                        <td>00001235</td>
-                                                        <td>30999811</td>
-                                                        <td>Stock Holdings Lmt.</td>
-                                                    </tr>
-                                                </tbody>
+                                                </ItemTemplate>
+                                                <FooterTemplate>
+                                                    </tbody>
                                             </table>
+                                                </FooterTemplate>
+                                            </asp:Repeater>
                                         </div>
                                     </div>
                                 </div>
@@ -170,62 +162,58 @@
                                 <div class="col-sm-6">
                                     <!-- Contact field -->
                                     <div class="form-group">
-                                        <label class="control-label" for="ContactField3">Contact:</label>
-                                        <input type="text" class="form-control" id="ContactField3" />
+                                        <label class="control-label" for="delContact">Contact:</label>
+                                        <asp:TextBox runat="server" ID="delContact" CssClass="form-control"></asp:TextBox>
                                     </div>
-                                    <!-- Message Ref ID -->
+                                    <!-- File Serial Number -->
                                     <div class="form-group required">
-                                        <label class="control-label" for="MesgRefId1">Message Ref ID:</label>
-                                        <select class="form-control" id="MsgRefId1">
-                                            <option>2017109898720170123125101</option>
-                                            <option>2017109898720170123125103</option>
-                                            <option>2017109898720170123125104</option>
-                                        </select>
+                                        <label class="control-label" for="delFileSerialNumber">File Serial Number:</label>
+                                        <asp:DropDownList runat="server" ID="delFileSerialNumber" CssClass="form-control"></asp:DropDownList>
                                     </div>
                                 </div>
 
                                 <div class="col-sm-6">
                                     <!-- Attention note field -->
                                     <div class="form-group">
-                                        <label class="control-label" for="AttentionNoteField">Attention Note:</label>
-                                        <textarea rows="2" style="resize: none" class="form-control" id="AttentionNoteText"></textarea>
+                                        <label class="control-label" for="delAttentionNote">Attention Note:</label>
+                                        <asp:TextBox runat="server" ID="delAttentionNote" CssClass="form-control" TextMode="MultiLine" Rows="2"></asp:TextBox>
                                     </div>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-sm-12">
-                                    <!-- Accounts table -->
+                                    <!-- Doc Ref table -->
                                     <div class="panel panel-default accounts-table required">
                                         <div class="panel-heading"><b>Accounts</b></div>
                                         <div class="table-responsive">
-                                            <table class="table table-striped">
-                                                <thead>
+                                            <asp:Repeater runat="server" ID="delDocRefList">
+                                                <HeaderTemplate>
+                                                    <table class="table table-striped">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>
+                                                                    <input type="checkbox" id="selectAllDocBox_del" class="form-control" /></th>
+                                                                <th>Doc Ref ID</th>
+                                                                <th>Account Number</th>
+                                                                <th>Account Holder</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                </HeaderTemplate>
+                                                <ItemTemplate>
                                                     <tr>
-                                                        <th>
-                                                            <asp:CheckBox runat="server" ID="CheckBox2" /></th>
-                                                        <th>Doc Ref ID</th>
-                                                        <th>Account Number</th>
-                                                        <th>Account Holder</th>
+                                                        <td class="delDocCheckBox">
+                                                            <input type="checkbox" name="delDocCheckGroup" class="form-control" /></td>
+                                                        <td class="delDocRefId">00001234</td>
+                                                        <td class="delDocAcctNumber">3099984</td>
+                                                        <td class="delDocAcctHolder">Adrian Perez</td>
                                                     </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>
-                                                            <input type="checkbox" />
-                                                        </td>
-                                                        <td>00001234</td>
-                                                        <td>3099984</td>
-                                                        <td>Adrian Perez</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>
-                                                            <input type="checkbox" /></td>
-                                                        <td>00001235</td>
-                                                        <td>30999811</td>
-                                                        <td>Stock Holdings Lmt.</td>
-                                                    </tr>
-                                                </tbody>
+                                                </ItemTemplate>
+                                                <FooterTemplate>
+                                                    </tbody>
                                             </table>
+                                                </FooterTemplate>
+                                            </asp:Repeater>
                                         </div>
                                     </div>
                                 </div>
@@ -245,13 +233,12 @@
                 <div class="panel panel-default log-panel">
                     <div class="panel-heading">
                         <span class="glyphicon glyphicon-log-in icon"></span>Export Log
-                    <asp:LinkButton runat="server" ID="clearBtn" OnClick="ClearLog" OnClientClick="clear_logs()" CssClass="pull-right">Clear</asp:LinkButton>
+                    <asp:LinkButton runat="server" ID="clearBtn" OnClick="ClearLog" OnClientClick="showClearProgress()" CssClass="pull-right">Clear</asp:LinkButton>
                     </div>
                     <div class="panel-body log-panel-body">
                         <asp:UpdatePanel runat="server" ID="logUpdatePanel">
                             <ContentTemplate>
-                                <asp:UpdateProgress runat="server" AssociatedUpdatePanelID="logUpdatePanel" DynamicLayout="true">
-                                </asp:UpdateProgress>
+                                <asp:UpdateProgress runat="server" AssociatedUpdatePanelID="logUpdatePanel" DynamicLayout="true"></asp:UpdateProgress>
                                 <asp:Literal runat="server" ID="logPanel" />
                             </ContentTemplate>
                             <Triggers>
@@ -266,100 +253,97 @@
                         <span class="glyphicon glyphicon-inbox icon"></span>Submitted Documents
                     </div>
                     <div class="table-responsive doc-table">
-                        <table class="table table-striped">
-                            <thead>
+                        <asp:Repeater runat="server" ID="fileSerialNumberList">
+                            <HeaderTemplate>
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>File Serial Number</th>
+                                            <th>Message Ref ID</th>
+                                            <th>Message Type</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                            </HeaderTemplate>
+                            <ItemTemplate>
                                 <tr>
-                                    <th>Message Ref ID</th>
-                                    <th>File Serial Number</th>
-                                    <th>Message Type</th>
+                                    <td class="fileSerialNumber">12345677</td>
+                                    <td class="messageRefId">2017109898720170123125101</td>
+                                    <td class="acctHolder">New</td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>2017109898720170123125101</td>
-                                    <td>12345677</td>
-                                    <td>New</td>
-                                </tr>
-                                <tr>
-                                    <td>2016109898720170123125101</td>
-                                    <td>22323412</td>
-                                    <td>Correction</td>
-                                </tr>
-                                <tr>
-                                    <td>2013109898720170123125101</td>
-                                    <td><a href="#">Add</a></td>
-                                    <td>Correction</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                            </ItemTemplate>
+                            <FooterTemplate>
+                                </tbody>
+                            </table>
+                            </FooterTemplate>
+                        </asp:Repeater>
                     </div>
 
                 </div>
-            <!--/ Action Log -->
+                <!--/ Action Log -->
+            </div>
+
         </div>
 
-    </div>
+        <script type="text/javascript">
+            function pageLoad() {
+                $('.log-panel-body').removeClass('clear-log').css('opacity', '');
+                $('#exportPanel').addClass('active');
 
-    <script type="text/javascript">
-        function pageLoad() {
-            $('.log-panel-body').removeClass('clear-log').css('opacity', '');
-            $('#exportPanel').addClass('active');
-
-            $('#exportPanel').siblings().each(function () {
-                $(this).removeClass('active');
-            });
-        }
-
-        //new data panel
-        $('#new-data-link').click(function () {
-            if (!$(this).parent().hasClass('active')) {
-                $(this).parent().addClass('active');
+                $('#exportPanel').siblings().each(function () {
+                    $(this).removeClass('active');
+                });
             }
 
-            $(this).parent().siblings().each(function () {
-                $(this).removeClass('active');
+            //new data panel
+            $('#new-data-link').click(function () {
+                if (!$(this).parent().hasClass('active')) {
+                    $(this).parent().addClass('active');
+                }
+
+                $(this).parent().siblings().each(function () {
+                    $(this).removeClass('active');
+                });
+
+
+                $('.correction-data').css('display', 'none');
+                $('.delete-data').css('display', 'none');
+                $('.new-data').css('display', 'block');
             });
 
+            //correction data panel
+            $('#corr-data-link').click(function () {
+                if (!$(this).parent().hasClass('active')) {
+                    $(this).parent().addClass('active');
+                }
 
-            $('.correction-data').css('display', 'none');
-            $('.delete-data').css('display', 'none');
-            $('.new-data').css('display', 'block');
-        });
+                $(this).parent().siblings().each(function () {
+                    $(this).removeClass('active');
+                });
 
-        //correction data panel
-        $('#corr-data-link').click(function () {
-            if (!$(this).parent().hasClass('active')) {
-                $(this).parent().addClass('active');
+                $('.delete-data').css('display', 'none');
+                $('.new-data').css('display', 'none');
+                $('.correction-data').css('display', 'block');
+            });
+
+            //delete data panel
+            $('#del-data-link').click(function () {
+                if (!$(this).parent().hasClass('active')) {
+                    $(this).parent().addClass('active');
+                }
+
+                $(this).parent().siblings().each(function () {
+                    $(this).removeClass('active');
+                });
+
+                $('.new-data').css('display', 'none');
+                $('.correction-data').css('display', 'none');
+                $('.delete-data').css('display', 'block');
+            });
+
+            //clear log async progress status
+            function showClearProgress() {
+                $('.log-panel-body').addClass('clear-log').css('opacity', 0.5);
             }
-
-            $(this).parent().siblings().each(function () {
-                $(this).removeClass('active');
-            });
-           
-            $('.delete-data').css('display', 'none');
-            $('.new-data').css('display', 'none');
-            $('.correction-data').css('display', 'block');
-        });
-
-        //delete data panel
-        $('#del-data-link').click(function () {
-            if (!$(this).parent().hasClass('active')) {
-                $(this).parent().addClass('active');
-            }
-
-            $(this).parent().siblings().each(function () {
-                $(this).removeClass('active');
-            });
-
-            $('.new-data').css('display', 'none');
-            $('.correction-data').css('display', 'none');
-            $('.delete-data').css('display', 'block');
-        });
-
-        //clear log async progress status
-        function clear_logs() {
-            $('.log-panel-body').addClass('clear-log').css('opacity', 0.5);
-        }
-    </script>
-
+        </script>
 </asp:Content>

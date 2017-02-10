@@ -13,13 +13,13 @@ namespace Project_XML.Views {
     public partial class UserAdmin {
         
         /// <summary>
-        /// current_user control.
+        /// currentUser control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.HiddenField current_user;
+        protected global::System.Web.UI.WebControls.HiddenField currentUser;
         
         /// <summary>
         /// UserMenu1 control.
@@ -49,103 +49,103 @@ namespace Project_XML.Views {
         protected global::System.Web.UI.WebControls.Repeater userList;
         
         /// <summary>
-        /// addUser_status_UPanel control.
+        /// addUserUpdatePanel control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.UpdatePanel addUser_status_UPanel;
+        protected global::System.Web.UI.UpdatePanel addUserUpdatePanel;
         
         /// <summary>
-        /// userAdd_status_panel control.
+        /// addUserPanel control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel userAdd_status_panel;
+        protected global::System.Web.UI.WebControls.Panel addUserPanel;
         
         /// <summary>
-        /// userAdd_status_icon control.
+        /// addUsericon control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label userAdd_status_icon;
+        protected global::System.Web.UI.WebControls.Label addUsericon;
         
         /// <summary>
-        /// userAdd_status_lit control.
+        /// addUserMsg control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal userAdd_status_lit;
+        protected global::System.Web.UI.WebControls.Literal addUserMsg;
         
         /// <summary>
-        /// unameVal control.
+        /// usernameValidate control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.CustomValidator unameVal;
+        protected global::System.Web.UI.WebControls.CustomValidator usernameValidate;
         
         /// <summary>
-        /// uname control.
+        /// usernameAdd control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox uname;
+        protected global::System.Web.UI.WebControls.TextBox usernameAdd;
         
         /// <summary>
-        /// fname control.
+        /// fnameAdd control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox fname;
+        protected global::System.Web.UI.WebControls.TextBox fnameAdd;
         
         /// <summary>
-        /// lname control.
+        /// lnameAdd control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox lname;
+        protected global::System.Web.UI.WebControls.TextBox lnameAdd;
         
         /// <summary>
-        /// pword1 control.
+        /// pwordAdd1 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox pword1;
+        protected global::System.Web.UI.WebControls.TextBox pwordAdd1;
         
         /// <summary>
-        /// pword2 control.
+        /// pwordAdd2 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox pword2;
+        protected global::System.Web.UI.WebControls.TextBox pwordAdd2;
         
         /// <summary>
-        /// roleList control.
+        /// roleAdd control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList roleList;
+        protected global::System.Web.UI.WebControls.DropDownList roleAdd;
         
         /// <summary>
         /// addUser_btn control.
@@ -157,103 +157,103 @@ namespace Project_XML.Views {
         protected global::System.Web.UI.WebControls.Button addUser_btn;
         
         /// <summary>
-        /// editUser_status_UPanel control.
+        /// editUserUpdatePanel control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.UpdatePanel editUser_status_UPanel;
+        protected global::System.Web.UI.UpdatePanel editUserUpdatePanel;
         
         /// <summary>
-        /// userEdit_status_panel control.
+        /// editUserPanel control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel userEdit_status_panel;
+        protected global::System.Web.UI.WebControls.Panel editUserPanel;
         
         /// <summary>
-        /// userEdit_status_icon control.
+        /// editUserIcon control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label userEdit_status_icon;
+        protected global::System.Web.UI.WebControls.Label editUserIcon;
         
         /// <summary>
-        /// userEdit_status_lit control.
+        /// editUserMsg control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal userEdit_status_lit;
+        protected global::System.Web.UI.WebControls.Literal editUserMsg;
         
         /// <summary>
-        /// username_label control.
+        /// usernameEdit control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label username_label;
+        protected global::System.Web.UI.WebControls.Label usernameEdit;
         
         /// <summary>
-        /// hidden control.
+        /// usernameVal control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.HiddenField hidden;
+        protected global::System.Web.UI.WebControls.HiddenField usernameVal;
         
         /// <summary>
-        /// fname_edit control.
+        /// fnameEdit control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox fname_edit;
+        protected global::System.Web.UI.WebControls.TextBox fnameEdit;
         
         /// <summary>
-        /// lname_edit control.
+        /// lnameEdit control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox lname_edit;
+        protected global::System.Web.UI.WebControls.TextBox lnameEdit;
         
         /// <summary>
-        /// roleList_edit control.
+        /// roleEdit control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList roleList_edit;
+        protected global::System.Web.UI.WebControls.DropDownList roleEdit;
         
         /// <summary>
-        /// pword1_edit control.
+        /// pwordEdit1 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox pword1_edit;
+        protected global::System.Web.UI.WebControls.TextBox pwordEdit1;
         
         /// <summary>
-        /// pword2_edit control.
+        /// pwordEdit2 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox pword2_edit;
+        protected global::System.Web.UI.WebControls.TextBox pwordEdit2;
         
         /// <summary>
         /// editUser_btn control.

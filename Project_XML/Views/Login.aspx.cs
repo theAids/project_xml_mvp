@@ -13,16 +13,12 @@ namespace Project_XML.Views
     {
         private LoginPresenter presenter;
 
-        public bool login_err
+        public bool loginErrorPanel_vis
         {
-            set { loginErr_msg.Visible = value; }
-        }
-        public bool rememberMe
-        {
-            get { return this.remChk.Checked; }
+            set { loginErrorPanel.Visible = value; }
         }
 
-        public HttpCookie cookie { set; get; }
+        public HttpCookie Cookie { set; get; }
         
         /***************** Code-Behind ********************/
 
@@ -37,15 +33,15 @@ namespace Project_XML.Views
             
         }
 
-        protected void loginbtn_Click(object sender, EventArgs e)
+        protected void LoginUser(object sender, EventArgs e)
         {
             Page.Validate();
-            presenter.ValidateUser(username.Text, pword.Text, Page.IsValid);
+            presenter.ValidateUser(username.Text, pword.Text, rememberMe.Checked, Page.IsValid);
         }
 
         protected void LoginSuccessRedirect(object sender,EventArgs e)
         {
-            Response.Cookies.Add(cookie);
+            Response.Cookies.Add(Cookie);
             Response.Redirect("~/Views/ExportPanel.aspx", true);
         }
     }

@@ -13,7 +13,7 @@ namespace Project_XML.Views.UserControls
     {
         private UserMenuPresenter presenter;
 
-        public string UserName
+        public string CurrentUser
         {
             set
             {

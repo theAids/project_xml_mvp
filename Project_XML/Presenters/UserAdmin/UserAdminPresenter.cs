@@ -58,11 +58,11 @@ namespace Project_XML.Presenters.UserAdmin
                 DbAccountManager db = new DbAccountManager();
 
                 bool userAdd = db.AddUser(HttpUtility.HtmlEncode(uname.Trim()), HttpUtility.HtmlEncode(fname.Trim()), HttpUtility.HtmlEncode(lname.Trim()), HttpUtility.HtmlEncode(pword.Trim()), role);
-                view.addUserPanel = userAdd ? "alert alert-success user-status" : "alert alert-danger user-status";
-                view.addUserIcon = userAdd ? "glyphicon glyphicon-ok-circle" : "glyphicon glyphicon-remove-circle";
-                view.addUserMsg = userAdd ? "User successfully added!" : "Adding user failed!";
+                view.AddUserPanel = userAdd ? "alert alert-success user-status" : "alert alert-danger user-status";
+                view.AddUserIcon = userAdd ? "glyphicon glyphicon-ok-circle" : "glyphicon glyphicon-remove-circle";
+                view.AddUserMsg = userAdd ? "User successfully added!" : "Adding user failed!";
 
-                view.addUserPanel_vis = true;
+                view.AddUserPanel_vis = true;
                 PopulateUserTable();
             }
         }
@@ -102,12 +102,12 @@ namespace Project_XML.Presenters.UserAdmin
                 if(pword != null && !pword.Equals(""))
                     userEdit = db.ChangeUserPassword(uname, HttpUtility.HtmlEncode(pword.Trim()));
 
-                view.editUserPanel = userEdit ? "alert alert-success user-status" : "alert alert-danger user-status";
-                view.editUserIcon = userEdit ? "glyphicon glyphicon-ok-circle" : "glyphicon glyphicon-remove-circle";
-                view.editUserMsg = userEdit ? "User info updated!" : "Update failed!";
+                view.EditUserPanel = userEdit ? "alert alert-success user-status" : "alert alert-danger user-status";
+                view.EditUserIcon = userEdit ? "glyphicon glyphicon-ok-circle" : "glyphicon glyphicon-remove-circle";
+                view.EditUserMsg = userEdit ? "User info updated!" : "Update failed!";
 
-                view.editUserPanel_vis = true;
-                view.usernameLabel = uname;
+                view.EditUserPanel_vis = true;
+                view.Username = uname;
                 PopulateUserTable();
             }
         }

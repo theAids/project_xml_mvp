@@ -24,7 +24,7 @@ namespace Project_XML.Presenters.UserMenu_uc
             FormsAuthenticationTicket ticket = id.Ticket;
 
             // access logged in name Literal in Master page
-            view.UserName = ticket.UserData.Split('|')[0];
+            view.CurrentUser = ticket.UserData.Split('|')[0];
 
             switch (ticket.UserData.Split('|')[1])
             {

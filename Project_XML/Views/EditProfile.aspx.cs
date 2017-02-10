@@ -14,37 +14,37 @@ namespace Project_XML.Views
     {
         private EditProfilePresenter presenter;
 
-        public string Username
+        public string UsernameEdit
         {
-            set { username_label.Text = value; }
+            set { usernameEdit.Text = value; }
         }
-        public string Fname
+        public string FnameEdit
         {
-            set { fname_edit.Text = value; }
+            set { fnameEdit.Text = value; }
         }
-        public string Lname
+        public string LnameEdit
         {
-            set { lname_edit.Text = value; }
+            set { lnameEdit.Text = value; }
         }
         public string Role
         {
             set; get;
         }
-        public string editUserPanel
+        public string EditUserPanel
         {
-            set { userEdit_status_panel.CssClass = value; }
+            set { editUserPanel.CssClass = value; }
         }
-        public string editUserIcon
+        public string EditUserIcon
         {
-            set { userEdit_status_icon.CssClass = value; }
+            set { editUserIcon.CssClass = value; }
         }
-        public string editUserMsg
+        public string EditUserMsg
         {
-            set { userEdit_status_lit.Text = value; }
+            set { editUserMsg.Text = value; }
         }
-        public bool editUserPanel_vis
+        public bool EditUserPanel_vis
         {
-            set { userEdit_status_panel.Visible = value; }
+            set { editUserPanel.Visible = value; }
         }
         /******************** Code-behind **************************/
 
@@ -70,14 +70,14 @@ namespace Project_XML.Views
 
         protected void Update_Info(object sender, EventArgs e)
         {
-            Debug.WriteLine(fname_edit.Text);
+            Debug.WriteLine(fnameEdit.Text);
             Debug.WriteLine("Role:" + Role);
-            presenter.EditInfo(Page.IsValid, username_label.Text, fname_edit.Text, lname_edit.Text, pword1_edit.Text, Role);
+            presenter.EditInfo(Page.IsValid, usernameEdit.Text, fnameEdit.Text, lnameEdit.Text, pwordEdit1.Text, Role);
         }
 
         protected void Validate_Password(object sender, ServerValidateEventArgs e)
         {
-            e.IsValid = presenter.ValidatePassword(username_label.Text, oldpasswd_edit.Text);
+            e.IsValid = presenter.ValidatePassword(usernameEdit.Text, oldPwordEdit.Text);
         }
 
         protected void UnauthenticatedRedirect(object sender, EventArgs e)

@@ -29,9 +29,9 @@ namespace Project_XML.Presenters.EditProfile
             if (!PageIsPostback)
             {
                 //assign values
-                view.Username = ticket.Name;
-                view.Fname = ticket.UserData.Split('|')[0].Split(' ')[0];
-                view.Lname = ticket.UserData.Split('|')[0].Split(' ')[1];
+                view.UsernameEdit = ticket.Name;
+                view.FnameEdit = ticket.UserData.Split('|')[0].Split(' ')[0];
+                view.LnameEdit = ticket.UserData.Split('|')[0].Split(' ')[1];
 
             }
 
@@ -58,11 +58,11 @@ namespace Project_XML.Presenters.EditProfile
                 if (pword != null && !pword.Equals(""))
                     userEdit = db.ChangeUserPassword(uname, HttpUtility.HtmlEncode(pword.Trim()));
 
-                view.editUserPanel = userEdit ? "alert alert-success user-status" : "alert alert-danger user-status";
-                view.editUserIcon = userEdit ? "glyphicon glyphicon-ok-circle" : "glyphicon glyphicon-remove-circle";
-                view.editUserMsg = userEdit ? "User info updated!" : "Update failed!";
+                view.EditUserPanel = userEdit ? "alert alert-success user-status" : "alert alert-danger user-status";
+                view.EditUserIcon = userEdit ? "glyphicon glyphicon-ok-circle" : "glyphicon glyphicon-remove-circle";
+                view.EditUserMsg = userEdit ? "User info updated!" : "Update failed!";
 
-                view.editUserPanel_vis = true;
+                view.EditUserPanel_vis = true;
 
             }
         }

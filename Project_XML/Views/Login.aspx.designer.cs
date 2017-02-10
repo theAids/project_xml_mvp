@@ -22,13 +22,13 @@ namespace Project_XML.Views {
         protected global::System.Web.UI.WebControls.Image ey_logo_hr;
         
         /// <summary>
-        /// loginErr_msg control.
+        /// loginErrorPanel control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel loginErr_msg;
+        protected global::System.Web.UI.WebControls.Panel loginErrorPanel;
         
         /// <summary>
         /// username control.
@@ -58,12 +58,12 @@ namespace Project_XML.Views {
         protected global::System.Web.UI.WebControls.Button loginbtn;
         
         /// <summary>
-        /// remChk control.
+        /// rememberMe control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox remChk;
+        protected global::System.Web.UI.WebControls.CheckBox rememberMe;
     }
 }

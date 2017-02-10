@@ -8,13 +8,13 @@ namespace Project_XML.Presenters.EditProfile
 {
     public interface IEditProfileView
     {
-        string Username { set; }
-        string Fname { set; }
-        string Lname { set; }
+        string UsernameEdit { set; }
+        string FnameEdit { set; }
+        string LnameEdit { set; }
         string Role { set; get; }
-        string editUserPanel { set; }
-        string editUserIcon { set; }
-        string editUserMsg { set; }
-        bool editUserPanel_vis { set; }
+        string EditUserPanel { set; }
+        string EditUserIcon { set; }
+        string EditUserMsg { set; }
+        bool EditUserPanel_vis { set; }
     }
 }

@@ -11,9 +11,8 @@ namespace Project_XML.Presenters.Login
 {
     public interface ILoginView
     {
-        HttpCookie cookie { set; get; }
-        bool login_err {set;}
-        bool rememberMe { get; }
+        HttpCookie Cookie { set; get; }
+        bool loginErrorPanel_vis { set;}
 
     }
 }
