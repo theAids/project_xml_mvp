@@ -10,7 +10,8 @@
         <h1 class="page-header">Export XML</h1>
         <div class="row">
 
-            <div class="col-sm-5 col-md-6">
+            <div class="col-sm-6 col-md-7">
+
                 <!-- aeoi report panel -->
                 <div class="panel panel-default db-panel">
                     <div class="panel-heading"><span class="glyphicon glyphicon-folder-close icon"></span>AEOI Report</div>
@@ -35,14 +36,14 @@
                                     <!-- Return Year Field -->
                                     <div class="form-group required">
                                         <label class="control-label" for="newYear">Return Year:</label>
-                                        <asp:DropDownList runat="server" ID="newYear" CssClass="form"></asp:DropDownList>
+                                        <asp:DropDownList runat="server" ID="newYear" CssClass="form-control"></asp:DropDownList>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
                                     <!-- Attention Note Field -->
                                     <div class="form-group">
                                         <label class="control-label" for="newAttentionNote">Attention Note:</label>
-                                        <asp:TextBox runat="server" ID="newAttentionNote" CssClass="form-control" TextMode="MultiLine" Rows="2"></asp:TextBox>
+                                        <asp:TextBox runat="server" ID="newAttentionNote" CssClass="form-control" TextMode="MultiLine" Rows="4"></asp:TextBox>
                                     </div>
                                 </div>
                             </div>
@@ -52,13 +53,13 @@
                                     <div class="panel panel-default accounts-table required">
                                         <div class="panel-heading"><b>Accounts</b></div>
                                         <div class="table-responsive">
-                                            <asp:Repeater runat="server" ID="accountList">
+                                            <asp:Repeater runat="server" ID="accountsList">
                                                 <HeaderTemplate>
                                                     <table class="table table-striped">
                                                         <thead>
                                                             <tr>
                                                                 <th>
-                                                                    <input type="checkbox" id="selectAllAccountsBox" class="form-control" /></th>
+                                                                    <input type="checkbox" id="selectAllAccountsBox" class="form-control chkbox" /></th>
                                                                 <th>Account Number</th>
                                                                 <th>Account Holder</th>
                                                             </tr>
@@ -68,9 +69,9 @@
                                                 <ItemTemplate>
                                                     <tr>
                                                         <td class="accountCheckBox">
-                                                            <input type="checkbox" name="accountCheckGroup" class="form-control" value="" /></td>
-                                                        <td class="newAcctNumber">3099984</td>
-                                                        <td class="newAcctHolder">Adrian Perez</td>
+                                                            <input type="checkbox" name="accountCheckGroup" class="form-control chkbox" value='<%# Eval("AcctNumber") %>' /></td>
+                                                        <td class="newAcctNumber"><%# Eval("AcctNumber") %></td>
+                                                        <td class="newAcctHolder"><%# Eval("AcctHolder") %></td>
                                                     </tr>
                                                 </ItemTemplate>
                                                 <FooterTemplate>
@@ -82,7 +83,7 @@
                                     </div>
                                 </div>
                                 <div class="btn-export-panel">
-                                    <asp:LinkButton runat="server" ID="newDataBtn" class="btn btn-export btn-md">Export XML<span class="glyphicon glyphicon-download-alt"></span></asp:LinkButton>
+                                    <asp:LinkButton runat="server" ID="newDataBtn" class="btn btn-export btn-md" OnClientClick="getCheckedAccounts()">Export XML<span class="glyphicon glyphicon-download-alt"></span></asp:LinkButton>
                                 </div>
                             </div>
                         </div>
@@ -97,10 +98,10 @@
                                         <label class="control-label" for="corrContact">Contact:</label>
                                         <asp:TextBox runat="server" ID="corrContact" CssClass="form-control"></asp:TextBox>
                                     </div>
-                                    <!-- File Serial Number List -->
+                                    <!-- Message Ref Id -->
                                     <div class="form-group required">
-                                        <label class="control-label" for="corrFileSerialNumber">File Serial Number:</label>
-                                        <asp:DropDownList runat="server" ID="corrfileSerialNumber" CssClass="form-control"></asp:DropDownList>
+                                        <label class="control-label" for="corrMessageRefId">Message Reference Id:</label>
+                                        <asp:DropDownList runat="server" ID="corrMessageRefId" CssClass="form-control"></asp:DropDownList>
                                     </div>
                                 </div>
 
@@ -108,7 +109,12 @@
                                     <!-- Attention note field -->
                                     <div class="form-group">
                                         <label class="control-label" for="corrAttentionNote">Attention Note:</label>
-                                        <asp:TextBox runat="server" ID="corrAttentionNote" CssClass="form-control" TextMode="MultiLine" Rows="2"></asp:TextBox>
+                                        <asp:TextBox runat="server" ID="corrAttentionNote" CssClass="form-control"></asp:TextBox>
+                                    </div>
+                                    <!-- File Serial Number -->
+                                    <div class="form-group  required">
+                                        <label class="control-label" for="corrFSN">File Serial Number:</label>
+                                        <asp:TextBox runat="server" ID="corrFSN" CssClass="form-control"></asp:TextBox>
                                     </div>
                                 </div>
                             </div>
@@ -124,7 +130,7 @@
                                                         <thead>
                                                             <tr>
                                                                 <th>
-                                                                    <input type="checkbox" id="selectAllDocsBox_corr" class="form-control" /></th>
+                                                                    <input type="checkbox" id="selectAllDocsBox_corr" class="form-control chkbox" /></th>
                                                                 <th>Doc Ref ID</th>
                                                                 <th>Account Number</th>
                                                                 <th>Account Holder</th>
@@ -135,7 +141,7 @@
                                                 <ItemTemplate>
                                                     <tr>
                                                         <td class="corrDocCheckBox">
-                                                            <input type="checkbox" name="corrDocCheckGroup" class="form-control" /></td>
+                                                            <input type="checkbox" name="corrDocCheckGroup" class="form-control chkbox" /></td>
                                                         <td class="corrDocRefId">00001234</td>
                                                         <td class="corrDocAcctNumber">3099984</td>
                                                         <td class="corrDocAcctHolder">Adrian Perez</td>
@@ -165,10 +171,10 @@
                                         <label class="control-label" for="delContact">Contact:</label>
                                         <asp:TextBox runat="server" ID="delContact" CssClass="form-control"></asp:TextBox>
                                     </div>
-                                    <!-- File Serial Number -->
+                                    <!-- Message Ref Id -->
                                     <div class="form-group required">
-                                        <label class="control-label" for="delFileSerialNumber">File Serial Number:</label>
-                                        <asp:DropDownList runat="server" ID="delFileSerialNumber" CssClass="form-control"></asp:DropDownList>
+                                        <label class="control-label" for="delMessageRefId">Message Reference Id:</label>
+                                        <asp:DropDownList runat="server" ID="delMessageRefId" CssClass="form-control"></asp:DropDownList>
                                     </div>
                                 </div>
 
@@ -176,7 +182,12 @@
                                     <!-- Attention note field -->
                                     <div class="form-group">
                                         <label class="control-label" for="delAttentionNote">Attention Note:</label>
-                                        <asp:TextBox runat="server" ID="delAttentionNote" CssClass="form-control" TextMode="MultiLine" Rows="2"></asp:TextBox>
+                                        <asp:TextBox runat="server" ID="delAttentionNote" CssClass="form-control"></asp:TextBox>
+                                    </div>
+                                    <!-- File Serial Number -->
+                                    <div class="form-group required">
+                                        <label class="control-label" for="delFSN">File Serial Number:</label>
+                                        <asp:TextBox runat="server" ID="delFSN" CssClass="form-control"></asp:TextBox>
                                     </div>
                                 </div>
                             </div>
@@ -192,7 +203,7 @@
                                                         <thead>
                                                             <tr>
                                                                 <th>
-                                                                    <input type="checkbox" id="selectAllDocBox_del" class="form-control" /></th>
+                                                                    <input type="checkbox" id="selectAllDocBox_del" class="form-control chkbox" /></th>
                                                                 <th>Doc Ref ID</th>
                                                                 <th>Account Number</th>
                                                                 <th>Account Holder</th>
@@ -203,7 +214,7 @@
                                                 <ItemTemplate>
                                                     <tr>
                                                         <td class="delDocCheckBox">
-                                                            <input type="checkbox" name="delDocCheckGroup" class="form-control" /></td>
+                                                            <input type="checkbox" name="delDocCheckGroup" class="form-control chkbox" /></td>
                                                         <td class="delDocRefId">00001234</td>
                                                         <td class="delDocAcctNumber">3099984</td>
                                                         <td class="delDocAcctHolder">Adrian Perez</td>
@@ -229,7 +240,7 @@
             <!-- / aeoi report panel -->
 
             <!-- Action Log -->
-            <div class="col-sm-5 col-md-6">
+            <div class="col-sm-4 col-md-5">
                 <div class="panel panel-default log-panel">
                     <div class="panel-heading">
                         <span class="glyphicon glyphicon-log-in icon"></span>Export Log
@@ -248,6 +259,7 @@
                     </div>
                 </div>
 
+                <!-- Downloaded files table -->
                 <div class="panel panel-default sub-report">
                     <div class="panel-heading">
                         <span class="glyphicon glyphicon-inbox icon"></span>Submitted Documents
@@ -258,7 +270,7 @@
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
-                                            <th>File Serial Number</th>
+                                            <th>Return Year</th>
                                             <th>Message Ref ID</th>
                                             <th>Message Type</th>
                                         </tr>
@@ -282,68 +294,91 @@
                 </div>
                 <!--/ Action Log -->
             </div>
-
         </div>
+    </div>
 
-        <script type="text/javascript">
-            function pageLoad() {
-                $('.log-panel-body').removeClass('clear-log').css('opacity', '');
-                $('#exportPanel').addClass('active');
+    <script type="text/javascript">
+        function pageLoad() {
+            $('.log-panel-body').removeClass('clear-log').css('opacity', '');
+            $('#exportPanel').addClass('active');
 
-                $('#exportPanel').siblings().each(function () {
-                    $(this).removeClass('active');
-                });
+            $('#exportPanel').siblings().each(function () {
+                $(this).removeClass('active');
+            });
+        }
+
+        //new data panel
+        $('#new-data-link').click(function () {
+            if (!$(this).parent().hasClass('active')) {
+                $(this).parent().addClass('active');
             }
 
-            //new data panel
-            $('#new-data-link').click(function () {
-                if (!$(this).parent().hasClass('active')) {
-                    $(this).parent().addClass('active');
-                }
-
-                $(this).parent().siblings().each(function () {
-                    $(this).removeClass('active');
-                });
-
-
-                $('.correction-data').css('display', 'none');
-                $('.delete-data').css('display', 'none');
-                $('.new-data').css('display', 'block');
+            $(this).parent().siblings().each(function () {
+                $(this).removeClass('active');
             });
 
-            //correction data panel
-            $('#corr-data-link').click(function () {
-                if (!$(this).parent().hasClass('active')) {
-                    $(this).parent().addClass('active');
-                }
 
-                $(this).parent().siblings().each(function () {
-                    $(this).removeClass('active');
-                });
+            $('.correction-data').css('display', 'none');
+            $('.delete-data').css('display', 'none');
+            $('.new-data').css('display', 'block');
+        });
 
-                $('.delete-data').css('display', 'none');
-                $('.new-data').css('display', 'none');
-                $('.correction-data').css('display', 'block');
-            });
-
-            //delete data panel
-            $('#del-data-link').click(function () {
-                if (!$(this).parent().hasClass('active')) {
-                    $(this).parent().addClass('active');
-                }
-
-                $(this).parent().siblings().each(function () {
-                    $(this).removeClass('active');
-                });
-
-                $('.new-data').css('display', 'none');
-                $('.correction-data').css('display', 'none');
-                $('.delete-data').css('display', 'block');
-            });
-
-            //clear log async progress status
-            function showClearProgress() {
-                $('.log-panel-body').addClass('clear-log').css('opacity', 0.5);
+        //correction data panel
+        $('#corr-data-link').click(function () {
+            if (!$(this).parent().hasClass('active')) {
+                $(this).parent().addClass('active');
             }
-        </script>
+
+            $(this).parent().siblings().each(function () {
+                $(this).removeClass('active');
+            });
+
+            $('.delete-data').css('display', 'none');
+            $('.new-data').css('display', 'none');
+            $('.correction-data').css('display', 'block');
+        });
+
+        //delete data panel
+        $('#del-data-link').click(function () {
+            if (!$(this).parent().hasClass('active')) {
+                $(this).parent().addClass('active');
+            }
+
+            $(this).parent().siblings().each(function () {
+                $(this).removeClass('active');
+            });
+
+            $('.new-data').css('display', 'none');
+            $('.correction-data').css('display', 'none');
+            $('.delete-data').css('display', 'block');
+        });
+
+        //select all accounts checkbox
+        $('#selectAllAccountsBox').click(function () {
+            $('input[name=accountCheckGroup]').toggleCheckBoxes(this.checked);
+        });
+
+        function getCheckedAccounts() {
+            var accounts =  $('input[name=accountCheckGroup]').map(function () {
+               return $(this).val();;
+            }).get().join();
+
+            //alert(accounts);
+        }
+
+        //toggle all checkboxes function
+        $.fn.toggleCheckBoxes = function (checked) {
+            if (checked) {
+                this.prop('checked', true);
+            }
+            else {
+                this.prop('checked', false);
+            }
+        };
+
+        //clear log async progress status
+        function showClearProgress() {
+            $('.log-panel-body').addClass('clear-log').css('opacity', 0.5);
+        }
+    </script>
 </asp:Content>

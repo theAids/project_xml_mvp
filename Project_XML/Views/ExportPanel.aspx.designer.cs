@@ -49,13 +49,13 @@ namespace Project_XML.Views {
         protected global::System.Web.UI.WebControls.TextBox newAttentionNote;
         
         /// <summary>
-        /// accountList control.
+        /// accountsList control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater accountList;
+        protected global::System.Web.UI.WebControls.Repeater accountsList;
         
         /// <summary>
         /// newDataBtn control.
@@ -76,13 +76,13 @@ namespace Project_XML.Views {
         protected global::System.Web.UI.WebControls.TextBox corrContact;
         
         /// <summary>
-        /// corrfileSerialNumber control.
+        /// corrMessageRefId control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList corrfileSerialNumber;
+        protected global::System.Web.UI.WebControls.DropDownList corrMessageRefId;
         
         /// <summary>
         /// corrAttentionNote control.
@@ -92,6 +92,15 @@ namespace Project_XML.Views {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox corrAttentionNote;
+        
+        /// <summary>
+        /// corrFSN control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox corrFSN;
         
         /// <summary>
         /// corrDocRefList control.
@@ -121,13 +130,13 @@ namespace Project_XML.Views {
         protected global::System.Web.UI.WebControls.TextBox delContact;
         
         /// <summary>
-        /// delFileSerialNumber control.
+        /// delMessageRefId control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList delFileSerialNumber;
+        protected global::System.Web.UI.WebControls.DropDownList delMessageRefId;
         
         /// <summary>
         /// delAttentionNote control.
@@ -137,6 +146,15 @@ namespace Project_XML.Views {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox delAttentionNote;
+        
+        /// <summary>
+        /// delFSN control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox delFSN;
         
         /// <summary>
         /// delDocRefList control.

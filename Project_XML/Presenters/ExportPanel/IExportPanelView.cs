@@ -10,8 +10,9 @@ namespace Project_XML.Presenters.ExportPanel
     public interface IExportPanelView
     {
         string Username { get; }
-       // List<ConnectionStringModel> ConnStrings { set; }
+        int[] YearList { set; }
         string LogMsg { set; get; }
         string LogPath { set; get; }
+        List<AccountModel> AccountsList { set; }
     }
 }

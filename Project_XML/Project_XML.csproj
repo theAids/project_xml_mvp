@@ -213,7 +213,10 @@
     <Compile Include="Models\DbManager\DbAccountManager.cs" />
     <Compile Include="Models\DbManager\DbConnManager.cs" />
     <Compile Include="Models\DbManager\DbExportManager.cs" />
+    <Compile Include="Models\EntityModels\AccountModel.cs" />
     <Compile Include="Models\EntityModels\ConnectionStringModel.cs" />
+    <Compile Include="Models\EntityModels\DocSpecModel.cs" />
+    <Compile Include="Models\EntityModels\MessageSpecModel.cs" />
     <Compile Include="Models\EntityModels\UserAccountModel.cs" />
     <Compile Include="Presenters\EditProfile\EditProfilePresenter.cs" />
     <Compile Include="Presenters\EditProfile\IEditProfileView.cs" />

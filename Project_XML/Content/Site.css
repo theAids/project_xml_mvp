@@ -141,7 +141,6 @@ ul.navbar-right{
 .db-panel{
     min-height: 660px;
     height: 660px;
-    overflow-y: auto;
 }
 
 .log-panel{
@@ -229,8 +228,16 @@ ul.navbar-right{
 
 .accounts-table{
     max-height: 263px;
-   /* height: 263px;*/
+    height: 263px;
+}
+
+.accounts-table > .table-responsive{
+    max-height: 222px; /* minus the Account table panel header */
     overflow: auto;
+}
+
+input.form-control.chkbox{
+    height: 13px;
 }
 
 .btn-export{

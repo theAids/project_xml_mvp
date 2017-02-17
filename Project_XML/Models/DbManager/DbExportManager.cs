@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Project_XML.Models.EntityModels;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
@@ -11,61 +13,196 @@ namespace Project_XML.Models.DbManager
 {
     public class DbExportManager: DbConnManager
     {
-        public XmlDocument ExtractPeopleData()
+        public List<AccountModel> GetAllAccounts()
         {
-            using (SqlConnection conn = base.GetDbConnection("PeopleConnection"))
+            using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
             {
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     conn.Open();
-                    string cmdstr = "SELECT * FROM people FOR XML AUTO, ELEMENTS, XMLSCHEMA";
+                    string cmdstr = @"SELECT AcctNumber, Name, FirstName+' '+LastName AS PName
+                                        FROM Account
+                                        LEFT JOIN Entity ON EntityId = P_Ent_Id
+                                        LEFT JOIN Person ON PId = P_Ent_Id
+                                        ORDER BY AcctNumber";
                     cmd.CommandText = cmdstr;
                     cmd.Prepare();
 
+                    List<AccountModel> accounts = new List<AccountModel>();
+
                     try
                     {
-                        using (XmlReader reader = cmd.ExecuteXmlReader())
+                        SqlDataReader reader = cmd.ExecuteReader();
+                        
+                        while(reader.Read())
                         {
-                            return GenerateXMLDoc(reader, "peopledata");    //returns the generated XML document
+                            AccountModel model = new AccountModel();
+
+                            model.AcctNumber = reader[0].ToString();
+
+                            model.AcctHolder = GetAcctHolderName(reader[1].ToString(), reader[2].ToString());
+
+                            accounts.Add(model);
                         }
                     }
                     catch (Exception e)
                     {
-                        Debug.WriteLine("XML Read Error: " + e.Message);
+                        Debug.WriteLine("Get All Accounts Error: " + e.Message);
                         return null;
                     }
+
+                    return accounts;
                 }
 
             }
         }
 
-        public XmlDocument ExtractTimeData()
+        public List<MessageSpecModel> GetAllMessageSpec()
         {
-            using (SqlConnection conn = base.GetDbConnection("TimeConnection"))
+            using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
             {
-                using (SqlCommand cmd = conn.CreateCommand())
+                using(SqlCommand cmd = conn.CreateCommand())
                 {
                     conn.Open();
-                    string cmdstr = "SELECT * FROM time FOR XML AUTO, ELEMENTS, XMLSCHEMA";
+                    string cmdstr = @"SELECT ReturnYear, MessageRefId, MessageTypeIndic
+                                        FROM MessageSpec ORDER BY ReturnYear";
                     cmd.CommandText = cmdstr;
                     cmd.Prepare();
 
+                    List<MessageSpecModel> msgSpecs = new List<MessageSpecModel>();
+
                     try
                     {
-                        using (XmlReader reader = cmd.ExecuteXmlReader())
+                        SqlDataReader reader = cmd.ExecuteReader();
+
+                        while (reader.Read())
                         {
-                            return GenerateXMLDoc(reader, "timedata");
+                            MessageSpecModel model = new MessageSpecModel();
+
+                            model.ReturnYear = reader[0].ToString();
+                            model.MessageRefId = reader[1].ToString();
+
+                            model.MessageType = GetMessageType(reader[2].ToString());
+
+                            msgSpecs.Add(model);
                         }
                     }
                     catch (Exception e)
                     {
-                        Debug.WriteLine("XML Read Error: " + e.Message);
+                        Debug.WriteLine("Get All Message Specs Error: " + e.Message);
                         return null;
                     }
+
+                    return msgSpecs;
                 }
             }
+        }
 
+        public List<string> GetAllMsgRefId()
+        {
+            using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
+            {
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+                    string cmdstr = @"SELECT MessageRefId FROM MessageSpec";
+                    cmd.CommandText = cmdstr;
+                    cmd.Prepare();
 
+                    List<string> msgRefId = new List<string>();
+
+                    try
+                    {
+                        SqlDataReader reader = cmd.ExecuteReader();
+
+                        while(reader.Read())
+                        {
+                            msgRefId.Add(reader[0].ToString());
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine("Get All Message Ref Id Error: " + e.Message);
+                        return null;
+                    }
+
+                    return msgRefId;
+                }
+            }
+        }
+
+        public List<DocSpecModel> GetAllDocSpec(string msgRefId)
+        {
+            using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
+            {
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+                    string cmdstr = @"SELECT DocRefId, Account.AcctNumber, Name, FirstName+' '+LastName as PName
+                                        FROM DocSpec, MessageSpec, Account
+                                        LEFT JOIN Entity on P_Ent_Id = EntityId
+                                        LEFT JOIN Person on P_Ent_Id = PId
+                                        WHERE DocSpec.AcctNumber = Account.AcctNumber 
+                                        AND DocSpec.MessageRefId = MessageSpec.MessageRefid 
+                                        AND DocSpec.MessageRefId = @msgRefId";
+                    cmd.CommandText = cmdstr;
+                    cmd.Parameters.Add(new SqlParameter("@msgRefId", SqlDbType.VarChar, 40));
+                    cmd.Prepare();
+
+                    cmd.Parameters["@msgRefId"].Value = msgRefId;
+
+                    List<DocSpecModel> docSpec = new List<DocSpecModel>();
+
+                    try
+                    {
+                        SqlDataReader reader = cmd.ExecuteReader();
+
+                        while (reader.Read())
+                        {
+                            DocSpecModel model = new DocSpecModel();
+
+                            model.DocRefId = reader[0].ToString();
+                            model.AcctNumber = reader[1].ToString();
+                            model.AcctHolder = GetAcctHolderName(reader[2].ToString(), reader[3].ToString());
+
+                            docSpec.Add(model);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine("Get All Doc Spec Error: " + e.Message);
+                        return null;
+                    }
+
+                    return docSpec;
+                }
+            }
+        }
+
+        public string GetMessageType(string codeType)
+        {
+            if (codeType.Equals("CRS701"))
+            {
+                return "New";
+            }
+            else if (codeType.Equals("CRS702"))
+            {
+                return "Correction";
+            }
+
+            return null;
+        }
+
+        public string GetAcctHolderName(string eName, string pName)
+        {
+            if (eName != null && eName != "")
+            {
+                return eName;
+            }
+            else
+            {
+                return pName;
+            }
         }
 
         private static XmlDocument GenerateXMLDoc(XmlReader reader, string rootName)

@@ -23,15 +23,6 @@ namespace Project_XML.Views
                 return curr.Text;
             }
         }
-        /*
-        public List<ConnectionStringModel> ConnStrings
-        {
-            set
-            {
-                db_connection.DataSource = value;
-                db_connection.DataBind();
-            }
-        }*/
 
         public string LogMsg
         {
@@ -42,6 +33,24 @@ namespace Project_XML.Views
         public string LogPath
         {
             set; get;
+        }
+
+        public int[] YearList
+        {
+            set
+            {
+                newYear.DataSource = value;
+                newYear.DataBind();
+            }
+        }
+
+        public List<AccountModel> AccountsList
+        {
+            set
+            {
+              accountsList.DataSource = value;
+              accountsList.DataBind();
+            }
         }
         /*********************** Code-Behind *********************************/
 

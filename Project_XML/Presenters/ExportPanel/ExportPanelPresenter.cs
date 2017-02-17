@@ -28,8 +28,25 @@ namespace Project_XML.Presenters.ExportPanel
         {
             if (!PageIsPostback)
             {
-                //view.ConnStrings = DbConnManager.GetConnectionStrings(); // database table source      
+
+                //populate return year dropdown list
+                int[] yearList = new int[20];
+                int year = DateTime.UtcNow.Year;
+
+                for(int i = 0; i < 20; i++)
+                {
+                    yearList[i] = year;
+                    year--;        
+                }
+
+                view.YearList = yearList;
+
+                DbExportManager db = new DbExportManager();
+
+                //populate Accounts table
+                view.AccountsList = db.GetAllAccounts();
             }
+
             view.LogPath = Directory.CreateDirectory(server.MapPath("~/logs")).FullName; // set log directory
         }
 
@@ -54,15 +71,6 @@ namespace Project_XML.Presenters.ExportPanel
 
             DbExportManager db = new DbExportManager();
             // execute corresponding actions for each db connection strings
-            switch (connectionName)
-            {
-                case "PeopleConnection":
-                    xmldoc = db.ExtractPeopleData();
-                    break;
-                case "TimeConnection":
-                    xmldoc = db.ExtractTimeData();
-                    break;
-            }
 
             //export xml file
             File.AppendAllText(xmlpath, xmldoc.OuterXml);
