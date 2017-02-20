@@ -353,17 +353,25 @@
             $('.delete-data').css('display', 'block');
         });
 
+
+
+
         //select all accounts checkbox
         $('#selectAllAccountsBox').click(function () {
             $('input[name=accountCheckGroup]').toggleCheckBoxes(this.checked);
         });
 
+        //add selected accounts to list
+        var accounts = [];  //selected accounts list
         function getCheckedAccounts() {
-            var accounts =  $('input[name=accountCheckGroup]').map(function () {
-               return $(this).val();;
-            }).get().join();
+            accounts = [];
+            $('input[name=accountCheckGroup]').each(addSelected);
+            alert(accounts);
+        }
 
-            //alert(accounts);
+        function addSelected() {
+            if (this.checked)
+                accounts.push(this.value);
         }
 
         //toggle all checkboxes function
