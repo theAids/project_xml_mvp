@@ -6,6 +6,8 @@
 
     <uc:UserMenu runat="server" ID="UserMenu1" />
 
+    <asp:HiddenField runat="server" ID="accountSelected"/>
+
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
         <h1 class="page-header">Export XML</h1>
         <div class="row">
@@ -83,7 +85,7 @@
                                     </div>
                                 </div>
                                 <div class="btn-export-panel">
-                                    <asp:LinkButton runat="server" ID="newDataBtn" class="btn btn-export btn-md" OnClientClick="getCheckedAccounts()">Export XML<span class="glyphicon glyphicon-download-alt"></span></asp:LinkButton>
+                                    <asp:LinkButton runat="server" ID="newDataBtn" class="btn btn-export btn-md" OnClick="CreateNewData" OnClientClick="getCheckedAccounts()">Export XML<span class="glyphicon glyphicon-download-alt"></span></asp:LinkButton>
                                 </div>
                             </div>
                         </div>
@@ -362,11 +364,14 @@
         });
 
         //add selected accounts to list
-        var accounts = [];  //selected accounts list
+        var accounts;
+
         function getCheckedAccounts() {
-            accounts = [];
+            accounts = new Array();
+
             $('input[name=accountCheckGroup]').each(addSelected);
-            alert(accounts);
+            $('#<%= accountSelected.ClientID%>').val(accounts);
+
         }
 
         function addSelected() {

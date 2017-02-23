@@ -3,7 +3,9 @@ using Project_XML.Presenters.ExportPanel;
 using Project_XML.Presenters.UserMenu_uc;
 using Project_XML.Views.UserControls;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
@@ -90,5 +92,15 @@ namespace Project_XML.Views
         {
             Response.Redirect("~/Views/Login.aspx", true);
         }
+
+        protected void CreateNewData(object sender, EventArgs e)
+        {
+            ArrayList accounts = new ArrayList(accountSelected.Value.Split(','));
+            Debug.WriteLine("Accounts List:");
+            foreach(string s in accounts)
+            {
+                Debug.WriteLine(s);
+            }
+         }
     }
 }

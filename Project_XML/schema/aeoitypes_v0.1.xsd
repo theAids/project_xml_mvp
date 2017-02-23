@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:cfc="http://www.ird.gov.hk/AEOI/aeoitypes/v1" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:iso="urn:oecd:ties:isocrstypes:v1" targetNamespace="http://www.ird.gov.hk/AEOI/aeoitypes/v1" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0.1">
+	<xsd:import namespace="urn:oecd:ties:isocrstypes:v1" schemaLocation="isocrstypes_v1.0.xsd"/>
+	<!--+++++++++++++++++++++++  Reusable Simple types ++++++++++++++++++++++++++++++++++++++ -->
+	<!-- -->
+	<!-- 10-character string -->
+	<xsd:simpleType name="Char10_Type">
+		<xsd:restriction base="xsd:string">
+			<xsd:minLength value="1"/>
+			<xsd:maxLength value="10"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!-- -->
+	<!-- 20-character string -->
+	<xsd:simpleType name="Char20_Type">
+		<xsd:restriction base="xsd:string">
+			<xsd:minLength value="1"/>
+			<xsd:maxLength value="20"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!-- -->
+	<!-- 30-character string -->
+	<xsd:simpleType name="Char30_Type">
+		<xsd:restriction base="xsd:string">
+			<xsd:minLength value="1"/>
+			<xsd:maxLength value="30"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!-- -->
+	<!-- 35-character string -->
+	<xsd:simpleType name="Char35_Type">
+		<xsd:restriction base="xsd:string">
+			<xsd:minLength value="1"/>
+			<xsd:maxLength value="35"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!-- -->
+	<!-- 40-character string -->
+	<xsd:simpleType name="Char40_Type">
+		<xsd:restriction base="xsd:string">
+			<xsd:minLength value="1"/>
+			<xsd:maxLength value="40"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!-- -->
+	<!-- 70-character string -->
+	<xsd:simpleType name="Char70_Type">
+		<xsd:restriction base="xsd:string">
+			<xsd:minLength value="1"/>
+			<xsd:maxLength value="70"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!-- -->
+	<!-- 72-character string -->
+	<xsd:simpleType name="Char72_Type">
+		<xsd:restriction base="xsd:string">
+			<xsd:minLength value="1"/>
+			<xsd:maxLength value="72"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!-- -->
+	<!-- 80-character string -->
+	<xsd:simpleType name="Char80_Type">
+		<xsd:restriction base="xsd:string">
+			<xsd:minLength value="1"/>
+			<xsd:maxLength value="80"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!-- -->
+	<!-- 100-character string -->
+	<xsd:simpleType name="Char100_Type">
+		<xsd:restriction base="xsd:string">
+			<xsd:minLength value="1"/>
+			<xsd:maxLength value="100"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!-- -->
+	<!-- 120-character string -->
+	<xsd:simpleType name="Char120_Type">
+		<xsd:restriction base="xsd:string">
+			<xsd:minLength value="1"/>
+			<xsd:maxLength value="120"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!-- -->
+	<!-- 150-character string -->
+	<xsd:simpleType name="Char150_Type">
+		<xsd:restriction base="xsd:string">
+			<xsd:minLength value="1"/>
+			<xsd:maxLength value="150"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!-- -->
+	<!-- Data type for any kind of numeric data with two decimal fraction digits, especially monetary amounts -->
+	<xsd:simpleType name="TwoDigFract_Type">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">
+				Data type for any kind of numeric data with two decimal fraction digits, especially monetary amounts.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:decimal">
+			<xsd:totalDigits value="16"/>
+			<xsd:fractionDigits value="2"/>
+			<xsd:maxInclusive value="99999999999999.99"/>
+			<xsd:minInclusive value="0"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!-- -->
+	<!-- Return Year -->
+	<xsd:simpleType name="ReturnYear_Type">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">Data type for Year of Return.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:integer">
+			<xsd:totalDigits value="4"/>
+			<xsd:minInclusive value="2017"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!-- File Serial Number -->
+	<xsd:simpleType name="FileSerialNumber_Type">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">Data type for File Serial Number.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:pattern value="[0-9]{8}"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!-- -->
+	<!-- AEOI ID Type -->
+	<xsd:simpleType name="AeoiId_Type">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">Data type for AEOI ID.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:pattern value="[A-Z]{2}[0-9]{5}"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!-- -->
+	<!-- Document type indicators types -->
+	<xsd:simpleType name="OECDDocTypeIndic_EnumType">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">This element specifies the type of data being submitted.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="OECD1">
+				<xsd:annotation>
+					<xsd:documentation>New Data</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="OECD2">
+				<xsd:annotation>
+					<xsd:documentation>Corrected Data</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="OECD3">
+				<xsd:annotation>
+					<xsd:documentation>Deletion of Data</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="OECD11">
+				<xsd:annotation>
+					<xsd:documentation>New Test Data</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="OECD12">
+				<xsd:annotation>
+					<xsd:documentation>Corrected Test Data</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="OECD13">
+				<xsd:annotation>
+					<xsd:documentation>Deletion of Test Data</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!-- -->
+	<!-- Kind of Name -->
+	<xsd:simpleType name="OECDNameType_EnumType">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">
+				It is possible for stf documents to contain several names for the same party. This is a qualifier to indicate the type of a particular name. Such types include nicknames ('nick'), names under which a party does business ('dba' a short name for the entity, or a name that is used for public acquaintance instead of the official business name) etc.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="OECD202">
+				<xsd:annotation>
+					<xsd:documentation>indiv (individual)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="OECD203">
+				<xsd:annotation>
+					<xsd:documentation>alias (alias)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="OECD204">
+				<xsd:annotation>
+					<xsd:documentation>nick (nickname)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="OECD205">
+				<xsd:annotation>
+					<xsd:documentation>aka (also known as)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="OECD206">
+				<xsd:annotation>
+					<xsd:documentation>dba (doing business as)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="OECD207">
+				<xsd:annotation>
+					<xsd:documentation>legal (legal name)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="OECD208">
+				<xsd:annotation>
+					<xsd:documentation>atbirth (name at birth)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!-- -->
+	<!-- Type of the address considered from a legal point of view -->
+	<xsd:simpleType name="OECDLegalAddressType_EnumType">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">This is a datatype for an attribute to an address. It serves to indicate the legal character of that address (residential, business etc.)</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:token">
+			<xsd:enumeration value="OECD301">
+				<xsd:annotation>
+					<xsd:documentation>residentialOrBusiness</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="OECD302">
+				<xsd:annotation>
+					<xsd:documentation>residential</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="OECD303">
+				<xsd:annotation>
+					<xsd:documentation>business</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="OECD304">
+				<xsd:annotation>
+					<xsd:documentation>registeredOffice</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="OECD305">
+				<xsd:annotation>
+					<xsd:documentation>unspecified</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!-- -->
+	<!-- Account Number Type - 6 -->
+	<xsd:simpleType name="AcctNumberType_EnumType">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">Account Number Type</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="OECD601">
+				<xsd:annotation>
+					<xsd:documentation>IBAN</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="OECD602">
+				<xsd:annotation>
+					<xsd:documentation>OBAN</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="OECD603">
+				<xsd:annotation>
+					<xsd:documentation>ISIN</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="OECD604">
+				<xsd:annotation>
+					<xsd:documentation>OSIN</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="OECD605">
+				<xsd:annotation>
+					<xsd:documentation>Other</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!--  -->
+	<!--++++++++++++++++++ Reusable Complex types +++++++++++++++++++++++++++++++++++++ -->
+	<!-- -->
+	<!-- Address Fix -->
+	<xsd:complexType name="AddressFix_Type">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">Structure of the address for a party broken down into its logical parts, recommended for easy matching. The 'City' element is the only required subelement.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="Street" type="cfc:Char100_Type" minOccurs="0"/>
+			<xsd:element name="BuildingIdentifier" type="cfc:Char70_Type" minOccurs="0"/>
+			<xsd:element name="SuiteIdentifier" type="cfc:Char40_Type" minOccurs="0"/>
+			<xsd:element name="FloorIdentifier" type="cfc:Char20_Type" minOccurs="0"/>
+			<xsd:element name="DistrictName" type="cfc:Char70_Type" minOccurs="0"/>
+			<xsd:element name="POB" type="cfc:Char70_Type" minOccurs="0"/>
+			<xsd:element name="PostCode" type="cfc:Char35_Type" minOccurs="0"/>
+			<xsd:element name="City" type="cfc:Char70_Type"/>
+			<xsd:element name="CountrySubentity" type="cfc:Char70_Type" minOccurs="0"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!-- -->
+	<!-- Address Free -->
+	<xsd:complexType name="AddressFree_Type">
+		<xsd:sequence>
+			<xsd:element name="Line" type="cfc:Char150_Type" maxOccurs="5"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!--  -->
+	<!--  The Address of a Party, given in fixed or free Form, possibly in both Forms -->
+	<xsd:complexType name="Address_Type">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">The user has the option to enter the data about the address of a party either in separate elements or in free format in multiple lines. If the user chooses the option to enter the data required in separate elements, the container element for this will be "AddressFix". If the user chooses the option to enter the data required in a less structured way in "AddressFree", all available address details shall be presented in multiple lines. PLEASE NOTE that the address country code is outside both of these elements. The use of the fixed form is recommended as a rule to allow easy matching. However, the use of the free form is recommended if the FIs cannot reliably identify and distinguish the different parts of the address. The user may want to use both formats e.g. if besides separating the logical parts of the address in fixed format, he also wants to indicate a suitable breakdown into print-lines. In this case "AddressFix" has to precede "AddressFree".</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="CountryCode" type="iso:CountryCode_Type"/>
+			<xsd:choice>
+				<xsd:element name="AddressFree" type="cfc:AddressFree_Type"/>
+				<xsd:sequence>
+					<xsd:element name="AddressFix" type="cfc:AddressFix_Type"/>
+					<xsd:element name="AddressFree" type="cfc:AddressFree_Type"/>
+				</xsd:sequence>
+			</xsd:choice>
+		</xsd:sequence>
+		<xsd:attribute name="legalAddressType" type="cfc:OECDLegalAddressType_EnumType" use="optional"/>
+	</xsd:complexType>
+	<!--  -->
+	<!-- General Type for Monetary Amounts -->
+	<xsd:complexType name="MonAmnt_Type">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">
+This data type is to be used whenever monetary amounts are to be communicated. Such amounts shall be given
+including two fractional digits of the main currency unit. The code for the currency in which the value is expressed has to be
+taken from the ISO codelist 4217 and added in attribute currCode.
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleContent>
+			<xsd:extension base="cfc:TwoDigFract_Type">
+				<xsd:attribute name="currCode" type="iso:currCode_Type" use="required"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<!--  -->
+	<!-- Organisation name -->
+	<xsd:complexType name="NameOrganisation_Type">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">Name of organisation</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleContent>
+			<xsd:extension base="cfc:Char120_Type">
+				<xsd:attribute name="nameType" type="cfc:OECDNameType_EnumType" use="optional"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<!-- -->
+	<!-- TIN -->
+	<xsd:complexType name="TIN_Type">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">This is the identification number/identification code for the party in question. As the identifier may be not strictly numeric, it is just defined as a string of characters. Attribute 'issuedBy' is required to designate the issuer of the identifier. </xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleContent>
+			<xsd:extension base="cfc:Char80_Type">
+				<xsd:attribute name="issuedBy" type="iso:CountryCode_Type" use="optional">
+					<xsd:annotation>
+						<xsd:documentation xml:lang="en">Country code of issuing country, indicating country of Residence (to taxes and other)</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<!-- -->
+</xsd:schema>
