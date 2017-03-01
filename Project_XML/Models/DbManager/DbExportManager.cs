@@ -180,23 +180,48 @@ namespace Project_XML.Models.DbManager
             }
         }
 
-        public AccountDetailsModel GetAccountDetials(string acctNumber, string acctHolderId)
+        public string GetFIName(string aeoiId)
         {
             using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
             {
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     conn.Open();
-                    string cmdstr = @"SELECT A.AcctNumber, AcctNumberType, isUndocumented, isClosed, isDormant, AccountBalance, A.CurrCode, PaymentType, Amount, P.CurrCode
-                                        FROM Account A, Entity E,Payment P
-                                        WHERE A.AcctNumber=P.AcctNumber and A.P_Ent_Id=E.EntityId AND A.AcctNumber=@acctNumber AND E.EntityId=@acctHolderId";
+                    string cmdstr = @"SELECT FIName From AeoiProfile WHERE AeoiId=@aeoiId";
+                    cmd.CommandText = cmdstr;
+                    cmd.Parameters.Add(new SqlParameter("@aeoiId", SqlDbType.VarChar, 12));
+                    cmd.Prepare();
+
+                    cmd.Parameters["@aeoiId"].Value = aeoiId;
+
+                    try
+                    {
+                        return cmd.ExecuteScalar().ToString();
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine("Get FIName Error: " + e.Message);
+                        return null;
+                    }
+                }
+            }
+        }
+
+        public AccountDetailsModel GetAccountDetials(string acctNumber)
+        {
+            using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
+            {
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+                    string cmdstr = @"SELECT AcctNumber, AcctNumberType, isUndocumented, isClosed, isDormant, AccountBalance, CurrCode
+                                        FROM Account
+                                        WHERE AcctNumber=@acctNumber";
                     cmd.CommandText = cmdstr;
                     cmd.Parameters.Add(new SqlParameter("@acctNumber", SqlDbType.VarChar, 72));
-                    cmd.Parameters.Add(new SqlParameter("@acctHolderId", SqlDbType.Int));
                     cmd.Prepare();
 
                     cmd.Parameters["@acctNumber"].Value = acctNumber;
-                    cmd.Parameters["@acctHolderId"].Value = acctHolderId;
 
                     AccountDetailsModel model = new AccountDetailsModel();
 
@@ -207,14 +232,24 @@ namespace Project_XML.Models.DbManager
                         {
                             model.AcctNumber = reader[0].ToString();
                             model.AcctNumberType = reader[1].ToString();
-                            model.isUndocumented = Convert.ToBoolean(reader[2]);
-                            model.isClosed = Convert.ToBoolean(reader[3]);
-                            model.isDormant = Convert.ToBoolean(reader[4]);
+
+                            if (reader[2] is DBNull)
+                                model.isUndocumented = null;
+                            else
+                                model.isUndocumented = Convert.ToBoolean(reader[2]);
+
+                            if (reader[3] is DBNull)
+                                model.isClosed = null;
+                            else
+                                model.isClosed = Convert.ToBoolean(reader[3]);
+
+                            if (reader[4] is DBNull)
+                                model.isDormant = null;
+                            else
+                                model.isDormant = Convert.ToBoolean(reader[4]);
+
                             model.AccountBalance = Convert.ToDecimal(reader[5]);
                             model.ACurrCode = reader[6].ToString();
-                            model.PaymentType = reader[7].ToString();
-                            model.Amount = Convert.ToDecimal(reader[8]);
-                            model.PCurrCode = reader[9].ToString();
                         }
                     }
                     catch (Exception e)
@@ -228,24 +263,79 @@ namespace Project_XML.Models.DbManager
             }
         }
 
-        public EntityDetailsModel GetEntityDetails(int entityId, string countryCode)
+        public List<PaymentModel> GetPayments(string acctNumber)
         {
             using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
             {
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     conn.Open();
-                    string cmdstr = @"SELECT CountryCode,Name,NameType,
-	                                        STUFF((SELECT ';'+Value+','+CountryCode+','+IType 
-			                                        FROM INType, Entity WHERE P_Ent_Id=EntityId AND EntityId=@entityId
-			                                        FOR XML PATH('')),1,1,'') AS INVal
-                                        FROM Entity, ResCountryCode WHERE EntityId=P_Ent_Id AND EntityId=@entityId AND CountryCode=@countryCode ";
+                    string cmdstr = @"SELECT PaymentType, Amount, P.CurrCode
+                                        FROM Payment P, Account A
+                                        WHERE P.AcctNumber = A.AcctNumber AND A.AcctNumber=@acctNumber";
                     cmd.CommandText = cmdstr;
-                    cmd.Parameters.Add(new SqlParameter("@entityId", SqlDbType.Int));
+                    cmd.Parameters.Add(new SqlParameter("@acctNumber", SqlDbType.VarChar, 72));
+                    cmd.Prepare();
+
+                    cmd.Parameters["@acctNumber"].Value = acctNumber;
+
+                    List<PaymentModel> payments = new List<PaymentModel>();
+
+                    try
+                    {
+                        SqlDataReader reader = cmd.ExecuteReader();
+
+                        if (!reader.HasRows)
+                            return null;
+                        else
+                        {
+                            while (reader.Read())
+                            {
+                                PaymentModel model = new PaymentModel();
+
+                                model.PaymentType = reader[0].ToString();
+                                if (reader[1] == null)
+                                    model.Amount = null;
+                                else
+                                    model.Amount = Convert.ToDecimal(reader[1]);
+                                model.CurrCode = reader[2].ToString();
+
+                                payments.Add(model);
+                            }
+
+                            return payments;
+                        }
+
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine("Get Payments Error:" + e.Message);
+                        return null;
+                    }
+                }
+            }
+        }
+
+        public EntityDetailsModel GetEntityDetails(int acctHolderId, string countryCode)
+        {
+            using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
+            {
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+                    string cmdstr = @"SELECT EntityId,Name,NameType,AcctHolderType,
+	                                        STUFF((SELECT ';'+Value+','+CountryCode+','+IType 
+			                                        FROM INType, Entity
+			                                        WHERE P_Ent_Id=EntityId AND EntityId=@acctHolderId
+			                                        FOR XML PATH('')),1,1,'') AS INVal
+                                        FROM Entity E, ResCountryCode
+                                        WHERE EntityId=P_Ent_Id AND EntityId=@acctHolderId AND CountryCode=@countryCode";
+                    cmd.CommandText = cmdstr;
+                    cmd.Parameters.Add(new SqlParameter("@acctHolderId", SqlDbType.VarChar, 72));
                     cmd.Parameters.Add(new SqlParameter("@countryCode", SqlDbType.VarChar, 2));
                     cmd.Prepare();
 
-                    cmd.Parameters["@entityId"].Value = entityId;
+                    cmd.Parameters["@acctHolderId"].Value = acctHolderId;
                     cmd.Parameters["@countryCode"].Value = countryCode;
 
                     EntityDetailsModel model = new EntityDetailsModel();
@@ -254,16 +344,17 @@ namespace Project_XML.Models.DbManager
                     {
                         SqlDataReader reader = cmd.ExecuteReader();
 
-                        while(reader.Read())
+                        while (reader.Read())
                         {
-                            model.CountryCode = reader[0].ToString();
-                            model.Name = reader[1].ToString();
-                            model.NameType = reader[2].ToString();
-                            model.INVal = reader[3].ToString();
+                            model.EntityId = Convert.ToInt32(reader["EntityId"]);
+                            model.Name = reader["Name"].ToString();
+                            model.NameType = reader["NameType"].ToString();
+                            model.AcctHolderType = reader["AcctHolderType"].ToString();
+                            model.INVal = reader["INVal"].ToString();
                         }
 
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         Debug.WriteLine("Get Entity Details Error: " + e.Message);
                         return null;
@@ -272,28 +363,26 @@ namespace Project_XML.Models.DbManager
                     return model;
                 }
             }
-            
+
         }
 
-        public PersonDetailsModel GetPersonDetails(int pId, string countryCode)
+        public PersonDetailsModel GetPersonDetails(int pId)
         {
             using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
             {
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     conn.Open();
-                    string cmdstr = @"SELECT CountryCode,Person.*,
+                    string cmdstr = @"SELECT Person.*,
 	                                        STUFF((SELECT ';'+Value+','+CountryCode+','+IType 
-			                                        FROM INType, Person WHERE P_Ent_Id=PId AND PId=@pId
-			                                        FOR XML PATH('')),1,1,'') AS INVal
-                                        FROM Person, ResCountryCode WHERE PId=P_Ent_Id AND PId=@pId AND CountryCode=@countryCode";
+			                                    FROM INType, Person WHERE P_Ent_Id=PId AND PId=@pId
+			                                    FOR XML PATH('')),1,1,'') AS INVal
+                                        FROM Person WHERE PId=@pId";
                     cmd.CommandText = cmdstr;
                     cmd.Parameters.Add(new SqlParameter("@pId", SqlDbType.Int));
-                    cmd.Parameters.Add(new SqlParameter("@countryCode", SqlDbType.VarChar,2));
                     cmd.Prepare();
 
                     cmd.Parameters["@pId"].Value = pId;
-                    cmd.Parameters["@countrCode"].Value = countryCode;
 
                     PersonDetailsModel model = new PersonDetailsModel();
 
@@ -303,13 +392,14 @@ namespace Project_XML.Models.DbManager
 
                         while (reader.Read())
                         {
-                            model.CountryCode = reader["CountryCode"].ToString();
                             model.PreceedingTitle = reader["PreceedingTitle"].ToString();
                             model.Title = reader["Title"].ToString();
                             model.Firstname = reader["Firstname"].ToString();
                             model.MiddleName = reader["MiddleName"].ToString();
                             model.LastName = reader["LastName"].ToString();
                             model.GenerationIdentifier = reader["GenerationIdentifier"].ToString();
+                            model.Suffix = reader["Suffix"].ToString();
+                            model.GeneralSuffix = reader["GeneralSuffix"].ToString();
                             model.NameType = reader["NameType"].ToString();
                             model.BirthDate = ConvertBirthDate(reader["BirthDate"].ToString());
                             model.BirthCity = reader["BirthCity"].ToString();
@@ -337,7 +427,7 @@ namespace Project_XML.Models.DbManager
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     conn.Open();
-                    string cmdstr = @"SELECT * FROM Address, Entity WHERE P_Ent_Id=EntityId AND EntityId=@entityId";
+                    string cmdstr = @"SELECT A.* FROM Address A, Entity WHERE P_Ent_Id=EntityId AND EntityId=@entityId";
                     cmd.CommandText = cmdstr;
                     cmd.Parameters.Add(new SqlParameter("@entityId", SqlDbType.Int));
                     cmd.Prepare();
@@ -349,7 +439,7 @@ namespace Project_XML.Models.DbManager
                     try
                     {
                         SqlDataReader reader = cmd.ExecuteReader();
-                        while(reader.Read())
+                        while (reader.Read())
                         {
                             AddressModel model = new AddressModel();
 
@@ -430,17 +520,16 @@ namespace Project_XML.Models.DbManager
             }
         }
 
-        public List<ControllingPerson> GetEntityCtrlPerson(int entityId, string countryCode, string acctNumber)
+        public List<int> GetEntityCtrlPersonId(int entityId, string countryCode, string acctNumber)
         {
             using (SqlConnection conn = base.GetDbConnection("AeoiConnetion"))
             {
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     conn.Open();
-                    string cmdstr = @"SELECT P.*, CtrlPersonType
-                                        FROM Person P, ControllingPerson C, Account A, ResCountryCode R, Entity E
-                                        WHERE C.PId=P.PId AND A.AcctNumber=C.AcctNumber AND P.PId=R.P_Ent_Id AND E.EntityId=A.P_Ent_Id
-		                                        AND R.CountryCode=@countryCode AND A.AcctNumber=@acctNumber AND E.EntityId=@entityId";
+                    string cmdstr = @"SELECT P.PId FROM Person P, ControllingPerson C, Account A, ResCountryCode R, Entity E
+                                        WHERE C.PId=P.PId AND A.AcctNumber=C.AcctNumber AND P.PId=R.P_Ent_Id AND E.AcctNumber=A.AcctNumber 
+		                                AND R.CountryCode=@countryCode AND A.AcctNumber=@acctNumber AND EntityId=@entityId";
                     cmd.CommandText = cmdstr;
                     cmd.Parameters.Add(new SqlParameter("@entityId", SqlDbType.Int));
                     cmd.Parameters.Add(new SqlParameter("@countryCode", SqlDbType.VarChar, 2));
@@ -451,7 +540,7 @@ namespace Project_XML.Models.DbManager
                     cmd.Parameters["@countryCode"].Value = countryCode;
                     cmd.Parameters["@accNumber"].Value = acctNumber;
 
-                    List<ControllingPerson> ctrlList = new List<ControllingPerson>();
+                    List<int> ctrlds = new List<int>();
 
                     try
                     {
@@ -459,8 +548,52 @@ namespace Project_XML.Models.DbManager
 
                         while(reader.Read())
                         {
-                            ControllingPerson model = new ControllingPerson();
+                            ctrlds.Add(Convert.ToInt32(reader[0]));
+                        }
+                        return ctrlds;
+                    }
+                    catch(Exception e)
+                    {
+                        Debug.WriteLine("Get Controller Person Ids Error:" + e.Message);
+                        return null;
+                    }
 
+                }
+            }
+        }
+        /*
+        public object[] GetEntityCtrlPerson(int pId, string acctNumber)
+        {
+            using (SqlConnection conn = base.GetDbConnection("AeoiConnetion"))
+            {
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+                    string cmdstr = @"SELECT P.*,STUFF((SELECT ';'+Value+','+CountryCode+','+IType 
+			                                        FROM INType, Person WHERE P_Ent_Id=PId AND PId=1004
+			                                        FOR XML PATH('')),1,1,'') AS INVal,
+			                                        CtrlPersonType
+                                        FROM Person P, ControllingPerson C, Account A
+                                        WHERE C.PId=P.PId AND C.AcctNumber=A.AcctNumber AND A.AcctNumber=@acctNumber AND P.PId=@pId";
+                    cmd.CommandText = cmdstr;
+                    cmd.Parameters.Add(new SqlParameter("@pId", SqlDbType.Int));
+                    cmd.Parameters.Add(new SqlParameter("@acctNumber", SqlDbType.VarChar, 72));
+                    cmd.Prepare();
+
+                    cmd.Parameters["@pId"].Value = pId;
+                    cmd.Parameters["@accNumber"].Value = acctNumber;
+                    
+
+                    try
+                    {
+                        SqlDataReader reader = cmd.ExecuteReader();
+                        List<object> obj = new List<object>();
+
+                        PersonDetailsModel model = new PersonDetailsModel();
+
+                        while (reader.Read())
+                        {
+                            model.PId = Convert.ToInt32(reader["PId"]);
                             model.PreceedingTitle = reader["PreceedingTitle"].ToString();
                             model.Title = reader["Title"].ToString();
                             model.Firstname = reader["Firstname"].ToString();
@@ -473,21 +606,21 @@ namespace Project_XML.Models.DbManager
                             model.BirthCitySubentity = reader["BirthCitySubentity"].ToString();
                             model.BirthCountry = reader["BirthCountry"].ToString();
                             model.isIndividual = Convert.ToBoolean(reader["isIndividual"]);
-                            model.CtrlPersonType = reader["CtrlPersonType"].ToString();
-
-                            ctrlList.Add(model);
+                            //model.CtrlPersonType = reader["CtrlPersonType"].ToString();
                         }
+
+                        obj.Add(model);
+                        obj.Add(reader["CtrlPersonType"].ToString());
                     }
                     catch (Exception e)
                     {
                         Debug.WriteLine("Get Entity CtrlPerson Error: " + e.Message);
                         return null;
                     }
-                    return ctrlList;
                 }
             }
         }
-
+        */
         public List<ControllingPerson> GetPersonCtrlPerson(int pId, string countryCode, string acctNumber)
         {
             using (SqlConnection conn = base.GetDbConnection("AeoiConnetion"))
@@ -546,6 +679,106 @@ namespace Project_XML.Models.DbManager
             }
         }
 
+        public bool isEntity(int acctHolderId)
+        {
+            using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
+            {
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+
+                    string cmdstr = @"SELECT CAST(CASE
+		                                WHEN (SELECT EntityId FROM Entity WHERE EntityId=@acctHolderId)IS NOT NULL
+		                                THEN 1
+		                                ELSE 0
+		                                END AS BIT) AS isEntity";
+                    cmd.CommandText = cmdstr;
+                    cmd.Parameters.Add(new SqlParameter("@acctHolderId", SqlDbType.Int));
+                    cmd.Prepare();
+
+                    cmd.Parameters["@acctHolderId"].Value = acctHolderId;
+
+                    return Convert.ToBoolean(cmd.ExecuteScalar());
+                }
+            }
+        }
+
+        public string[] GetPersonResCountry(int pId)
+        {
+            using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
+            {
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+
+                    string cmdstr = @"SELECT CountryCode
+                                        FROM Person P, ResCountryCode R
+                                        WHERE P.PId=R.P_Ent_Id AND P.PId=@pId";
+                    cmd.CommandText = cmdstr;
+                    cmd.Parameters.Add(new SqlParameter("@pId", SqlDbType.Int));
+                    cmd.Prepare();
+
+                    cmd.Parameters["@pId"].Value = pId;
+
+                    string[] resCountry = { };
+
+                    try
+                    {
+                        SqlDataReader reader = cmd.ExecuteReader();
+                        int i = 0;
+                        while(reader.Read())
+                        {
+                            resCountry[i] = reader[0].ToString();
+                            i++;
+                        }
+                        return resCountry;
+                    }
+                    catch(Exception e)
+                    {
+                        Debug.WriteLine("Get Person ResCountry Error:" + e.Message);
+                        return null;
+                    }
+                }
+            }
+        }
+
+        public string[] GetEntityResCountry(int entityId)
+        {
+            using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
+            {
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+
+                    string cmdstr = @"SELECT CountryCode
+                                        FROM Entity, ResCountryCode
+                                        WHERE EntityId=P_Ent_Id AND EntityId=@entityId";
+                    cmd.CommandText = cmdstr;
+                    cmd.Parameters.Add(new SqlParameter("@entityId", SqlDbType.Int));
+                    cmd.Prepare();
+
+                    cmd.Parameters["@entityId"].Value = entityId;
+
+                    List<string> resCountry = new List<string>(); ;
+
+                    try
+                    {
+                        SqlDataReader reader = cmd.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            resCountry.Add(reader[0].ToString());
+                        }
+                        return resCountry.ToArray();
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine("Get Entity ResCountry Error:" + e.Message);
+                        return null;
+                    }
+                }
+            }
+        }
+
         public string GetMessageType(string codeType)
         {
             if (codeType.Equals("CRS701"))
@@ -579,13 +812,13 @@ namespace Project_XML.Models.DbManager
                 DateTime date = DateTime.ParseExact(birthDate, "yyyy-MM-dd", CultureInfo.InvariantCulture);
                 return date;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Debug.WriteLine("Date Conversion Error: " + e.Message);
                 return default(DateTime);
             }
         }
-        
+
 
         private static XmlDocument GenerateXMLDoc(XmlReader reader, string rootName)
         {

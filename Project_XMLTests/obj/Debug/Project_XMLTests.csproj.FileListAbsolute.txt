@@ -24,3 +24,4 @@ C:\Users\adrian.m.perez\Documents\Visual Studio 2015\Projects\Project_XML\Projec
 C:\Users\adrian.m.perez\Documents\Visual Studio 2015\Projects\Project_XML\Project_XMLTests\obj\Debug\Project_XMLTests.csprojResolveAssemblyReference.cache
 C:\Users\adrian.m.perez\Documents\Visual Studio 2015\Projects\Project_XML\Project_XMLTests\obj\Debug\Project_XMLTests.dll
 C:\Users\adrian.m.perez\Documents\Visual Studio 2015\Projects\Project_XML\Project_XMLTests\obj\Debug\Project_XMLTests.pdb
+C:\Users\adrian.m.perez\Documents\Visual Studio 2015\Projects\Project_XML\Project_XMLTests\bin\Debug\Project_XMLTests.dll.config

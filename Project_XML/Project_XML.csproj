@@ -230,6 +230,7 @@
     <Compile Include="Models\EntityModels\DocSpecModel.cs" />
     <Compile Include="Models\EntityModels\EntityDetailsModel.cs" />
     <Compile Include="Models\EntityModels\MessageSpecModel.cs" />
+    <Compile Include="Models\EntityModels\PaymentModel.cs" />
     <Compile Include="Models\EntityModels\PersonDetailsModel.cs" />
     <Compile Include="Models\EntityModels\UserAccountModel.cs" />
     <Compile Include="Presenters\EditProfile\EditProfilePresenter.cs" />
@@ -243,6 +244,7 @@
     <Compile Include="Presenters\UserMenu_uc\IUserMenuView.cs" />
     <Compile Include="Presenters\UserMenu_uc\UserMenuPresenter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="schema\CRS_Report.cs" />
     <Compile Include="Site.Master.cs">
       <DependentUpon>Site.Master</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
