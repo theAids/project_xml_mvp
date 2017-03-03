@@ -12,5 +12,6 @@ namespace Project_XML.Models.EntityModels
         public string NameType { get; set; }
         public string AcctHolderType { get; set; }
         public string INVal { get; set; }
+        public List<AddressModel> Address { get; set; }
     }
 }

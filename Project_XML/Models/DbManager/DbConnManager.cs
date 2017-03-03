@@ -22,6 +22,7 @@ namespace Project_XML.Models.DbManager
             catch (NullReferenceException e)
             {
                 Debug.WriteLine("DB CONNECTION ERROR: " + e.Message);
+                Debug.WriteLine(e.StackTrace);
                 return null;
             }
 

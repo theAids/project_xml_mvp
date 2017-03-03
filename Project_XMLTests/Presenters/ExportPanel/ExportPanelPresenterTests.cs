@@ -11,6 +11,10 @@ using Project_XML.Schema;
 using System.Diagnostics;
 using Project_XML.Models.DbManager;
 using Project_XML.Models.EntityModels;
+using System.IO;
+using System.Xml.Schema;
+using System.Xml;
+using System.Reflection;
 
 namespace Project_XML.Presenters.ExportPanel.Tests
 {
@@ -20,26 +24,19 @@ namespace Project_XML.Presenters.ExportPanel.Tests
         //[TestMethod()]
         public void InitViewTest()
         {
-            string s = "";
-
-            string[] str = s.Split(',');
-            Console.WriteLine(str);
-            Assert.IsTrue(true);
-
+            Validate_XML();
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void NewReport()
         {
             //single data for testing:
-            string entries = "123-444-567890,2001";
+            string entries = "123-444-567890,2001;123-444-098765,2002";
             //int acctHolderId = 2001;
             //string resCountryCode = "UK";
 
             var ent = entries.Split(';');
 
-
-            XmlSerializer serializer = new XmlSerializer(typeof(AEOI_Report));
             DbExportManager db = new DbExportManager();
             AEOI_Report report = new AEOI_Report();
 
@@ -47,7 +44,7 @@ namespace Project_XML.Presenters.ExportPanel.Tests
             report.MessageSpec = MessageSpec("2017", "AZ00099", "CRS701");
 
             List<CorrectableAccountReport_Type> correctableAccounts = new List<CorrectableAccountReport_Type>();
-
+            int i = 0;
             foreach (string s in ent)
             {
                 string acctNum = s.Split(',')[0];
@@ -56,13 +53,13 @@ namespace Project_XML.Presenters.ExportPanel.Tests
                 if (db.isEntity(acctHolderId))
                 {
                     string[] resCountries = db.GetEntityResCountry(acctHolderId);
-                    
-                    foreach(string country in resCountries)
+
+                    foreach (string country in resCountries)
                     {
                         //Account Reports
                         CorrectableAccountReport_Type account = new CorrectableAccountReport_Type();
                         //DocSpec
-                        account.DocSpec = DocSpec("OECD1", 000);
+                        account.DocSpec = DocSpec("OECD1", i);
 
                         AccountDetailsModel acctDetails = db.GetAccountDetials(acctNum);
                         //FIAccountNumber
@@ -92,9 +89,16 @@ namespace Project_XML.Presenters.ExportPanel.Tests
                         account.AccountHolder = holder;
 
                         //ControllingPerson
-                        List<int> ctrlIds = db.GetEntityCtrlPersonId(acctHolderId, country, acctNum);
-
+                        Debug.WriteLine("Input: {0} {1} {2}", acctHolderId, country, acctNum);
+                        List<ControllingPersonModel> ctrlList = db.GetEntityCtrlPerson(acctHolderId, country, acctNum);
+                        if (ctrlList != null && ctrlList.Count != 0)
+                        {
+                            ControllingPerson_Type[] ctrlPersons = ControllingPerson(ctrlList);
+                            account.ControllingPerson = ctrlPersons;
+                        }
                         
+                        correctableAccounts.Add(account);
+                        i++; // for DocRefId
                     }
                 }
                 else
@@ -105,56 +109,273 @@ namespace Project_XML.Presenters.ExportPanel.Tests
 
                 //ReportingGroup
                 CrsBody_Type body = new CrsBody_Type();
-                body.ReportingGroup = correctableAccounts.ToArray(); ;
-
-
-                Assert.IsTrue(true);
+                body.ReportingGroup = correctableAccounts.ToArray();
+                report.CrsBody = body;
+                bool flag = false;
+                if(correctableAccounts.Count != 0)
+                {
+                    flag = true;
+                    foreach(CorrectableAccountReport_Type c in correctableAccounts)
+                    {
+                        Debug.WriteLine("Doc:" + c.AccountNumber.Value);
+                    }
+                }
+                
+                XmlSerializer serializer = new XmlSerializer(typeof(AEOI_Report));
+                TextWriter writer = new StreamWriter("C:/Users/adrian.m.perez/Desktop/sample1.xml");
+                serializer.Serialize(writer, report);
+                writer.Close();
+                Validate_XML();
+                Assert.IsTrue(flag);
                 //Assert.AreEqual("EY Hong Kong", report.MessageSpec.FIName);
             }
         }
 
-        public ControllingPerson_Type[] ControllingPerson(List<int> pId, string acctNumber, string country, bool isEntity)
+        public static void Validate_XML()
         {
-            DbExportManager db = new DbExportManager();
-            List<PersonParty_Type> ctrlList = new List<object[]>();
-            if (isEntity)
+            AEOI_Report report = new AEOI_Report();
+
+            XmlReaderSettings settings = new XmlReaderSettings();
+            settings.Schemas.Add("http://www.ird.gov.hk/AEOI/crs/v1", "C:\\Users\\adrian.m.perez\\Documents\\Visual Studio 2015\\Projects\\Project_XML\\Project_XML\\schema\\HK_XMLSchema_v0.1.xsd");
+            settings.Schemas.Add("urn:oecd:ties:isocrstypes:v1", "C:\\Users\\adrian.m.perez\\Documents\\Visual Studio 2015\\Projects\\Project_XML\\Project_XML\\schema\\isocrstypes_v1.0.xsd");
+            settings.Schemas.Add("http://www.ird.gov.hk/AEOI/aeoitypes/v1", "C:\\Users\\adrian.m.perez\\Documents\\Visual Studio 2015\\Projects\\Project_XML\\Project_XML\\schema\\aeoitypes_v0.1.xsd");
+            settings.ValidationType = ValidationType.Schema;
+            
+            XmlReader reader = XmlReader.Create("C:/Users/adrian.m.perez/Desktop/sample1.xml", settings);
+            XmlDocument document = new XmlDocument();
+
+            document.Load(reader);
+
+
+            ValidationEventHandler eventHandler = new ValidationEventHandler(ValidationEventHandler);
+
+            try
             {
-                foreach(int id in pId)
-                {
-                    object[] obj = db.GetEntityCtrlPerson(id, acctNumber);
-
-                    if(obj != null && obj.Length != 0)
-                    {
-                        PersonParty_Type person = PersonParty((PersonDetailsModel)obj[0], country); //first element is perdetailsmdel
-                    }
-
-                }
-                
+                document.Validate(eventHandler);
+                Debug.WriteLine("Success!");
             }
-            else
+            catch (XmlSchemaValidationException e)
             {
-
+                Debug.WriteLine("Error: " + e.Message);
             }
+
         }
 
-        public PersonParty_Type PersonParty(PersonDetailsModel person, string country)
+
+        static void ValidationEventHandler(object sender, ValidationEventArgs e)
+        {
+            switch (e.Severity)
+            {
+                case XmlSeverityType.Error:
+                    Console.WriteLine("Error: {0}", e.Message);
+                    break;
+                case XmlSeverityType.Warning:
+                    Console.WriteLine("Warning {0}", e.Message);
+                    break;
+            }
+
+        }
+
+        /*************************************************************************************************************************/
+
+        public ControllingPerson_Type[] ControllingPerson(List<ControllingPersonModel> ctrlList)
+        {
+            List<ControllingPerson_Type> ctrlPersons = new List<ControllingPerson_Type>();
+
+            foreach (ControllingPersonModel model in ctrlList)
+            {
+                //CtrlPersonType
+                ControllingPerson_Type person = new ControllingPerson_Type();
+
+                if (model.CtrlPersonType != null && !model.CtrlPersonType.Equals(""))
+                {
+                    person.CtrlgPersonType = (CrsCtrlgPersonType_EnumType)Enum.Parse(typeof(CrsCtrlgPersonType_EnumType), model.CtrlPersonType);
+                    person.CtrlgPersonTypeSpecified = true;
+                }
+                else
+                    person.CtrlgPersonTypeSpecified = false;
+
+                person.Individual = PersonParty(model);
+
+                ctrlPersons.Add(person);
+            }
+
+            return ctrlPersons.ToArray();
+        }
+
+        public PersonParty_Type PersonParty(ControllingPersonModel person)
         {
             PersonParty_Type personType = new PersonParty_Type();
             //NamePersonType
             personType.Name = NamePerson(person);
 
             //ResCountryCode
-            CountryCode_Type[] countries = {(CountryCode_Type) Enum.Parse(typeof(CountryCode_Type), country)};
+            List<CountryCode_Type> cList = new List<CountryCode_Type>();
+            foreach(string c in person.ResCountryCode)
+            {
+                cList.Add((CountryCode_Type)Enum.Parse(typeof(CountryCode_Type), c));
+            }
+
+            CountryCode_Type[] countries = cList.ToArray();
             personType.ResCountryCode = countries;
 
             //Address
-            personType.Address = Address(person)
+            personType.Address = Address(person.Address);
 
             //TIN
+            if (person.INVal != null && !person.INVal.Equals(""))
+                personType.TIN = Tin(person.INVal);
 
             //BirthInfo
+            PersonParty_TypeBirthInfo birthdate = BirthDateInfo(person.Birthdate);
+            if (birthdate != null)
+                personType.BirthInfo = birthdate;
+
+            return personType;
         }
 
+        public PersonParty_TypeBirthInfo BirthDateInfo(BirthDateModel birthdate)
+        {
+            bool flag = false;
+            PersonParty_TypeBirthInfo bday = new PersonParty_TypeBirthInfo();
+
+            foreach(PropertyInfo p in typeof(BirthDateModel).GetProperties())
+            {
+                // instantiate/assign only NON-NULL values
+                if(p.GetValue(birthdate) != null && !p.GetValue(birthdate).Equals(""))
+                {
+                    switch(p.Name)
+                    {
+                        case "BirthDate":
+                            bday.BirthDate = ConvertBirthDate(p.GetValue(birthdate).ToString());
+                            bday.BirthDateSpecified = true;
+                            break;
+                        case "BirthCity":
+                            bday.City = p.GetValue(birthdate).ToString();
+                            break;
+                        case "BirthCitySubentity":
+                            bday.CitySubentity = p.GetValue(birthdate).ToString();
+                            break;
+                        case "BirthCountry":
+                            CountryCode_Type country;
+                            PersonParty_TypeBirthInfoCountryInfo bCountry = new PersonParty_TypeBirthInfoCountryInfo();
+                            if (Enum.TryParse<CountryCode_Type>(p.GetValue(birthdate).ToString(), out country) == true)
+                            {
+                                bCountry.Item = country;
+                                bday.CountryInfo = bCountry;
+                            }
+                            else
+                            {
+                                bCountry.Item = p.GetValue(birthdate).ToString();
+                                bday.CountryInfo = bCountry;
+                            }
+                            break;
+                    }
+
+                    flag = true;
+                }
+            }
+
+            if (flag)
+                return bday;
+            else
+                return null;
+        }
+
+        public DateTime ConvertBirthDate(string birthDate)
+        {
+            try
+            {
+                DateTime date = DateTime.Parse(birthDate, CultureInfo.InvariantCulture);
+                Debug.WriteLine("Converting Successful!: " + date.ToString());
+                return date;
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("Date Conversion Error: " + e.Message);
+                return default(DateTime);
+            }
+        }
+
+
+        public TIN_Type[] Tin(string tinVal)
+        {
+            List<TIN_Type> tinList = new List<TIN_Type>();
+
+            var inStr = tinVal.Split(';');
+            foreach (string s in inStr)
+            {
+                TIN_Type inType = new TIN_Type();
+
+                string[] inCsv = s.Split(',');
+
+                inType.Value = inCsv[0];
+                if (inCsv[1] != null && !inCsv[1].Equals(""))
+                {
+                    inType.issuedBy = (CountryCode_Type)Enum.Parse(typeof(CountryCode_Type), inCsv[1]);
+                    inType.issuedBySpecified = true;
+                }
+                else
+                    inType.issuedBySpecified = false;
+
+                tinList.Add(inType);
+            }
+
+            return tinList.ToArray();
+        }
+
+        public NamePerson_Type[] NamePerson(ControllingPersonModel model)
+        {
+            NamePerson_Type name = new NamePerson_Type();
+
+            foreach(PropertyInfo p in typeof(ControllingPersonModel).GetProperties())
+            {
+                // instantiate/assign only NON-NULL values
+                if(p.GetValue(model) != null && !p.GetValue(model).Equals(""))
+                {
+                    switch(p.Name)
+                    {
+                        case "PrecedingTitle":
+                            name.PrecedingTitle = p.GetValue(model).ToString();
+                            break;
+                        case "Title":
+                            name.Title = p.GetValue(model).ToString().Split(',');
+                            break;
+                        case "Firstname":
+                            name.FirstName = p.GetValue(model).ToString();
+                            break;
+                        case "MiddeleName":
+                            name.MiddleName = p.GetValue(model).ToString();
+                            break;
+                        case "NamePrefix":
+                            name.NamePrefix = p.GetValue(model).ToString();
+                            break;
+                        case "LastName":
+                            name.LastName = p.GetValue(model).ToString();
+                            break;
+                        case "GenerationIdentifier":
+                            name.GenerationIdentifier = p.GetValue(model).ToString().Split(',');
+                            break;
+                        case "Suffix":
+                            name.Suffix = p.GetValue(model).ToString().Split(',');
+                            break;
+                        case "GeneralSuffix":
+                            name.GeneralSuffix = p.GetValue(model).ToString();
+                            break;
+                        case "NameType":
+                            name.nameType = (OECDNameType_EnumType)Enum.Parse(typeof(OECDNameType_EnumType), p.GetValue(model).ToString());
+                            name.nameTypeSpecified = true;
+                            break;
+
+                    }
+                }
+            }
+
+            NamePerson_Type[] nameList = new NamePerson_Type[] { name }; //we assume that a person has only 1 name
+            return nameList;
+        }
+
+        /*
         public NamePerson_Type[] NamePerson(PersonDetailsModel model)
         {
             NamePerson_Type name = new NamePerson_Type();
@@ -181,13 +402,13 @@ namespace Project_XML.Presenters.ExportPanel.Tests
             return nameList;
         }
 
-
+    */
         public OrganisationParty_Type OrganisationType(EntityDetailsModel entity, string resCountryCode)
         {
             OrganisationParty_Type org = new OrganisationParty_Type();
 
             //Res Country Code
-            CountryCode_Type countryCode = (CountryCode_Type) Enum.Parse(typeof(CountryCode_Type), resCountryCode);
+            CountryCode_Type countryCode = (CountryCode_Type)Enum.Parse(typeof(CountryCode_Type), resCountryCode);
             CountryCode_Type[] countries = { countryCode };
             org.ResCountryCode = countries;
 
@@ -234,24 +455,16 @@ namespace Project_XML.Presenters.ExportPanel.Tests
             org.Name = nameOrgList;
 
             //Address
-            org.Address = Address(entity.EntityId);
+            org.Address = Address(entity.Address);
 
             return org;
 
         }
 
-        public Address_Type[] Address(int acctId)
+        public Address_Type[] Address(List<AddressModel> addrList)
         {
-            DbExportManager db = new DbExportManager();
 
-            List<AddressModel> addrList = new List<AddressModel>();
             List<Address_Type> addrTypeList = new List<Address_Type>();
-
-            if (db.isEntity(acctId))
-                addrList = db.GetEntityAddress(acctId);
-
-            else
-                addrList = db.GetPersonAddress(acctId);
 
             foreach (AddressModel model in addrList)
             {
@@ -295,9 +508,9 @@ namespace Project_XML.Presenters.ExportPanel.Tests
                 addrArr.Add(fix);
 
                 //if FreeLine has content
-                if (addr.FreeLine != null && !addr.FreeLine.Equals(""))
-                    addrArr.Add(AddressFree(addr.FreeLine));
-
+                //if (addr.FreeLine != null && !addr.FreeLine.Equals(""))
+                // addrArr.Add(AddressFree(addr.FreeLine));
+                addrArr.Add(new AddressFree_Type());
                 return addrArr.ToArray();
             }
             else
@@ -406,7 +619,8 @@ namespace Project_XML.Presenters.ExportPanel.Tests
             catch (Exception e)
             {
                 Debug.WriteLine("CurrCode is out or range or is NULL:" + acctDetails.ACurrCode);
-                accountBalance.currCode = currCode_Type.HKD; // default currency if nothing is specified (HKD)
+                Debug.WriteLine(e.StackTrace)
+;                accountBalance.currCode = currCode_Type.HKD; // default currency if nothing is specified (HKD)
             }
 
             return accountBalance;
@@ -415,6 +629,9 @@ namespace Project_XML.Presenters.ExportPanel.Tests
         public FIAccountNumber_Type FIAccountNumber(AccountDetailsModel acctDetails)
         {
             FIAccountNumber_Type fiAcctDetails = new FIAccountNumber_Type();
+
+            fiAcctDetails.Value = acctDetails.AcctNumber;
+
             if (!acctDetails.AcctNumberType.Equals("") && acctDetails.AcctNumberType != null)
             {
                 try

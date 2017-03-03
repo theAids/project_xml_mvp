@@ -225,8 +225,9 @@
     <Compile Include="Models\EntityModels\AccountDetailsModel.cs" />
     <Compile Include="Models\EntityModels\AccountModel.cs" />
     <Compile Include="Models\EntityModels\AddressModel.cs" />
+    <Compile Include="Models\EntityModels\BirthDateModel.cs" />
     <Compile Include="Models\EntityModels\ConnectionStringModel.cs" />
-    <Compile Include="Models\EntityModels\ControllingPerson.cs" />
+    <Compile Include="Models\EntityModels\ControllingPersonModel.cs" />
     <Compile Include="Models\EntityModels\DocSpecModel.cs" />
     <Compile Include="Models\EntityModels\EntityDetailsModel.cs" />
     <Compile Include="Models\EntityModels\MessageSpecModel.cs" />

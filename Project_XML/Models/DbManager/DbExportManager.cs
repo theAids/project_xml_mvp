@@ -338,11 +338,12 @@ namespace Project_XML.Models.DbManager
                     cmd.Parameters["@acctHolderId"].Value = acctHolderId;
                     cmd.Parameters["@countryCode"].Value = countryCode;
 
-                    EntityDetailsModel model = new EntityDetailsModel();
+                    
 
                     try
                     {
                         SqlDataReader reader = cmd.ExecuteReader();
+                        EntityDetailsModel model = new EntityDetailsModel();
 
                         while (reader.Read())
                         {
@@ -351,7 +352,10 @@ namespace Project_XML.Models.DbManager
                             model.NameType = reader["NameType"].ToString();
                             model.AcctHolderType = reader["AcctHolderType"].ToString();
                             model.INVal = reader["INVal"].ToString();
+
+                            model.Address = GetEntityAddress(model.EntityId);
                         }
+                        return model;
 
                     }
                     catch (Exception e)
@@ -359,8 +363,6 @@ namespace Project_XML.Models.DbManager
                         Debug.WriteLine("Get Entity Details Error: " + e.Message);
                         return null;
                     }
-
-                    return model;
                 }
             }
 
@@ -392,7 +394,7 @@ namespace Project_XML.Models.DbManager
 
                         while (reader.Read())
                         {
-                            model.PreceedingTitle = reader["PreceedingTitle"].ToString();
+                            model.PrecedingTitle = reader["PreceedingTitle"].ToString();
                             model.Title = reader["Title"].ToString();
                             model.Firstname = reader["Firstname"].ToString();
                             model.MiddleName = reader["MiddleName"].ToString();
@@ -401,10 +403,10 @@ namespace Project_XML.Models.DbManager
                             model.Suffix = reader["Suffix"].ToString();
                             model.GeneralSuffix = reader["GeneralSuffix"].ToString();
                             model.NameType = reader["NameType"].ToString();
-                            model.BirthDate = ConvertBirthDate(reader["BirthDate"].ToString());
-                            model.BirthCity = reader["BirthCity"].ToString();
-                            model.BirthCitySubentity = reader["BirthCitySubentity"].ToString();
-                            model.BirthCountry = reader["BirthCountry"].ToString();
+                            model.Birthdate.BirthDate = reader["BirthDate"].ToString();
+                            model.Birthdate.BirthCity = reader["BirthCity"].ToString();
+                            model.Birthdate.BirthCitySubentity = reader["BirthCitySubentity"].ToString();
+                            model.Birthdate.BirthCountry = reader["BirthCountry"].ToString();
                             model.isIndividual = Convert.ToBoolean(reader["isIndividual"]);
                             model.INVal = reader["INVal"].ToString();
                         }
@@ -520,9 +522,9 @@ namespace Project_XML.Models.DbManager
             }
         }
 
-        public List<int> GetEntityCtrlPersonId(int entityId, string countryCode, string acctNumber)
+        public List<ControllingPersonModel> GetEntityCtrlPerson(int entityId, string countryCode, string acctNumber)
         {
-            using (SqlConnection conn = base.GetDbConnection("AeoiConnetion"))
+            using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
             {
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
@@ -538,9 +540,9 @@ namespace Project_XML.Models.DbManager
 
                     cmd.Parameters["@entityId"].Value = entityId;
                     cmd.Parameters["@countryCode"].Value = countryCode;
-                    cmd.Parameters["@accNumber"].Value = acctNumber;
+                    cmd.Parameters["@acctNumber"].Value = acctNumber;
 
-                    List<int> ctrlds = new List<int>();
+                    List<ControllingPersonModel> ctrlList = new List<ControllingPersonModel>();
 
                     try
                     {
@@ -548,9 +550,11 @@ namespace Project_XML.Models.DbManager
 
                         while(reader.Read())
                         {
-                            ctrlds.Add(Convert.ToInt32(reader[0]));
+                            ControllingPersonModel model = new ControllingPersonModel();
+                            model = GetEntityCtrlPersonDetails(Convert.ToInt32(reader[0]), acctNumber);
+                            ctrlList.Add(model);
                         }
-                        return ctrlds;
+                        return ctrlList;
                     }
                     catch(Exception e)
                     {
@@ -561,10 +565,10 @@ namespace Project_XML.Models.DbManager
                 }
             }
         }
-        /*
-        public object[] GetEntityCtrlPerson(int pId, string acctNumber)
+        
+        public ControllingPersonModel GetEntityCtrlPersonDetails(int pId, string acctNumber)
         {
-            using (SqlConnection conn = base.GetDbConnection("AeoiConnetion"))
+            using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
             {
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
@@ -581,47 +585,53 @@ namespace Project_XML.Models.DbManager
                     cmd.Prepare();
 
                     cmd.Parameters["@pId"].Value = pId;
-                    cmd.Parameters["@accNumber"].Value = acctNumber;
+                    cmd.Parameters["@acctNumber"].Value = acctNumber;
                     
 
                     try
                     {
                         SqlDataReader reader = cmd.ExecuteReader();
-                        List<object> obj = new List<object>();
 
-                        PersonDetailsModel model = new PersonDetailsModel();
+                        ControllingPersonModel model = new ControllingPersonModel();
 
                         while (reader.Read())
                         {
                             model.PId = Convert.ToInt32(reader["PId"]);
-                            model.PreceedingTitle = reader["PreceedingTitle"].ToString();
+                            model.PrecedingTitle = reader["PrecedingTitle"].ToString();
                             model.Title = reader["Title"].ToString();
                             model.Firstname = reader["Firstname"].ToString();
                             model.MiddleName = reader["MiddleName"].ToString();
                             model.LastName = reader["LastName"].ToString();
                             model.GenerationIdentifier = reader["GenerationIdentifier"].ToString();
+                            model.Suffix = reader["Suffix"].ToString();
+                            model.GeneralSuffix = reader["GeneralSuffix"].ToString();
                             model.NameType = reader["NameType"].ToString();
-                            model.BirthDate = ConvertBirthDate(reader["BirthDate"].ToString());
-                            model.BirthCity = reader["BirthCity"].ToString();
-                            model.BirthCitySubentity = reader["BirthCitySubentity"].ToString();
-                            model.BirthCountry = reader["BirthCountry"].ToString();
+
+                            model.Birthdate = new BirthDateModel();
+                            model.Birthdate.BirthDate = reader["BirthDate"].ToString();
+                            model.Birthdate.BirthCity = reader["BirthCity"].ToString();
+                            model.Birthdate.BirthCitySubentity = reader["BirthCitySubentity"].ToString();
+                            model.Birthdate.BirthCountry = reader["BirthCountry"].ToString();
+
                             model.isIndividual = Convert.ToBoolean(reader["isIndividual"]);
-                            //model.CtrlPersonType = reader["CtrlPersonType"].ToString();
+                            model.CtrlPersonType = reader["CtrlPersonType"].ToString();
+                            model.Address = GetPersonAddress(pId);
+                            model.ResCountryCode = GetPersonResCountry(model.PId);
                         }
 
-                        obj.Add(model);
-                        obj.Add(reader["CtrlPersonType"].ToString());
+                        return model;
                     }
                     catch (Exception e)
                     {
                         Debug.WriteLine("Get Entity CtrlPerson Error: " + e.Message);
+                        Debug.WriteLine(e.StackTrace);
                         return null;
                     }
                 }
             }
         }
-        */
-        public List<ControllingPerson> GetPersonCtrlPerson(int pId, string countryCode, string acctNumber)
+
+        public List<ControllingPersonModel> GetPersonCtrlPerson(int pId, string countryCode, string acctNumber)
         {
             using (SqlConnection conn = base.GetDbConnection("AeoiConnetion"))
             {
@@ -642,7 +652,7 @@ namespace Project_XML.Models.DbManager
                     cmd.Parameters["@countryCode"].Value = countryCode;
                     cmd.Parameters["@accNumber"].Value = acctNumber;
 
-                    List<ControllingPerson> ctrlList = new List<ControllingPerson>();
+                    List<ControllingPersonModel> ctrlList = new List<ControllingPersonModel>();
 
                     try
                     {
@@ -650,22 +660,22 @@ namespace Project_XML.Models.DbManager
 
                         while (reader.Read())
                         {
-                            ControllingPerson model = new ControllingPerson();
+                            ControllingPersonModel model = new ControllingPersonModel();
 
-                            model.PreceedingTitle = reader["PreceedingTitle"].ToString();
+                            model.PrecedingTitle = reader["PreceedingTitle"].ToString();
                             model.Title = reader["Title"].ToString();
                             model.Firstname = reader["Firstname"].ToString();
                             model.MiddleName = reader["MiddleName"].ToString();
                             model.LastName = reader["LastName"].ToString();
                             model.GenerationIdentifier = reader["GenerationIdentifier"].ToString();
                             model.NameType = reader["NameType"].ToString();
-                            model.BirthDate = ConvertBirthDate(reader["BirthDate"].ToString());
-                            model.BirthCity = reader["BirthCity"].ToString();
-                            model.BirthCitySubentity = reader["BirthCitySubentity"].ToString();
-                            model.BirthCountry = reader["BirthCountry"].ToString();
+                            model.Birthdate.BirthDate = reader["BirthDate"].ToString();
+                            model.Birthdate.BirthCity = reader["BirthCity"].ToString();
+                            model.Birthdate.BirthCitySubentity = reader["BirthCitySubentity"].ToString();
+                            model.Birthdate.BirthCountry = reader["BirthCountry"].ToString();
                             model.isIndividual = Convert.ToBoolean(reader["isIndividual"]);
                             model.CtrlPersonType = reader["CtrlPersonType"].ToString();
-
+                            //model.ResCountryCode.Add(countryCode);
                             ctrlList.Add(model);
                         }
                     }
@@ -720,18 +730,15 @@ namespace Project_XML.Models.DbManager
 
                     cmd.Parameters["@pId"].Value = pId;
 
-                    string[] resCountry = { };
-
                     try
                     {
+                        List<string> ctr = new List<string>();
                         SqlDataReader reader = cmd.ExecuteReader();
-                        int i = 0;
                         while(reader.Read())
                         {
-                            resCountry[i] = reader[0].ToString();
-                            i++;
+                            ctr.Add(reader[0].ToString());
                         }
-                        return resCountry;
+                        return ctr.ToArray(); ;
                     }
                     catch(Exception e)
                     {
@@ -809,7 +816,8 @@ namespace Project_XML.Models.DbManager
         {
             try
             {
-                DateTime date = DateTime.ParseExact(birthDate, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                DateTime date = DateTime.Parse(birthDate, CultureInfo.InvariantCulture);
+                Debug.WriteLine("Converting Successful!: " + date.ToString());
                 return date;
             }
             catch (Exception e)
