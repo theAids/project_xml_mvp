@@ -1,5 +1,6 @@
 ﻿using Project_XML.Models.DbManager;
 using Project_XML.Models.EntityModels;
+using Project_XML.Schema;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -56,6 +57,14 @@ namespace Project_XML.Presenters.ExportPanel
                 UnauthenticatedRedirect(this, null);
         }
 
+        public object[] exportXML(string entries, Dictionary<string, string> reportArgs)
+        {
+            CrsReport crs = new CrsReport();
+
+            return crs.NewReport(entries, reportArgs);
+        }
+
+        /*
         public void exportXML(string connectionName)
         {
 
@@ -76,6 +85,7 @@ namespace Project_XML.Presenters.ExportPanel
             File.AppendAllText(xmlpath, xmldoc.OuterXml);
             LogAction(conn);
         }
+        */
 
         protected void LogAction(ConnectionStringModel conn)
         {

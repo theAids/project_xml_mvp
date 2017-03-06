@@ -236,6 +236,7 @@
     <Compile Include="Models\EntityModels\UserAccountModel.cs" />
     <Compile Include="Presenters\EditProfile\EditProfilePresenter.cs" />
     <Compile Include="Presenters\EditProfile\IEditProfileView.cs" />
+    <Compile Include="Presenters\ExportPanel\CrsReport.cs" />
     <Compile Include="Presenters\ExportPanel\ExportPanelPresenter.cs" />
     <Compile Include="Presenters\ExportPanel\IExportPanelView.cs" />
     <Compile Include="Presenters\Login\ILoginView.cs" />

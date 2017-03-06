@@ -21,11 +21,15 @@ namespace Project_XML.Models.DbManager
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     conn.Open();
-                    string cmdstr = @"SELECT AcctNumber, Name, FirstName+' '+LastName AS PName
-                                        FROM Account
-                                        LEFT JOIN Entity ON EntityId = P_Ent_Id
-                                        LEFT JOIN Person ON PId = P_Ent_Id
-                                        ORDER BY AcctNumber";
+                    string cmdstr = @"SELECT A.AcctNumber, t2.Name, t2.AcctHolderId
+                                        FROM Account A
+                                        LEFT JOIN(SELECT A.AcctNumber, E.Name, EntityId AS AcctHolderId FROM Account A, Entity E WHERE A.AcctNumber=E.AcctNumber
+			                                        UNION
+			                                        SELECT A.AcctNumber, P.LastName+', '+P.FirstName AS Name, P.PId AS AcctHolderId
+				                                        FROM Account A, Person P, PersonAcctHolder PH
+				                                        WHERE A.AcctNumber=PH.AcctNumber AND P.PId=PH.PId)
+			                                        t2 ON t2.AcctNumber=A.AcctNumber
+                                        ORDER BY t2.Name ASC";
                     cmd.CommandText = cmdstr;
                     cmd.Prepare();
 
@@ -41,7 +45,8 @@ namespace Project_XML.Models.DbManager
 
                             model.AcctNumber = reader[0].ToString();
 
-                            model.AcctHolder = GetAcctHolderName(reader[1].ToString(), reader[2].ToString());
+                            model.AcctHolder = reader[1].ToString();
+                            model.AcctHolderId = Convert.ToInt32(reader[2]);
 
                             accounts.Add(model);
                         }
@@ -131,7 +136,7 @@ namespace Project_XML.Models.DbManager
                 }
             }
         }
-
+        /*
         public List<DocSpecModel> GetAllDocSpec(string msgRefId)
         {
             using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
@@ -179,7 +184,7 @@ namespace Project_XML.Models.DbManager
                 }
             }
         }
-
+        */
         public string GetFIName(string aeoiId)
         {
             using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
@@ -849,18 +854,6 @@ namespace Project_XML.Models.DbManager
             }
 
             return null;
-        }
-
-        public string GetAcctHolderName(string eName, string pName)
-        {
-            if (eName != null && eName != "")
-            {
-                return eName;
-            }
-            else
-            {
-                return pName;
-            }
         }
 
         public DateTime ConvertBirthDate(string birthDate)

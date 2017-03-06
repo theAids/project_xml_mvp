@@ -74,6 +74,7 @@
                                                             <input type="checkbox" name="accountCheckGroup" class="form-control chkbox" value='<%# Eval("AcctNumber") %>' /></td>
                                                         <td class="newAcctNumber"><%# Eval("AcctNumber") %></td>
                                                         <td class="newAcctHolder"><%# Eval("AcctHolder") %></td>
+                                                        <td class="newAcctHolderId" style="display:none;"><%# Eval("AcctHolderId") %></td>
                                                     </tr>
                                                 </ItemTemplate>
                                                 <FooterTemplate>
@@ -372,11 +373,13 @@
             $('input[name=accountCheckGroup]').each(addSelected);
             $('#<%= accountSelected.ClientID%>').val(accounts);
 
+            alert(accounts)
+
         }
 
         function addSelected() {
             if (this.checked)
-                accounts.push(this.value);
+                accounts.push(this.value + ':' + $(this).parent().siblings('.newAcctHolderId').text());
         }
 
         //toggle all checkboxes function

@@ -7,9 +7,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using System.Xml;
 
 namespace Project_XML.Views
 {
@@ -79,7 +81,7 @@ namespace Project_XML.Views
 
         protected void exportXML(object sender, CommandEventArgs e)
         {
-            presenter.exportXML(e.CommandArgument.ToString());
+          //  presenter.exportXML(e.CommandArgument.ToString());
 
         }
 
@@ -95,12 +97,37 @@ namespace Project_XML.Views
 
         protected void CreateNewData(object sender, EventArgs e)
         {
+
+            Dictionary<string, string> reportArgs = new Dictionary<string, string>()
+            {
+                { "year", newYear.SelectedValue},
+                { "aeoiId", "AZ00099"},
+                { "msgSpecType", "CRS701"},
+                { "docSpecType", "OECD1" }
+            };
+
+
+
+            Debug.WriteLine(reportArgs["year"]);
             ArrayList accounts = new ArrayList(accountSelected.Value.Split(','));
             Debug.WriteLine("Accounts List:");
             foreach(string s in accounts)
             {
                 Debug.WriteLine(s);
             }
-         }
+
+            object[] obj = presenter.exportXML(accountSelected.Value, reportArgs);
+
+            XmlDocument xmlDoc = (XmlDocument)obj[0];
+            Debug.WriteLine("XML Document Name: " + obj[1].ToString());
+            byte[] bytes = Encoding.Default.GetBytes(xmlDoc.OuterXml);
+            Response.Buffer = true;
+            Response.Clear();
+            Response.ContentType = "text/xml";
+            Response.AddHeader("content-disposition", String.Format("attachment; filename={0}.xml", obj[1].ToString()));
+            Response.BinaryWrite(bytes);
+            Response.End();
+            Response.Flush();
+        }
     }
 }
