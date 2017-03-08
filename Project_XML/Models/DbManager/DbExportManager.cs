@@ -764,6 +764,71 @@ namespace Project_XML.Models.DbManager
             }
         }
 
+        public bool isMsgIdExists(string msgId)
+        {
+            using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
+            {
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+                    string cmdstr = @"SELECT CAST(CASE
+		                                WHEN (SELECT MessageRefId FROM MessageSpec WHERE MessageRefid=@msgId)IS NOT NULL
+		                                THEN 1
+		                                ELSE 0
+		                                END AS BIT) AS isMsgIdExists";
+                    cmd.CommandText = cmdstr;
+                    cmd.Parameters.Add(new SqlParameter("@msgId", SqlDbType.NVarChar, 40));
+                    cmd.Prepare();
+
+                    cmd.Parameters["@msgId"].Value = msgId;
+
+                    return Convert.ToBoolean(cmd.ExecuteScalar());
+                }
+            }
+        }
+
+        public int NewMessageSpec(string msgRefId, string msgType, string returnYear, string note, string contact, string aeoiId)
+        {
+            using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
+            {
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+                    string cmdstr = @"INSERT INTO MessageSpec(MessageRefid, MessageTypeIndic, ReturnYear, AttentionNote, Contact,AeoiId)
+                                        VALUES(@msgRefId,@msgType,@returnYear,@note,@contact,@aeoiId)";
+                    cmd.CommandText = cmdstr;
+                    cmd.Parameters.Add(new SqlParameter("@msgRefId", SqlDbType.NVarChar, 40));
+                    cmd.Parameters.Add(new SqlParameter("@msgType", SqlDbType.NVarChar, 12));
+                    cmd.Parameters.Add(new SqlParameter("@returnYear", SqlDbType.NVarChar, 4));
+                    cmd.Parameters.Add(new SqlParameter("@note", SqlDbType.NVarChar, 150));
+                    cmd.Parameters.Add(new SqlParameter("@contact", SqlDbType.NVarChar, 120));
+                    cmd.Parameters.Add(new SqlParameter("@aeoiId", SqlDbType.NVarChar, 12));
+
+                    cmd.Parameters["@note"].IsNullable = true;
+                    cmd.Parameters["@contact"].IsNullable = true;
+                    cmd.Prepare();
+
+                    cmd.Parameters["@msgRefId"].Value = msgRefId;
+                    cmd.Parameters["@msgType"].Value = msgType;
+                    cmd.Parameters["@returnYear"].Value = returnYear;
+                    cmd.Parameters["@note"].Value = note == null ?(object) DBNull.Value : note;
+                    cmd.Parameters["@contact"].Value = contact == null ? (object)DBNull.Value : contact;
+                    cmd.Parameters["@aeoiId"].Value = aeoiId;
+
+                    try
+                    {
+                        return cmd.ExecuteNonQuery();
+                    }
+                    catch(Exception e)
+                    {
+                        Debug.WriteLine("Insert New MessageSpec Error: " + e.Message);
+                        return 0;
+                    }
+
+                }
+            }
+        }
+
         public string[] GetPersonResCountry(int pId)
         {
             using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
@@ -903,35 +968,6 @@ namespace Project_XML.Models.DbManager
                 return default(DateTime);
             }
         }
-
-
-        private static XmlDocument GenerateXMLDoc(XmlReader reader, string rootName)
-        {
-            StringBuilder sb = new StringBuilder();
-
-            //create header and root name for the xml document
-            sb.AppendLine("<?xml version=\"1.0\" encoding=\"UTF - 8\"?>");
-            sb.AppendLine(String.Format("<{0}>", rootName));
-
-
-            /* refererence code for parsing xml
-             * http://stackoverflow.com/questions/26787765/xmlreader-skips-elements
-             */
-
-            reader.Read();
-            while (!reader.EOF)
-            {
-                if (reader.NodeType == XmlNodeType.Element) // check xml for each element occurence. 
-                    sb.Append(reader.ReadOuterXml());
-                else
-                    reader.Read();
-            }
-
-            sb.AppendLine(string.Format("</{0}>", rootName));   // append the root end tag
-
-            XmlDocument doc = new XmlDocument();
-            doc.LoadXml(sb.ToString());
-            return doc;
-        }
+       
     }
 }

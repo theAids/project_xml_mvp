@@ -61,7 +61,10 @@ namespace Project_XML.Presenters.ExportPanel
         {
             CrsReport crs = new CrsReport();
 
-            return crs.NewReport(entries, reportArgs);
+            if (entries != null && !entries.Equals(""))
+                return crs.NewReport(entries, reportArgs);
+            else
+                return null;
         }
 
         /*

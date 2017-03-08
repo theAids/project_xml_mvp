@@ -30,8 +30,9 @@ namespace Project_XML.Presenters.ExportPanel.Tests
         [TestMethod()]
         public void NewReport()
         {
+            CrsReport crs = new CrsReport();
             //single data for testing:
-            string entries = "123-444-567890:2001";
+            string entries = "10572008:2001";
             //int acctHolderId = 2001;
             //string resCountryCode = "UK";
 
@@ -41,7 +42,7 @@ namespace Project_XML.Presenters.ExportPanel.Tests
             AEOI_Report report = new AEOI_Report();
 
             //MessageSpec_Type
-            report.MessageSpec = MessageSpec("2017", "AZ00099", "CRS701");
+            report.MessageSpec = crs.MessageSpec("2017", "AZ00099", "CRS701", "", "");
 
             List<CorrectableAccountReport_Type> correctableAccounts = new List<CorrectableAccountReport_Type>();
             int i = 0;
@@ -60,15 +61,15 @@ namespace Project_XML.Presenters.ExportPanel.Tests
                         //Account Reports
                         CorrectableAccountReport_Type account = new CorrectableAccountReport_Type();
                         //DocSpec
-                        account.DocSpec = DocSpec("OECD1", i);
+                        account.DocSpec = crs.DocSpec("OECD1", i);
 
                         AccountDetailsModel acctDetails = db.GetAccountDetials(acctNum);
                         //FIAccountNumber
-                        account.AccountNumber = FIAccountNumber(acctDetails);
+                        account.AccountNumber = crs.FIAccountNumber(acctDetails);
                         //MonAmnt
-                        account.AccountBalance = MonAmntBalance(acctDetails);
+                        account.AccountBalance = crs.MonAmntBalance(acctDetails);
                         //Payment
-                        List<Payment_Type> payments = Payment(acctNum);
+                        List<Payment_Type> payments = crs.Payment(acctNum);
                         if (payments != null)
                             account.Payment = payments.ToArray();
 
@@ -78,7 +79,7 @@ namespace Project_XML.Presenters.ExportPanel.Tests
                         EntityDetailsModel model = db.GetEntityDetails(acctHolderId, country);
                         List<object> acctHolderItems = new List<object>();
 
-                        OrganisationParty_Type org = OrganisationType(model, country);
+                        OrganisationParty_Type org = crs.OrganisationType(model, country);
                         acctHolderItems.Add(org);
 
                         //ControllingPerson
@@ -86,7 +87,7 @@ namespace Project_XML.Presenters.ExportPanel.Tests
                         List<ControllingPersonModel> ctrlList = db.GetEntityCtrlPerson(acctHolderId, country, acctNum);
                         if (ctrlList != null && ctrlList.Count != 0)
                         {
-                            ControllingPerson_Type[] ctrlPersons = ControllingPerson(ctrlList);
+                            ControllingPerson_Type[] ctrlPersons = crs.ControllingPerson(ctrlList);
                             account.ControllingPerson = ctrlPersons;
 
                             CrsAcctHolderType_EnumType acctType;
@@ -117,15 +118,15 @@ namespace Project_XML.Presenters.ExportPanel.Tests
                         //Account Reports
                         CorrectableAccountReport_Type account = new CorrectableAccountReport_Type();
                         //DocSpec
-                        account.DocSpec = DocSpec("OECD1", i);
+                        account.DocSpec = crs.DocSpec("OECD1", i);
 
                         AccountDetailsModel acctDetails = db.GetAccountDetials(acctNum);
                         //FIAccountNumber
-                        account.AccountNumber = FIAccountNumber(acctDetails);
+                        account.AccountNumber = crs.FIAccountNumber(acctDetails);
                         //MonAmnt
-                        account.AccountBalance = MonAmntBalance(acctDetails);
+                        account.AccountBalance = crs.MonAmntBalance(acctDetails);
                         //Payment
-                        List<Payment_Type> payments = Payment(acctNum);
+                        List<Payment_Type> payments = crs.Payment(acctNum);
                         if (payments != null)
                             account.Payment = payments.ToArray();
 
@@ -133,7 +134,7 @@ namespace Project_XML.Presenters.ExportPanel.Tests
                         PersonDetailsModel model = db.GetPersonDetails(acctHolderId);
 
                         //Get AcctHolder details
-                        PersonParty_Type person = PersonParty(model, false);
+                        PersonParty_Type person = crs.PersonParty(model, false);
 
                         CountryCode_Type[] countries = { (CountryCode_Type)Enum.Parse(typeof(CountryCode_Type), country) };
                         person.ResCountryCode = countries;
@@ -176,7 +177,7 @@ namespace Project_XML.Presenters.ExportPanel.Tests
             TextWriter writer = new StreamWriter("C:/Users/adrian.m.perez/Desktop/sample1.xml");
             serializer.Serialize(writer, report);
             writer.Close();
-            Validate_XML();
+            crs.Validate_XML();
             /*
             using (MemoryStream stream = new MemoryStream())
             {
@@ -189,677 +190,6 @@ namespace Project_XML.Presenters.ExportPanel.Tests
             //  Validate_XML(doc);
             Assert.IsTrue(true);
             //Assert.AreEqual("EY Hong Kong", report.MessageSpec.FIName);
-        }
-
-        /***********************************************************************************
-         * 
-         * 
-         * CRS Report Generation Function 
-         * 
-         * ********************************************************************************/
-
-        //MessageSpec_Type
-        public MessageSpec_Type MessageSpec(string returnYear, string aeoiId, string msgType)
-        {
-            MessageSpec_Type msg = new MessageSpec_Type();
-
-            msg.AeoiId = aeoiId;
-            msg.ReturnYear = returnYear;
-
-            //get time in HK
-            TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById("China Standard Time");
-            msg.Timestamp = TimeZoneInfo.ConvertTime(DateTime.UtcNow, tz);
-
-            msg.MessageRefId = returnYear + aeoiId + msg.Timestamp.ToString("yyyyMMddHHmmss") + 00;
-
-            if (msgType.Equals(CrsMessageTypeIndic_EnumType.CRS701))
-                msg.MessageTypeIndic = CrsMessageTypeIndic_EnumType.CRS701; // new data
-            else
-                msg.MessageTypeIndic = CrsMessageTypeIndic_EnumType.CRS702; // correction data
-
-            //get FI name based on ID
-            DbExportManager db = new DbExportManager();
-            msg.FIName = db.GetFIName(aeoiId);
-
-            return msg;
-        }
-
-        /**********************************************************************************
-         * 
-         * 
-         * CRSBody Type Function
-         * 
-         * *******************************************************************************/
-
-        //DocSpec_ype
-        public DocSpec_Type DocSpec(string docType, int acctIndex)
-        {
-            DocSpec_Type docSpec = new DocSpec_Type();
-
-            try
-            {
-                docSpec.DocTypeIndic = (OECDDocTypeIndic_EnumType)Enum.Parse(typeof(OECDDocTypeIndic_EnumType), docType);
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("DocTypeIndic Parse Error: " + e.Message);
-            }
-
-            TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById("China Standard Time");
-            DateTime date = TimeZoneInfo.ConvertTime(DateTime.UtcNow, tz);
-
-            docSpec.DocRefId = "DOC" + date.ToString("yyyyMMddHHmmssfff") + acctIndex.ToString().PadLeft(3, '0');
-
-            return docSpec;
-
-        }
-
-        //FIAccountNumber_Type
-        public FIAccountNumber_Type FIAccountNumber(AccountDetailsModel acctDetails)
-        {
-            FIAccountNumber_Type fiAcctDetails = new FIAccountNumber_Type();
-
-            fiAcctDetails.ClosedAccountSpecified = false;
-            fiAcctDetails.DormantAccountSpecified = false;
-            fiAcctDetails.UndocumentedAccountSpecified = false;
-
-            foreach (PropertyInfo p in typeof(AccountDetailsModel).GetProperties())
-            {
-                if (p.GetValue(acctDetails) != null && !p.GetValue(acctDetails).Equals(""))
-                {
-                    switch (p.Name)
-                    {
-                        case "AcctNumber":
-                            fiAcctDetails.Value = p.GetValue(acctDetails).ToString();
-                            break;
-                        case "AcctNumberType":
-                            try
-                            {
-                                fiAcctDetails.AcctNumberType = (AcctNumberType_EnumType)Enum.Parse(typeof(AcctNumberType_EnumType), p.GetValue(acctDetails).ToString());
-                                fiAcctDetails.AcctNumberTypeSpecified = true;
-                            }
-                            catch (Exception e)
-                            {
-                                Debug.WriteLine("Account Number Type Error:" + e.Message);
-                            }
-                            break;
-                        case "isClosed":
-                            fiAcctDetails.ClosedAccount = (bool)acctDetails.isClosed;
-                            fiAcctDetails.ClosedAccountSpecified = true;
-                            break;
-                        case "isDormant":
-                            fiAcctDetails.DormantAccount = (bool)acctDetails.isDormant;
-                            fiAcctDetails.DormantAccountSpecified = true;
-                            break;
-                        case "isUndocumented":
-                            fiAcctDetails.UndocumentedAccount = (bool)acctDetails.isUndocumented;
-                            fiAcctDetails.UndocumentedAccountSpecified = true;
-                            break;
-                    }
-                }
-            }
-
-            return fiAcctDetails;
-        }
-
-        //MonAmnt_Type
-        public MonAmnt_Type MonAmntBalance(AccountDetailsModel acctDetails)
-        {
-            MonAmnt_Type accountBalance = new MonAmnt_Type();
-
-            accountBalance.Value = acctDetails.AccountBalance;
-
-            try
-            {
-                accountBalance.currCode = (currCode_Type)Enum.Parse(typeof(currCode_Type), acctDetails.ACurrCode);
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("CurrCode is out or range or is NULL:" + acctDetails.ACurrCode);
-                Debug.WriteLine(e.StackTrace); accountBalance.currCode = currCode_Type.HKD; // default currency if nothing is specified (HKD)
-            }
-
-            return accountBalance;
-        }
-
-
-        //Payment_Type
-        public List<Payment_Type> Payment(string acctNumber)
-        {
-
-            DbExportManager db = new DbExportManager();
-
-            List<PaymentModel> paymentList = db.GetPayments(acctNumber);
-
-            if (paymentList == null)
-                return null;
-            else
-            {
-                List<Payment_Type> payments = new List<Payment_Type>();
-                foreach (PaymentModel model in paymentList)
-                {
-                    Payment_Type payment = new Payment_Type();
-                    MonAmnt_Type amount = new MonAmnt_Type();
-
-                    amount.Value = (decimal)model.Amount;
-
-                    try
-                    {
-                        amount.currCode = (currCode_Type)Enum.Parse(typeof(currCode_Type), model.CurrCode);
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.WriteLine("CurrCode Parsing Exception:" + e.Message);
-                        amount.currCode = currCode_Type.HKD; // default currcod if not specified (HKD)
-                    }
-
-                    payment.PaymentAmnt = amount;
-
-                    try
-                    {
-                        payment.Type = (CrsPaymentType_EnumType)Enum.Parse(typeof(CrsPaymentType_EnumType), model.PaymentType);
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.WriteLine("PaymentType Parse Exception:" + e.Message);
-                        payment.Type = CrsPaymentType_EnumType.CRS504; //corresponds to OTHERS
-                    }
-
-                    payments.Add(payment);
-                }
-
-                return payments;
-            }
-        }
-
-
-        /************************************************************
-         * 
-         * 
-         * Person/Individual Function
-         * 
-         * *********************************************************/
-
-        //PersonParty_Type
-        public PersonParty_Type PersonParty(PersonDetailsModel person, bool isControlling)
-        {
-            PersonParty_Type personType = new PersonParty_Type();
-            //NamePersonType
-            personType.Name = NamePerson(person);
-
-            //ResCountryCode
-            //get only all res country codes if it is a controlling person
-            if (isControlling)
-            {
-                List<CountryCode_Type> cList = new List<CountryCode_Type>();
-                foreach (string c in person.ResCountryCode)
-                {
-                    cList.Add((CountryCode_Type)Enum.Parse(typeof(CountryCode_Type), c));
-                }
-                CountryCode_Type[] countries = cList.ToArray();
-                personType.ResCountryCode = countries;
-            }
-
-            //Address
-            personType.Address = Address(person.Address);
-
-            //TIN
-            Debug.WriteLine("TIN:" + person.INVal);
-            if (person.INVal != null && !person.INVal.Equals(""))
-            {
-                List<TIN_Type> tinList = new List<TIN_Type>();
-
-                var inStr = person.INVal.Split(';');
-                foreach (string s in inStr)
-                {
-                    TIN_Type inType = new TIN_Type();
-
-                    string[] inCsv = s.Split(',');
-
-                    inType.Value = inCsv[0];
-                    if (inCsv[1] != null && !inCsv[1].Equals(""))
-                    {
-                        Debug.WriteLine(inCsv[1]);
-                        inType.issuedBy = (CountryCode_Type)Enum.Parse(typeof(CountryCode_Type), inCsv[1]);
-                        inType.issuedBySpecified = true;
-                    }
-                    else
-                        inType.issuedBySpecified = false;
-
-                    tinList.Add(inType);
-                }
-
-                personType.TIN = tinList.ToArray();
-            }
-
-            //BirthInfo
-            PersonParty_TypeBirthInfo birthdate = BirthDateInfo(person.Birthdate);
-            if (birthdate != null)
-                personType.BirthInfo = birthdate;
-
-            return personType;
-        }
-
-        //NamePerson_Type
-        public NamePerson_Type[] NamePerson(PersonDetailsModel model)
-        {
-            NamePerson_Type name = new NamePerson_Type();
-
-            foreach (PropertyInfo p in typeof(PersonDetailsModel).GetProperties())
-            {
-                // instantiate/assign only NON-NULL values
-                if (p.GetValue(model) != null && !p.GetValue(model).Equals(""))
-                {
-                    switch (p.Name)
-                    {
-                        case "PrecedingTitle":
-                            name.PrecedingTitle = p.GetValue(model).ToString();
-                            break;
-                        case "Title":
-                            name.Title = p.GetValue(model).ToString().Split(',');
-                            break;
-                        case "Firstname":
-                            name.FirstName = p.GetValue(model).ToString();
-                            break;
-                        case "MiddeleName":
-                            name.MiddleName = p.GetValue(model).ToString();
-                            break;
-                        case "NamePrefix":
-                            name.NamePrefix = p.GetValue(model).ToString();
-                            break;
-                        case "LastName":
-                            name.LastName = p.GetValue(model).ToString();
-                            break;
-                        case "GenerationIdentifier":
-                            name.GenerationIdentifier = p.GetValue(model).ToString().Split(',');
-                            break;
-                        case "Suffix":
-                            name.Suffix = p.GetValue(model).ToString().Split(',');
-                            break;
-                        case "GeneralSuffix":
-                            name.GeneralSuffix = p.GetValue(model).ToString();
-                            break;
-                        case "NameType":
-                            name.nameType = (OECDNameType_EnumType)Enum.Parse(typeof(OECDNameType_EnumType), p.GetValue(model).ToString());
-                            name.nameTypeSpecified = true;
-                            break;
-
-                    }
-                }
-            }
-
-            NamePerson_Type[] nameList = new NamePerson_Type[] { name }; //we assume that a person has only 1 name
-            return nameList;
-        }
-
-        //PersonParty_TypeBirthInfo
-        public PersonParty_TypeBirthInfo BirthDateInfo(BirthDateModel birthdate)
-        {
-            bool flag = false;
-            PersonParty_TypeBirthInfo bday = new PersonParty_TypeBirthInfo();
-
-            foreach (PropertyInfo p in typeof(BirthDateModel).GetProperties())
-            {
-                // instantiate/assign only NON-NULL values
-                if (p.GetValue(birthdate) != null && !p.GetValue(birthdate).Equals(""))
-                {
-                    switch (p.Name)
-                    {
-                        case "BirthDate":
-                            bday.BirthDate = ConvertBirthDate(p.GetValue(birthdate).ToString());
-                            bday.BirthDateSpecified = true;
-                            break;
-                        case "BirthCity":
-                            bday.City = p.GetValue(birthdate).ToString();
-                            break;
-                        case "BirthCitySubentity":
-                            bday.CitySubentity = p.GetValue(birthdate).ToString();
-                            break;
-                        case "BirthCountry":
-                            CountryCode_Type country;
-                            PersonParty_TypeBirthInfoCountryInfo bCountry = new PersonParty_TypeBirthInfoCountryInfo();
-                            if (Enum.TryParse<CountryCode_Type>(p.GetValue(birthdate).ToString(), out country) == true)
-                            {
-                                bCountry.Item = country;
-                                bday.CountryInfo = bCountry;
-                            }
-                            else
-                            {
-                                bCountry.Item = p.GetValue(birthdate).ToString();
-                                bday.CountryInfo = bCountry;
-                            }
-                            break;
-                    }
-
-                    flag = true;
-                }
-            }
-
-            if (flag)   //return only if at least one of the attributes is NOT NULL
-                return bday;
-            else
-                return null;
-        }
-
-        //Controlling Person 
-        public ControllingPerson_Type[] ControllingPerson(List<ControllingPersonModel> ctrlList)
-        {
-            List<ControllingPerson_Type> ctrlPersons = new List<ControllingPerson_Type>();
-
-            foreach (ControllingPersonModel model in ctrlList)
-            {
-                //CtrlPersonType
-                ControllingPerson_Type person = new ControllingPerson_Type();
-
-                if (model.CtrlPersonType != null && !model.CtrlPersonType.Equals(""))
-                {
-                    person.CtrlgPersonType = (CrsCtrlgPersonType_EnumType)Enum.Parse(typeof(CrsCtrlgPersonType_EnumType), model.CtrlPersonType);
-                    person.CtrlgPersonTypeSpecified = true;
-                }
-                else
-                    person.CtrlgPersonTypeSpecified = false;
-
-                person.Individual = PersonParty(model, true);
-
-                ctrlPersons.Add(person);
-            }
-
-            return ctrlPersons.ToArray();
-        }
-
-        /*************************************************
-         * 
-         * 
-         * Organisation/Entity Functions
-         * 
-         * *************************************************/
-
-
-        public OrganisationParty_Type OrganisationType(EntityDetailsModel entity, string resCountryCode)
-        {
-            OrganisationParty_Type org = new OrganisationParty_Type();
-
-            //Res Country Code
-            CountryCode_Type countryCode = (CountryCode_Type)Enum.Parse(typeof(CountryCode_Type), resCountryCode);
-            CountryCode_Type[] countries = { countryCode };
-            org.ResCountryCode = countries;
-
-            //INType
-            List<OrganisationIN_Type> inList = new List<OrganisationIN_Type>();
-
-            var inStr = entity.INVal.Split(';');
-            foreach (string s in inStr)
-            {
-                OrganisationIN_Type inType = new OrganisationIN_Type();
-
-                string[] inCsv = s.Split(',');
-
-                if (inCsv.Length == 3)
-                {
-                    inType.Value = inCsv[0];
-                    if (inCsv[1] != null && !inCsv[1].Equals(""))
-                    {
-                        inType.issuedBy = (CountryCode_Type)Enum.Parse(typeof(CountryCode_Type), inCsv[1]);
-                        inType.issuedBySpecified = true;
-                    }
-                    else
-                        inType.issuedBySpecified = false;
-                }
-                inType.INType = inCsv[2];
-
-                inList.Add(inType);
-            }
-
-            org.IN = inList.ToArray();
-
-            //Name
-            NameOrganisation_Type nameOrg = new NameOrganisation_Type();
-            nameOrg.Value = entity.Name;
-            if (!entity.NameType.Equals("") && entity.NameType != null)
-            {
-                nameOrg.nameType = (OECDNameType_EnumType)Enum.Parse(typeof(OECDNameType_EnumType), entity.NameType);
-                nameOrg.nameTypeSpecified = true;
-            }
-            else
-                nameOrg.nameTypeSpecified = false;
-
-            NameOrganisation_Type[] nameOrgList = { nameOrg };
-            org.Name = nameOrgList;
-
-            //Address
-            org.Address = Address(entity.Address);
-
-            return org;
-
-        }
-
-
-        /***************************************************
-         * 
-         * 
-         * Address Functions
-         * 
-         * *************************************************/
-
-        //Address main function
-        public Address_Type[] Address(List<AddressModel> addrList)
-        {
-
-            List<Address_Type> addrTypeList = new List<Address_Type>();
-
-            foreach (AddressModel model in addrList)
-            {
-                Address_Type addrType = new Address_Type();
-
-                addrType.Items = AddressType(model);
-                addrType.CountryCode = (CountryCode_Type)Enum.Parse(typeof(CountryCode_Type), model.CountryCode);
-
-                if (model.AddressType != null && !model.AddressType.Equals(""))
-                {
-                    addrType.legalAddressType = (OECDLegalAddressType_EnumType)Enum.Parse(typeof(OECDLegalAddressType_EnumType), model.AddressType);
-                    addrType.legalAddressTypeSpecified = true;
-                }
-                else
-                    addrType.legalAddressTypeSpecified = false;
-
-                addrTypeList.Add(addrType);
-            }
-
-            return addrTypeList.ToArray();
-
-        }
-
-
-        //Address_Type object[], AdressFixed_Type
-        public object[] AddressType(AddressModel addr)
-        {
-            List<object> addrArr = new List<object>();
-
-            AddressFix_Type fix = new AddressFix_Type();
-            string freeStr = "";
-            foreach (PropertyInfo p in typeof(AddressModel).GetProperties())
-            {
-                if (p.GetValue(addr) != null && !p.GetValue(addr).Equals(""))
-                {
-                    switch (p.Name)
-                    {
-                        case "Street":
-                            fix.Street = p.GetValue(addr).ToString();
-                            freeStr += p.GetValue(addr).ToString() + ", ";
-                            break;
-                        case "BuildingIdentifier":
-                            fix.BuildingIdentifier = p.GetValue(addr).ToString();
-                            freeStr += p.GetValue(addr).ToString() + ", ";
-                            break;
-                        case "SuiteIdentifier":
-                            fix.SuiteIdentifier = p.GetValue(addr).ToString();
-                            freeStr += p.GetValue(addr).ToString() + ", ";
-                            break;
-                        case "FloorIdentifier":
-                            fix.FloorIdentifier = p.GetValue(addr).ToString();
-                            freeStr += p.GetValue(addr).ToString() + ", ";
-                            break;
-                        case "DistrictName":
-                            fix.DistrictName = p.GetValue(addr).ToString();
-                            freeStr += p.GetValue(addr).ToString() + ", ";
-                            break;
-                        case "POB":
-                            fix.POB = p.GetValue(addr).ToString();
-                            freeStr += p.GetValue(addr).ToString() + ", ";
-                            break;
-                        case "PostCode":
-                            fix.PostCode = p.GetValue(addr).ToString();
-                            freeStr += p.GetValue(addr).ToString() + ", ";
-                            break;
-                        case "City":
-                            fix.City = p.GetValue(addr).ToString();
-                            freeStr += p.GetValue(addr).ToString() + ", ";
-                            break;
-                        case "CountrySubentity":
-                            fix.CountrySubentity = p.GetValue(addr).ToString();
-                            freeStr += p.GetValue(addr).ToString() + ", ";
-                            break;
-                    }
-                }
-
-            }
-            //addrArr.Add(fix);
-
-            if (!freeStr.Equals(""))
-                addrArr.Add(AddressFree(freeStr.Substring(0, freeStr.Length - 2))); // concatination of fixed address fields
-            else if (addr.FreeLine == null || addr.FreeLine.Equals(""))
-                addrArr.Add(AddressFree(addr.CountryCode));
-            else
-                addrArr.Add(AddressFree(addr.FreeLine));
-
-            return addrArr.ToArray();
-
-        }
-
-        //AddressFree_Type
-        public AddressFree_Type AddressFree(string addr)
-        {
-            AddressFree_Type free = new AddressFree_Type();
-            List<string> strList = new List<string>();
-            int max = 150;
-
-            for (int i = 0; i < addr.Length; i += max)
-                strList.Add(addr.Substring(i, Math.Min(max, addr.Length - i)));
-
-            free.Line = strList.ToArray();
-            return free;
-        }
-
-        /*********************************************
-         * 
-         * 
-         * XML Validation Functions
-         * 
-         * *******************************************/
-        public static void Validate_XML(XmlDocument doc)
-        {
-            AEOI_Report report = new AEOI_Report();
-
-            XmlReaderSettings settings = new XmlReaderSettings();
-            settings.Schemas.Add("http://www.ird.gov.hk/AEOI/crs/v1", "C:\\Users\\adrian.m.perez\\Documents\\Visual Studio 2015\\Projects\\Project_XML\\Project_XML\\schema\\HK_XMLSchema_v0.1.xsd");
-            settings.Schemas.Add("urn:oecd:ties:isocrstypes:v1", "C:\\Users\\adrian.m.perez\\Documents\\Visual Studio 2015\\Projects\\Project_XML\\Project_XML\\schema\\isocrstypes_v1.0.xsd");
-            settings.Schemas.Add("http://www.ird.gov.hk/AEOI/aeoitypes/v1", "C:\\Users\\adrian.m.perez\\Documents\\Visual Studio 2015\\Projects\\Project_XML\\Project_XML\\schema\\aeoitypes_v0.1.xsd");
-            settings.ValidationType = ValidationType.Schema;
-
-            XmlSchemaSet schema = new XmlSchemaSet();
-            schema.Add("http://www.ird.gov.hk/AEOI/crs/v1", "C:\\Users\\adrian.m.perez\\Documents\\Visual Studio 2015\\Projects\\Project_XML\\Project_XML\\schema\\HK_XMLSchema_v0.1.xsd");
-            schema.Add("urn:oecd:ties:isocrstypes:v1", "C:\\Users\\adrian.m.perez\\Documents\\Visual Studio 2015\\Projects\\Project_XML\\Project_XML\\schema\\isocrstypes_v1.0.xsd");
-            schema.Add("http://www.ird.gov.hk/AEOI/aeoitypes/v1", "C:\\Users\\adrian.m.perez\\Documents\\Visual Studio 2015\\Projects\\Project_XML\\Project_XML\\schema\\aeoitypes_v0.1.xsd");
-            //XmlReader reader = XmlReader.Create("C:/Users/adrian.m.perez/Desktop/sample1.xml", settings);
-            XmlDocument document = new XmlDocument();
-
-            //document.Load(reader);
-
-
-            ValidationEventHandler eventHandler = new ValidationEventHandler(ValidationEventHandler);
-            doc.Schemas = schema;
-            try
-            {
-                doc.Validate(eventHandler);
-                Debug.WriteLine("Success!");
-            }
-            catch (XmlSchemaValidationException e)
-            {
-                Debug.WriteLine("Error: " + e.Message);
-            }
-
-            //reader.Close();
-
-        }
-
-        public static void Validate_XML()
-        {
-            AEOI_Report report = new AEOI_Report();
-
-            XmlReaderSettings settings = new XmlReaderSettings();
-            settings.Schemas.Add("http://www.ird.gov.hk/AEOI/crs/v1", "C:\\Users\\adrian.m.perez\\Documents\\Visual Studio 2015\\Projects\\Project_XML\\Project_XML\\schema\\HK_XMLSchema_v0.1.xsd");
-            settings.Schemas.Add("urn:oecd:ties:isocrstypes:v1", "C:\\Users\\adrian.m.perez\\Documents\\Visual Studio 2015\\Projects\\Project_XML\\Project_XML\\schema\\isocrstypes_v1.0.xsd");
-            settings.Schemas.Add("http://www.ird.gov.hk/AEOI/aeoitypes/v1", "C:\\Users\\adrian.m.perez\\Documents\\Visual Studio 2015\\Projects\\Project_XML\\Project_XML\\schema\\aeoitypes_v0.1.xsd");
-            settings.ValidationType = ValidationType.Schema;
-
-            XmlReader reader = XmlReader.Create("C:/Users/adrian.m.perez/Desktop/sample1.xml", settings);
-            XmlDocument document = new XmlDocument();
-
-            document.Load(reader);
-
-
-            ValidationEventHandler eventHandler = new ValidationEventHandler(ValidationEventHandler);
-
-            try
-            {
-                document.Validate(eventHandler);
-                Debug.WriteLine("Success!");
-            }
-            catch (XmlSchemaValidationException e)
-            {
-                Debug.WriteLine("Error: " + e.Message);
-            }
-
-            //reader.Close();
-
-        }
-
-
-        static void ValidationEventHandler(object sender, ValidationEventArgs e)
-        {
-            switch (e.Severity)
-            {
-                case XmlSeverityType.Error:
-                    Console.WriteLine("Error: {0}", e.Message);
-                    break;
-                case XmlSeverityType.Warning:
-                    Console.WriteLine("Warning {0}", e.Message);
-                    break;
-            }
-
-        }
-
-
-        /****************************************************
-         * 
-         * 
-         * Other Functions
-         * 
-         * ***********************************************/
-
-        public DateTime ConvertBirthDate(string birthDate)
-        {
-            try
-            {
-                DateTime date = DateTime.Parse(birthDate, CultureInfo.InvariantCulture);
-                Debug.WriteLine("Converting Successful!: " + date.ToString());
-                return date;
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("Date Conversion Error: " + e.Message);
-                return default(DateTime);
-            }
         }
 
     }

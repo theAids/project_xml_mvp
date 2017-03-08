@@ -103,18 +103,10 @@ namespace Project_XML.Views
                 { "year", newYear.SelectedValue},
                 { "aeoiId", "AZ00099"},
                 { "msgSpecType", "CRS701"},
+                { "contact", newContact.Text},
+                { "attentionNote", newAttentionNote.Text},
                 { "docSpecType", "OECD1" }
             };
-
-
-
-            Debug.WriteLine(reportArgs["year"]);
-            ArrayList accounts = new ArrayList(accountSelected.Value.Split(','));
-            Debug.WriteLine("Accounts List:");
-            foreach(string s in accounts)
-            {
-                Debug.WriteLine(s);
-            }
 
             object[] obj = presenter.exportXML(accountSelected.Value, reportArgs);
 

@@ -30,7 +30,7 @@ namespace Project_XML.Presenters.ExportPanel
             AEOI_Report report = new AEOI_Report();
 
             //MessageSpec_Type
-            report.MessageSpec = MessageSpec(reportArgs["year"], reportArgs["aeoiId"], reportArgs["msgSpecType"]);
+            report.MessageSpec = MessageSpec(reportArgs["year"], reportArgs["aeoiId"], reportArgs["msgSpecType"], reportArgs["contact"], reportArgs["attentionNote"]);
 
             List<CorrectableAccountReport_Type> correctableAccounts = new List<CorrectableAccountReport_Type>();
             int i = 0;
@@ -189,9 +189,10 @@ namespace Project_XML.Presenters.ExportPanel
         * ********************************************************************************/
 
         //MessageSpec_Type
-        public MessageSpec_Type MessageSpec(string returnYear, string aeoiId, string msgType)
+        public MessageSpec_Type MessageSpec(string returnYear, string aeoiId, string msgType, string contact, string attentionNote)
         {
             MessageSpec_Type msg = new MessageSpec_Type();
+            DbExportManager db = new DbExportManager();
 
             msg.AeoiId = aeoiId;
             msg.ReturnYear = returnYear;
@@ -200,7 +201,36 @@ namespace Project_XML.Presenters.ExportPanel
             TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById("China Standard Time");
             msg.Timestamp = TimeZoneInfo.ConvertTime(DateTime.UtcNow, tz);
 
-            msg.MessageRefId = returnYear + aeoiId + msg.Timestamp.ToString("yyyyMMddHHmmss") + 00;
+            int i = 0;
+            string msgRefId;
+
+            do
+            {
+                msgRefId = returnYear + aeoiId + msg.Timestamp.ToString("yyyyMMddHHmmss") + i.ToString().PadLeft(2, '0');
+                i++;
+            }
+            while (db.isMsgIdExists(msgRefId)); // check if msgRefId exists in db
+
+            msg.MessageRefId = msgRefId;
+
+            string note;
+            string con;
+
+            if (!contact.Equals("") && contact != null)
+            {
+                con = contact;
+                msg.Contact = contact;
+            }
+            else
+                con = null;
+
+            if (!attentionNote.Equals("") && attentionNote != null)
+            {
+                note = attentionNote;
+                msg.AttentionNote = attentionNote;
+            }
+            else
+                note = null;
 
             if (msgType.Equals(CrsMessageTypeIndic_EnumType.CRS701))
                 msg.MessageTypeIndic = CrsMessageTypeIndic_EnumType.CRS701; // new data
@@ -208,8 +238,9 @@ namespace Project_XML.Presenters.ExportPanel
                 msg.MessageTypeIndic = CrsMessageTypeIndic_EnumType.CRS702; // correction data
 
             //get FI name based on ID
-            DbExportManager db = new DbExportManager();
             msg.FIName = db.GetFIName(aeoiId);
+
+            db.NewMessageSpec(msgRefId, msgType, returnYear, note, con, aeoiId);
 
             return msg;
         }
@@ -772,6 +803,39 @@ namespace Project_XML.Presenters.ExportPanel
                 return false;
             }
             
+        }
+
+        //for testing
+        public void Validate_XML()
+        {
+            AEOI_Report report = new AEOI_Report();
+
+            XmlReaderSettings settings = new XmlReaderSettings();
+            settings.Schemas.Add("http://www.ird.gov.hk/AEOI/crs/v1", "C:\\Users\\adrian.m.perez\\Documents\\Visual Studio 2015\\Projects\\Project_XML\\Project_XML\\schema\\HK_XMLSchema_v0.1.xsd");
+            settings.Schemas.Add("urn:oecd:ties:isocrstypes:v1", "C:\\Users\\adrian.m.perez\\Documents\\Visual Studio 2015\\Projects\\Project_XML\\Project_XML\\schema\\isocrstypes_v1.0.xsd");
+            settings.Schemas.Add("http://www.ird.gov.hk/AEOI/aeoitypes/v1", "C:\\Users\\adrian.m.perez\\Documents\\Visual Studio 2015\\Projects\\Project_XML\\Project_XML\\schema\\aeoitypes_v0.1.xsd");
+            settings.ValidationType = ValidationType.Schema;
+
+            XmlReader reader = XmlReader.Create("C:/Users/adrian.m.perez/Desktop/sample1.xml", settings);
+            XmlDocument document = new XmlDocument();
+
+            document.Load(reader);
+
+
+            ValidationEventHandler eventHandler = new ValidationEventHandler(ValidationEventHandler);
+
+            try
+            {
+                document.Validate(eventHandler);
+                Debug.WriteLine("Success!");
+            }
+            catch (XmlSchemaValidationException e)
+            {
+                Debug.WriteLine("Error: " + e.Message);
+            }
+
+            //reader.Close();
+
         }
 
 
