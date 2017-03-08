@@ -118,16 +118,19 @@ namespace Project_XML.Views
 
             object[] obj = presenter.exportXML(accountSelected.Value, reportArgs);
 
-            XmlDocument xmlDoc = (XmlDocument)obj[0];
-            Debug.WriteLine("XML Document Name: " + obj[1].ToString());
-            byte[] bytes = Encoding.Default.GetBytes(xmlDoc.OuterXml);
-            Response.Buffer = true;
-            Response.Clear();
-            Response.ContentType = "text/xml";
-            Response.AddHeader("content-disposition", String.Format("attachment; filename={0}.xml", obj[1].ToString()));
-            Response.BinaryWrite(bytes);
-            Response.End();
-            Response.Flush();
+            if (obj != null)
+            {
+                XmlDocument xmlDoc = (XmlDocument)obj[0];
+                Debug.WriteLine("XML Document Name: " + obj[1].ToString());
+                byte[] bytes = Encoding.Default.GetBytes(xmlDoc.OuterXml);
+                Response.Buffer = true;
+                Response.Clear();
+                Response.ContentType = "text/xml";
+                Response.AddHeader("content-disposition", String.Format("attachment; filename={0}.xml", obj[1].ToString()));
+                Response.BinaryWrite(bytes);
+                Response.End();
+                Response.Flush();
+            }
         }
     }
 }

@@ -152,7 +152,7 @@ namespace Project_XML.Models.DbManager
                                         AND DocSpec.MessageRefId = MessageSpec.MessageRefid 
                                         AND DocSpec.MessageRefId = @msgRefId";
                     cmd.CommandText = cmdstr;
-                    cmd.Parameters.Add(new SqlParameter("@msgRefId", SqlDbType.VarChar, 40));
+                    cmd.Parameters.Add(new SqlParameter("@msgRefId", SqlDbType.NVarChar, 40));
                     cmd.Prepare();
 
                     cmd.Parameters["@msgRefId"].Value = msgRefId;
@@ -194,7 +194,7 @@ namespace Project_XML.Models.DbManager
                     conn.Open();
                     string cmdstr = @"SELECT FIName From AeoiProfile WHERE AeoiId=@aeoiId";
                     cmd.CommandText = cmdstr;
-                    cmd.Parameters.Add(new SqlParameter("@aeoiId", SqlDbType.VarChar, 12));
+                    cmd.Parameters.Add(new SqlParameter("@aeoiId", SqlDbType.NVarChar, 12));
                     cmd.Prepare();
 
                     cmd.Parameters["@aeoiId"].Value = aeoiId;
@@ -223,7 +223,7 @@ namespace Project_XML.Models.DbManager
                                         FROM Account
                                         WHERE AcctNumber=@acctNumber";
                     cmd.CommandText = cmdstr;
-                    cmd.Parameters.Add(new SqlParameter("@acctNumber", SqlDbType.VarChar, 72));
+                    cmd.Parameters.Add(new SqlParameter("@acctNumber", SqlDbType.NVarChar, 72));
                     cmd.Prepare();
 
                     cmd.Parameters["@acctNumber"].Value = acctNumber;
@@ -279,7 +279,7 @@ namespace Project_XML.Models.DbManager
                                         FROM Payment P, Account A
                                         WHERE P.AcctNumber = A.AcctNumber AND A.AcctNumber=@acctNumber";
                     cmd.CommandText = cmdstr;
-                    cmd.Parameters.Add(new SqlParameter("@acctNumber", SqlDbType.VarChar, 72));
+                    cmd.Parameters.Add(new SqlParameter("@acctNumber", SqlDbType.NVarChar, 72));
                     cmd.Prepare();
 
                     cmd.Parameters["@acctNumber"].Value = acctNumber;
@@ -329,15 +329,15 @@ namespace Project_XML.Models.DbManager
                 {
                     conn.Open();
                     string cmdstr = @"SELECT EntityId,Name,NameType,AcctHolderType,
-	                                        STUFF((SELECT ';'+Value+','+CountryCode+','+IType 
+	                                        STUFF((SELECT ';'+Value+','+ISNULL(CountryCode,'')+','+IType 
 			                                        FROM INType, Entity
 			                                        WHERE P_Ent_Id=EntityId AND EntityId=@acctHolderId
 			                                        FOR XML PATH('')),1,1,'') AS INVal
                                         FROM Entity E, ResCountryCode
                                         WHERE EntityId=P_Ent_Id AND EntityId=@acctHolderId AND CountryCode=@countryCode";
                     cmd.CommandText = cmdstr;
-                    cmd.Parameters.Add(new SqlParameter("@acctHolderId", SqlDbType.VarChar, 72));
-                    cmd.Parameters.Add(new SqlParameter("@countryCode", SqlDbType.VarChar, 2));
+                    cmd.Parameters.Add(new SqlParameter("@acctHolderId", SqlDbType.NVarChar, 72));
+                    cmd.Parameters.Add(new SqlParameter("@countryCode", SqlDbType.NVarChar, 2));
                     cmd.Prepare();
 
                     cmd.Parameters["@acctHolderId"].Value = acctHolderId;
@@ -381,7 +381,7 @@ namespace Project_XML.Models.DbManager
                 {
                     conn.Open();
                     string cmdstr = @"SELECT Person.*,
-	                                        STUFF((SELECT ';'+Value+','+CountryCode+','+IType 
+	                                        STUFF((SELECT ';'+Value+','+ISNULL(CountryCode,'')+','+IType 
 			                                    FROM INType, Person WHERE P_Ent_Id=PId AND PId=@pId
 			                                    FOR XML PATH('')),1,1,'') AS INVal
                                         FROM Person WHERE PId=@pId";
@@ -542,8 +542,8 @@ namespace Project_XML.Models.DbManager
 		                                AND R.CountryCode=@countryCode AND A.AcctNumber=@acctNumber AND EntityId=@entityId";
                     cmd.CommandText = cmdstr;
                     cmd.Parameters.Add(new SqlParameter("@entityId", SqlDbType.Int));
-                    cmd.Parameters.Add(new SqlParameter("@countryCode", SqlDbType.VarChar, 2));
-                    cmd.Parameters.Add(new SqlParameter("@acctNumber", SqlDbType.VarChar, 72));
+                    cmd.Parameters.Add(new SqlParameter("@countryCode", SqlDbType.NVarChar, 2));
+                    cmd.Parameters.Add(new SqlParameter("@acctNumber", SqlDbType.NVarChar, 72));
                     cmd.Prepare();
 
                     cmd.Parameters["@entityId"].Value = entityId;
@@ -586,8 +586,8 @@ namespace Project_XML.Models.DbManager
 		                                AND R.CountryCode=@countryCode AND A.AcctNumber=@acctNumber AND P.PId=@pId";
                                                             cmd.CommandText = cmdstr;
                     cmd.Parameters.Add(new SqlParameter("@pId", SqlDbType.Int));
-                    cmd.Parameters.Add(new SqlParameter("@countryCode", SqlDbType.VarChar, 2));
-                    cmd.Parameters.Add(new SqlParameter("@acctNumber", SqlDbType.VarChar, 72));
+                    cmd.Parameters.Add(new SqlParameter("@countryCode", SqlDbType.NVarChar, 2));
+                    cmd.Parameters.Add(new SqlParameter("@acctNumber", SqlDbType.NVarChar, 72));
                     cmd.Prepare();
 
                     cmd.Parameters["@pId"].Value = pId;
@@ -625,7 +625,7 @@ namespace Project_XML.Models.DbManager
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     conn.Open();
-                    string cmdstr = @"SELECT P.*,STUFF((SELECT ';'+Value+','+CountryCode+','+IType 
+                    string cmdstr = @"SELECT P.*,STUFF((SELECT ';'+Value+','+ISNULL(CountryCode,'')+','+IType 
 			                                        FROM INType, Person WHERE P_Ent_Id=PId AND PId=1004
 			                                        FOR XML PATH('')),1,1,'') AS INVal,
 			                                        CtrlPersonType
@@ -633,7 +633,7 @@ namespace Project_XML.Models.DbManager
                                         WHERE C.PId=P.PId AND C.AcctNumber=A.AcctNumber AND A.AcctNumber=@acctNumber AND P.PId=@pId";
                     cmd.CommandText = cmdstr;
                     cmd.Parameters.Add(new SqlParameter("@pId", SqlDbType.Int));
-                    cmd.Parameters.Add(new SqlParameter("@acctNumber", SqlDbType.VarChar, 72));
+                    cmd.Parameters.Add(new SqlParameter("@acctNumber", SqlDbType.NVarChar, 72));
                     cmd.Prepare();
 
                     cmd.Parameters["@pId"].Value = pId;
@@ -696,8 +696,8 @@ namespace Project_XML.Models.DbManager
 		                                        AND R.CountryCode=@countryCode AND A.AcctNumber=@acctNumber AND P.PId=@pId";
                     cmd.CommandText = cmdstr;
                     cmd.Parameters.Add(new SqlParameter("@pId", SqlDbType.Int));
-                    cmd.Parameters.Add(new SqlParameter("@countryCode", SqlDbType.VarChar, 2));
-                    cmd.Parameters.Add(new SqlParameter("@acctNumber", SqlDbType.VarChar, 72));
+                    cmd.Parameters.Add(new SqlParameter("@countryCode", SqlDbType.NVarChar, 2));
+                    cmd.Parameters.Add(new SqlParameter("@acctNumber", SqlDbType.NVarChar, 72));
                     cmd.Prepare();
 
                     cmd.Parameters["@pId"].Value = pId;

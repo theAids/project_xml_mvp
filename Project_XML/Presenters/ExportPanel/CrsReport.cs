@@ -168,10 +168,18 @@ namespace Project_XML.Presenters.ExportPanel
                 xmlDoc.Load(stream);
             }
 
-            Validate_XML(xmlDoc);
+            if(Validate_XML(xmlDoc))
+            {
+                object[] obj = { xmlDoc, report.MessageSpec.MessageRefId };//[0] - xmldoc, [1] - name of the file
+                return obj;
+            }
+            else
+            {
+                return null;
+            }
+                
 
-            object[] obj = { xmlDoc, report.MessageSpec.MessageRefId};
-            return obj;
+            
         }
         /***********************************************************************************
         * 
@@ -567,32 +575,36 @@ namespace Project_XML.Presenters.ExportPanel
             org.ResCountryCode = countries;
 
             //INType
-            List<OrganisationIN_Type> inList = new List<OrganisationIN_Type>();
-
-            var inStr = entity.INVal.Split(';');
-            foreach (string s in inStr)
+            if (entity.INVal != null && !entity.INVal.Equals(""))
             {
-                OrganisationIN_Type inType = new OrganisationIN_Type();
+                List<OrganisationIN_Type> inList = new List<OrganisationIN_Type>();
 
-                string[] inCsv = s.Split(',');
-
-                if (inCsv.Length == 3)
+                var inStr = entity.INVal.Split(';');
+                Debug.WriteLine("INVAL Values: " + entity.INVal);
+                foreach (string s in inStr)
                 {
-                    inType.Value = inCsv[0];
-                    if (inCsv[1] != null && !inCsv[1].Equals(""))
+                    OrganisationIN_Type inType = new OrganisationIN_Type();
+
+                    string[] inCsv = s.Split(',');
+
+                    if (inCsv.Length == 3)
                     {
-                        inType.issuedBy = (CountryCode_Type)Enum.Parse(typeof(CountryCode_Type), inCsv[1]);
-                        inType.issuedBySpecified = true;
+                        inType.Value = inCsv[0];
+                        if (inCsv[1] != null && !inCsv[1].Equals(""))
+                        {
+                            inType.issuedBy = (CountryCode_Type)Enum.Parse(typeof(CountryCode_Type), inCsv[1]);
+                            inType.issuedBySpecified = true;
+                        }
+                        else
+                            inType.issuedBySpecified = false;
                     }
-                    else
-                        inType.issuedBySpecified = false;
+                    inType.INType = inCsv[2];
+
+                    inList.Add(inType);
                 }
-                inType.INType = inCsv[2];
 
-                inList.Add(inType);
+                org.IN = inList.ToArray();
             }
-
-            org.IN = inList.ToArray();
 
             //Name
             NameOrganisation_Type nameOrg = new NameOrganisation_Type();
@@ -738,7 +750,7 @@ namespace Project_XML.Presenters.ExportPanel
          * XML Validation Functions
          * 
          * *******************************************/
-        public static void Validate_XML(XmlDocument doc)
+        public static bool Validate_XML(XmlDocument doc)
         {
 
             XmlSchemaSet schema = new XmlSchemaSet();
@@ -752,10 +764,12 @@ namespace Project_XML.Presenters.ExportPanel
             {
                 doc.Validate(eventHandler);
                 Debug.WriteLine("XML Validation Success!");
+                return true;
             }
             catch (XmlSchemaValidationException e)
             {
                 Debug.WriteLine("XML Validation Error: " + e.Message);
+                return false;
             }
             
         }
