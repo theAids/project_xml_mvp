@@ -109,7 +109,7 @@ namespace Project_XML.Presenters.ExportPanel.Tests
                 else // account holder is an Individual/Person
                 {
                     Debug.WriteLine("Individual Account.");
-                    string[] resCountries = db.GetPersonResCountry(acctHolderId);
+                    string[] resCountries = db.GetPersonReportableResCountry(acctHolderId);
 
                     foreach (string country in resCountries)
                     {
@@ -131,7 +131,7 @@ namespace Project_XML.Presenters.ExportPanel.Tests
 
                         //AccountHolder
                         PersonDetailsModel model = db.GetPersonDetails(acctHolderId);
-                        
+
                         //Get AcctHolder details
                         PersonParty_Type person = PersonParty(model, false);
 
@@ -145,6 +145,7 @@ namespace Project_XML.Presenters.ExportPanel.Tests
                         holder.Items = acctHolderItems.ToArray();
                         account.AccountHolder = holder;
 
+                        /*
                         //ControllingPerson
                         Debug.WriteLine("Input: {0} {1} {2}", acctHolderId, country, acctNum);
                         List<ControllingPersonModel> ctrlList = db.GetIndividualCtrlPerson(acctHolderId, country, acctNum);
@@ -153,6 +154,7 @@ namespace Project_XML.Presenters.ExportPanel.Tests
                             ControllingPerson_Type[] ctrlPersons = ControllingPerson(ctrlList);
                             account.ControllingPerson = ctrlPersons;
                         }
+                        */
 
                         correctableAccounts.Add(account);
                         i++;
@@ -174,6 +176,7 @@ namespace Project_XML.Presenters.ExportPanel.Tests
             TextWriter writer = new StreamWriter("C:/Users/adrian.m.perez/Desktop/sample1.xml");
             serializer.Serialize(writer, report);
             writer.Close();
+            Validate_XML();
             /*
             using (MemoryStream stream = new MemoryStream())
             {
@@ -183,19 +186,19 @@ namespace Project_XML.Presenters.ExportPanel.Tests
                 //doc.Save("samplexml.xml");
             }
             */
-              //  Validate_XML(doc);
-                Assert.IsTrue(true);
+            //  Validate_XML(doc);
+            Assert.IsTrue(true);
             //Assert.AreEqual("EY Hong Kong", report.MessageSpec.FIName);
         }
-        
+
         /***********************************************************************************
          * 
          * 
          * CRS Report Generation Function 
          * 
          * ********************************************************************************/
-        
-            //MessageSpec_Type
+
+        //MessageSpec_Type
         public MessageSpec_Type MessageSpec(string returnYear, string aeoiId, string msgType)
         {
             MessageSpec_Type msg = new MessageSpec_Type();
@@ -262,9 +265,9 @@ namespace Project_XML.Presenters.ExportPanel.Tests
 
             foreach (PropertyInfo p in typeof(AccountDetailsModel).GetProperties())
             {
-                if(p.GetValue(acctDetails) != null && !p.GetValue(acctDetails).Equals(""))
+                if (p.GetValue(acctDetails) != null && !p.GetValue(acctDetails).Equals(""))
                 {
-                    switch(p.Name)
+                    switch (p.Name)
                     {
                         case "AcctNumber":
                             fiAcctDetails.Value = p.GetValue(acctDetails).ToString();
@@ -570,7 +573,7 @@ namespace Project_XML.Presenters.ExportPanel.Tests
          * Organisation/Entity Functions
          * 
          * *************************************************/
-        
+
 
         public OrganisationParty_Type OrganisationType(EntityDetailsModel entity, string resCountryCode)
         {
@@ -672,69 +675,62 @@ namespace Project_XML.Presenters.ExportPanel.Tests
         {
             List<object> addrArr = new List<object>();
 
-            if (addr.isFixed)
+            AddressFix_Type fix = new AddressFix_Type();
+            string freeStr = "";
+            foreach (PropertyInfo p in typeof(AddressModel).GetProperties())
             {
-                AddressFix_Type fix = new AddressFix_Type();
-                string freeStr = "";
-                foreach (PropertyInfo p in typeof(AddressModel).GetProperties())
+                if (p.GetValue(addr) != null && !p.GetValue(addr).Equals(""))
                 {
-                    if (p.GetValue(addr) != null && !p.GetValue(addr).Equals(""))
+                    switch (p.Name)
                     {
-                        switch (p.Name)
-                        {
-                            case "Street":
-                                fix.Street = p.GetValue(addr).ToString();
-                                freeStr += p.GetValue(addr).ToString() + ", ";
-                                break;
-                            case "BuildingIdentifier":
-                                fix.BuildingIdentifier = p.GetValue(addr).ToString();
-                                freeStr += p.GetValue(addr).ToString() + ", ";
-                                break;
-                            case "SuiteIdentifier":
-                                fix.SuiteIdentifier = p.GetValue(addr).ToString();
-                                freeStr += p.GetValue(addr).ToString() + ", ";
-                                break;
-                            case "FloorIdentifier":
-                                fix.FloorIdentifier = p.GetValue(addr).ToString();
-                                freeStr += p.GetValue(addr).ToString() + ", ";
-                                break;
-                            case "DistrictName":
-                                fix.DistrictName = p.GetValue(addr).ToString();
-                                freeStr += p.GetValue(addr).ToString() + ", ";
-                                break;
-                            case "POB":
-                                fix.POB = p.GetValue(addr).ToString();
-                                freeStr += p.GetValue(addr).ToString() + ", ";
-                                break;
-                            case "PostCode":
-                                fix.PostCode = p.GetValue(addr).ToString();
-                                freeStr += p.GetValue(addr).ToString() + ", ";
-                                break;
-                            case "City":
-                                fix.City = p.GetValue(addr).ToString();
-                                freeStr += p.GetValue(addr).ToString() + ", ";
-                                break;
-                            case "CountrySubentity":
-                                fix.CountrySubentity = p.GetValue(addr).ToString();
-                                freeStr += p.GetValue(addr).ToString() + ", ";
-                                break;
-                        }
+                        case "Street":
+                            fix.Street = p.GetValue(addr).ToString();
+                            freeStr += p.GetValue(addr).ToString() + ", ";
+                            break;
+                        case "BuildingIdentifier":
+                            fix.BuildingIdentifier = p.GetValue(addr).ToString();
+                            freeStr += p.GetValue(addr).ToString() + ", ";
+                            break;
+                        case "SuiteIdentifier":
+                            fix.SuiteIdentifier = p.GetValue(addr).ToString();
+                            freeStr += p.GetValue(addr).ToString() + ", ";
+                            break;
+                        case "FloorIdentifier":
+                            fix.FloorIdentifier = p.GetValue(addr).ToString();
+                            freeStr += p.GetValue(addr).ToString() + ", ";
+                            break;
+                        case "DistrictName":
+                            fix.DistrictName = p.GetValue(addr).ToString();
+                            freeStr += p.GetValue(addr).ToString() + ", ";
+                            break;
+                        case "POB":
+                            fix.POB = p.GetValue(addr).ToString();
+                            freeStr += p.GetValue(addr).ToString() + ", ";
+                            break;
+                        case "PostCode":
+                            fix.PostCode = p.GetValue(addr).ToString();
+                            freeStr += p.GetValue(addr).ToString() + ", ";
+                            break;
+                        case "City":
+                            fix.City = p.GetValue(addr).ToString();
+                            freeStr += p.GetValue(addr).ToString() + ", ";
+                            break;
+                        case "CountrySubentity":
+                            fix.CountrySubentity = p.GetValue(addr).ToString();
+                            freeStr += p.GetValue(addr).ToString() + ", ";
+                            break;
                     }
                 }
 
-                addrArr.Add(fix);
+            }
+            //addrArr.Add(fix);
 
-                //if FreeLine has content
-                if (addr.FreeLine != null && !addr.FreeLine.Equals(""))
-                    addrArr.Add(AddressFree(addr.FreeLine));
-                else
-                    addrArr.Add(AddressFree(freeStr.Substring(0, freeStr.Length - 2))); // concatination of fixed address fields
-            }
+            if (!freeStr.Equals(""))
+                addrArr.Add(AddressFree(freeStr.Substring(0, freeStr.Length - 2))); // concatination of fixed address fields
+            else if (addr.FreeLine == null || addr.FreeLine.Equals(""))
+                addrArr.Add(AddressFree(addr.CountryCode));
             else
-            {
                 addrArr.Add(AddressFree(addr.FreeLine));
-                return addrArr.ToArray();
-            }
 
             return addrArr.ToArray();
 
@@ -785,6 +781,38 @@ namespace Project_XML.Presenters.ExportPanel.Tests
             try
             {
                 doc.Validate(eventHandler);
+                Debug.WriteLine("Success!");
+            }
+            catch (XmlSchemaValidationException e)
+            {
+                Debug.WriteLine("Error: " + e.Message);
+            }
+
+            //reader.Close();
+
+        }
+
+        public static void Validate_XML()
+        {
+            AEOI_Report report = new AEOI_Report();
+
+            XmlReaderSettings settings = new XmlReaderSettings();
+            settings.Schemas.Add("http://www.ird.gov.hk/AEOI/crs/v1", "C:\\Users\\adrian.m.perez\\Documents\\Visual Studio 2015\\Projects\\Project_XML\\Project_XML\\schema\\HK_XMLSchema_v0.1.xsd");
+            settings.Schemas.Add("urn:oecd:ties:isocrstypes:v1", "C:\\Users\\adrian.m.perez\\Documents\\Visual Studio 2015\\Projects\\Project_XML\\Project_XML\\schema\\isocrstypes_v1.0.xsd");
+            settings.Schemas.Add("http://www.ird.gov.hk/AEOI/aeoitypes/v1", "C:\\Users\\adrian.m.perez\\Documents\\Visual Studio 2015\\Projects\\Project_XML\\Project_XML\\schema\\aeoitypes_v0.1.xsd");
+            settings.ValidationType = ValidationType.Schema;
+
+            XmlReader reader = XmlReader.Create("C:/Users/adrian.m.perez/Desktop/sample1.xml", settings);
+            XmlDocument document = new XmlDocument();
+
+            document.Load(reader);
+
+
+            ValidationEventHandler eventHandler = new ValidationEventHandler(ValidationEventHandler);
+
+            try
+            {
+                document.Validate(eventHandler);
                 Debug.WriteLine("Success!");
             }
             catch (XmlSchemaValidationException e)

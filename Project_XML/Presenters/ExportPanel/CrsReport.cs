@@ -98,7 +98,7 @@ namespace Project_XML.Presenters.ExportPanel
                 else // account holder is an Individual/Person
                 {
                     Debug.WriteLine("Individual Account.");
-                    string[] resCountries = db.GetPersonResCountry(acctHolderId);
+                    string[] resCountries = db.GetPersonReportableResCountry(acctHolderId);
 
                     foreach (string country in resCountries)
                     {
@@ -134,6 +134,7 @@ namespace Project_XML.Presenters.ExportPanel
                         holder.Items = acctHolderItems.ToArray();
                         account.AccountHolder = holder;
 
+                        /*
                         //ControllingPerson
                         Debug.WriteLine("Input: {0} {1} {2}", acctHolderId, country, acctNum);
                         List<ControllingPersonModel> ctrlList = db.GetIndividualCtrlPerson(acctHolderId, country, acctNum);
@@ -142,6 +143,7 @@ namespace Project_XML.Presenters.ExportPanel
                             ControllingPerson_Type[] ctrlPersons = ControllingPerson(ctrlList);
                             account.ControllingPerson = ctrlPersons;
                         }
+                        */
 
                         correctableAccounts.Add(account);
                         i++;
@@ -655,69 +657,62 @@ namespace Project_XML.Presenters.ExportPanel
         {
             List<object> addrArr = new List<object>();
 
-            if (addr.isFixed)
+            AddressFix_Type fix = new AddressFix_Type();
+            string freeStr = "";
+            foreach (PropertyInfo p in typeof(AddressModel).GetProperties())
             {
-                AddressFix_Type fix = new AddressFix_Type();
-                string freeStr = "";
-                foreach (PropertyInfo p in typeof(AddressModel).GetProperties())
+                if (p.GetValue(addr) != null && !p.GetValue(addr).Equals(""))
                 {
-                    if (p.GetValue(addr) != null && !p.GetValue(addr).Equals(""))
+                    switch (p.Name)
                     {
-                        switch (p.Name)
-                        {
-                            case "Street":
-                                fix.Street = p.GetValue(addr).ToString();
-                                freeStr += p.GetValue(addr).ToString() + ", ";
-                                break;
-                            case "BuildingIdentifier":
-                                fix.BuildingIdentifier = p.GetValue(addr).ToString();
-                                freeStr += p.GetValue(addr).ToString() + ", ";
-                                break;
-                            case "SuiteIdentifier":
-                                fix.SuiteIdentifier = p.GetValue(addr).ToString();
-                                freeStr += p.GetValue(addr).ToString() + ", ";
-                                break;
-                            case "FloorIdentifier":
-                                fix.FloorIdentifier = p.GetValue(addr).ToString();
-                                freeStr += p.GetValue(addr).ToString() + ", ";
-                                break;
-                            case "DistrictName":
-                                fix.DistrictName = p.GetValue(addr).ToString();
-                                freeStr += p.GetValue(addr).ToString() + ", ";
-                                break;
-                            case "POB":
-                                fix.POB = p.GetValue(addr).ToString();
-                                freeStr += p.GetValue(addr).ToString() + ", ";
-                                break;
-                            case "PostCode":
-                                fix.PostCode = p.GetValue(addr).ToString();
-                                freeStr += p.GetValue(addr).ToString() + ", ";
-                                break;
-                            case "City":
-                                fix.City = p.GetValue(addr).ToString();
-                                freeStr += p.GetValue(addr).ToString() + ", ";
-                                break;
-                            case "CountrySubentity":
-                                fix.CountrySubentity = p.GetValue(addr).ToString();
-                                freeStr += p.GetValue(addr).ToString() + ", ";
-                                break;
-                        }
+                        case "Street":
+                            fix.Street = p.GetValue(addr).ToString();
+                            freeStr += p.GetValue(addr).ToString() + ", ";
+                            break;
+                        case "BuildingIdentifier":
+                            fix.BuildingIdentifier = p.GetValue(addr).ToString();
+                            freeStr += p.GetValue(addr).ToString() + ", ";
+                            break;
+                        case "SuiteIdentifier":
+                            fix.SuiteIdentifier = p.GetValue(addr).ToString();
+                            freeStr += p.GetValue(addr).ToString() + ", ";
+                            break;
+                        case "FloorIdentifier":
+                            fix.FloorIdentifier = p.GetValue(addr).ToString();
+                            freeStr += p.GetValue(addr).ToString() + ", ";
+                            break;
+                        case "DistrictName":
+                            fix.DistrictName = p.GetValue(addr).ToString();
+                            freeStr += p.GetValue(addr).ToString() + ", ";
+                            break;
+                        case "POB":
+                            fix.POB = p.GetValue(addr).ToString();
+                            freeStr += p.GetValue(addr).ToString() + ", ";
+                            break;
+                        case "PostCode":
+                            fix.PostCode = p.GetValue(addr).ToString();
+                            freeStr += p.GetValue(addr).ToString() + ", ";
+                            break;
+                        case "City":
+                            fix.City = p.GetValue(addr).ToString();
+                            freeStr += p.GetValue(addr).ToString() + ", ";
+                            break;
+                        case "CountrySubentity":
+                            fix.CountrySubentity = p.GetValue(addr).ToString();
+                            freeStr += p.GetValue(addr).ToString() + ", ";
+                            break;
                     }
                 }
 
-                addrArr.Add(fix);
+            }
+            //addrArr.Add(fix);
 
-                //if FreeLine has content
-                if (addr.FreeLine != null && !addr.FreeLine.Equals(""))
-                    addrArr.Add(AddressFree(addr.FreeLine));
-                else
-                    addrArr.Add(AddressFree(freeStr.Substring(0, freeStr.Length - 2))); // concatination of fixed address fields
-            }
+            if (!freeStr.Equals(""))
+                addrArr.Add(AddressFree(freeStr.Substring(0, freeStr.Length - 2))); // concatination of fixed address fields
+            else if (addr.FreeLine == null || addr.FreeLine.Equals(""))
+                addrArr.Add(AddressFree(addr.CountryCode));
             else
-            {
                 addrArr.Add(AddressFree(addr.FreeLine));
-                return addrArr.ToArray();
-            }
 
             return addrArr.ToArray();
 

@@ -19,7 +19,6 @@ namespace Project_XML.Models.EntityModels
         public string GeneralSuffix { get; set; }
         public string NameType { get; set; }
         public BirthDateModel Birthdate { get; set; }
-        public bool isIndividual { get; set; }
         public string INVal { get; set; }
         public string[] ResCountryCode { get; set; }
         public List<AddressModel> Address { get; set; }

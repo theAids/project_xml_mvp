@@ -19,6 +19,5 @@ namespace Project_XML.Models.EntityModels
         public string CountrySubentity { get; set; }
         public string FreeLine { get; set; }
         public string AddressType { get; set; }
-        public bool isFixed { get; set; }
     }
 }

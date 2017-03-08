@@ -416,7 +416,6 @@ namespace Project_XML.Models.DbManager
                             model.Birthdate.BirthCitySubentity = reader["BirthCitySubentity"].ToString();
                             model.Birthdate.BirthCountry = reader["BirthCountry"].ToString();
 
-                            model.isIndividual = Convert.ToBoolean(reader["isIndividual"]);
                             model.Address = GetPersonAddress(pId);
                             model.ResCountryCode = GetPersonResCountry(model.PId);
                             model.INVal = reader["INVal"].ToString();
@@ -468,7 +467,6 @@ namespace Project_XML.Models.DbManager
                             model.CountrySubentity = reader["CountrySubentity"].ToString();
                             model.FreeLine = reader["FreeLine"].ToString();
                             model.AddressType = reader["AddressType"].ToString();
-                            model.isFixed = Convert.ToBoolean(reader["isFixed"]);
 
                             addrList.Add(model);
                         }
@@ -518,7 +516,6 @@ namespace Project_XML.Models.DbManager
                             model.CountrySubentity = reader["CountrySubentity"].ToString();
                             model.FreeLine = reader["FreeLine"].ToString();
                             model.AddressType = reader["AddressType"].ToString();
-                            model.isFixed = Convert.ToBoolean(reader["isFixed"]);
 
                             addrList.Add(model);
                         }
@@ -668,7 +665,6 @@ namespace Project_XML.Models.DbManager
                             model.Birthdate.BirthCitySubentity = reader["BirthCitySubentity"].ToString();
                             model.Birthdate.BirthCountry = reader["BirthCountry"].ToString();
 
-                            model.isIndividual = Convert.ToBoolean(reader["isIndividual"]);
                             model.CtrlPersonType = reader["CtrlPersonType"].ToString();
                             model.Address = GetPersonAddress(pId);
                             model.ResCountryCode = GetPersonResCountry(model.PId);
@@ -729,7 +725,6 @@ namespace Project_XML.Models.DbManager
                             model.Birthdate.BirthCity = reader["BirthCity"].ToString();
                             model.Birthdate.BirthCitySubentity = reader["BirthCitySubentity"].ToString();
                             model.Birthdate.BirthCountry = reader["BirthCountry"].ToString();
-                            model.isIndividual = Convert.ToBoolean(reader["isIndividual"]);
                             model.CtrlPersonType = reader["CtrlPersonType"].ToString();
                             //model.ResCountryCode.Add(countryCode);
                             ctrlList.Add(model);
@@ -803,6 +798,44 @@ namespace Project_XML.Models.DbManager
                     }
                 }
             }
+
+        }
+
+        public string[] GetPersonReportableResCountry(int pId)
+        {
+            using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
+            {
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+
+                    string cmdstr = @"SELECT CountryCode
+                                        FROM Person P, ResCountryCode R
+                                        WHERE P.PId=R.P_Ent_Id AND P.PId=@pId AND isReportable=1";
+                    cmd.CommandText = cmdstr;
+                    cmd.Parameters.Add(new SqlParameter("@pId", SqlDbType.Int));
+                    cmd.Prepare();
+
+                    cmd.Parameters["@pId"].Value = pId;
+
+                    try
+                    {
+                        List<string> ctr = new List<string>();
+                        SqlDataReader reader = cmd.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            ctr.Add(reader[0].ToString());
+                        }
+                        return ctr.ToArray(); ;
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine("Get Person ResCountry Error:" + e.Message);
+                        return null;
+                    }
+                }
+            }
+
         }
 
         public string[] GetEntityResCountry(int entityId)
@@ -815,7 +848,7 @@ namespace Project_XML.Models.DbManager
 
                     string cmdstr = @"SELECT CountryCode
                                         FROM Entity, ResCountryCode
-                                        WHERE EntityId=P_Ent_Id AND EntityId=@entityId";
+                                        WHERE EntityId=P_Ent_Id AND EntityId=@entityId AND isReportable=1";
                     cmd.CommandText = cmdstr;
                     cmd.Parameters.Add(new SqlParameter("@entityId", SqlDbType.Int));
                     cmd.Prepare();
