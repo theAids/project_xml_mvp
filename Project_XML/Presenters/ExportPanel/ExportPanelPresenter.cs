@@ -113,6 +113,11 @@ namespace Project_XML.Presenters.ExportPanel
             File.AppendAllText(path, sb.ToString().Replace("\n", Environment.NewLine));
         }
 
+        public void Import(HttpPostedFile file)
+        {
+            
+        }
+
         public void ClearLogs()
         {
             view.LogMsg = "";

@@ -141,6 +141,8 @@ namespace Project_XML.Views
         {
             HttpPostedFile file = Request.Files["newFile"];
 
+            presenter.Import(file); 
+
             if (file != null && file.ContentLength > 0)
             {
                 string filename = Path.GetFileName(file.FileName);
@@ -155,6 +157,8 @@ namespace Project_XML.Views
                     Debug.WriteLine("Uploading error:" + ex.Message);
                 }
             }
+
+
         }
     }
 }

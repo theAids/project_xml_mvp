@@ -57,6 +57,7 @@
     <Compile Include="GenerateXMLTests.cs" />
     <Compile Include="Presenters\ExportPanel\ExportPanelPresenterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UnitTest1.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Project_XML\Project_XML.csproj">
