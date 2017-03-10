@@ -10,6 +10,9 @@ using System.Text;
 using System.Web;
 using System.Web.Security;
 using System.Xml;
+using System.Data.OleDb;
+using System.Data;
+using System.Data.SqlClient;
 
 namespace Project_XML.Presenters.ExportPanel
 {
@@ -34,10 +37,10 @@ namespace Project_XML.Presenters.ExportPanel
                 int[] yearList = new int[20];
                 int year = DateTime.UtcNow.Year;
 
-                for(int i = 0; i < 20; i++)
+                for (int i = 0; i < 20; i++)
                 {
                     yearList[i] = year;
-                    year--;        
+                    year--;
                 }
 
                 view.YearList = yearList;
@@ -113,9 +116,80 @@ namespace Project_XML.Presenters.ExportPanel
             File.AppendAllText(path, sb.ToString().Replace("\n", Environment.NewLine));
         }
 
-        public void Import(HttpPostedFile file)
+        public void Import(string fullPath)
         {
-            
+            string sheetName = "Individual";
+            string str = "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '" + sheetName + "'";
+            SqlConnection connection = new SqlConnection("Data Source = PH2160863W1\\SQLEXPRESS; Initial Catalog = AEOIDB;Integrated Security=True");
+            SqlCommand myCommand = new SqlCommand(str, connection);
+            SqlDataReader myReader = null;
+            int count = 0;
+
+            try
+            {
+                connection.Open();
+                myReader = myCommand.ExecuteReader();
+                while (myReader.Read())
+                    count++;
+
+                myReader.Close();
+                connection.Close();
+            }
+            catch (Exception ex) { Debug.WriteLine("Uploading error:" + ex.Message); }
+            if (count == 0)
+            {
+
+                //create Individual table 
+                string databaseConnection_Ole = "Data Source = PH2160863W1\\SQLEXPRESS; Initial Catalog = AEOIDB; Integrated Security=SSPI; Provider=SQLOLEDB;";
+                OleDbConnection dbcon = new OleDbConnection(databaseConnection_Ole);
+                dbcon.Open();
+                OleDbCommand dbcmd = dbcon.CreateCommand();
+                dbcmd.CommandText = "CREATE TABLE " + sheetName +
+                        " (" +
+                        "[Name] VARCHAR(1000), [Address] VARCHAR(1000), " +
+                        "[Date of birth] VARCHAR(1000), [Place of birth] VARCHAR(1000)," +
+                        "[Jurisdiction of Tax Residence (Territory) (1)] VARCHAR(1000), [Jurisdiction of Tax Residence (Territory) (2)] VARCHAR(1000)," +
+                        "[Jurisdiction of Tax Residence (Territory) (3)] VARCHAR(1000), [TIN(1)] VARCHAR(1000), [TIN(2)] VARCHAR(1000), [TIN(3)] VARCHAR(1000)," +
+                        "[Reason for not obtaining the TIN (1)] VARCHAR(1000), [Reason for not obtaining the TIN (2)] VARCHAR(1000), [Reason for not obtaining the TIN (3)] VARCHAR(1000)," +
+                        "[Account Number] VARCHAR(1000), [CPR Status] VARCHAR(1000), [Account Balance] VARCHAR(1000), [Gross amount interest] VARCHAR(1000)," +
+                        "[Gross amount of dividend] VARCHAR(1000), [Gross amount of other income] VARCHAR(1000), [Gross proceeds] VARCHAR(1000)" +
+                        ")";
+                dbcmd.ExecuteNonQuery();
+                dbcon.Close();
+            }
+
+            //declare variables - edit these based on your particular situation 
+            string Import_FileName = fullPath;
+            string fileExtension = Path.GetExtension(Import_FileName);
+            string ssqltable = "Individual";
+            // make sure your sheet name is correct, here sheet name is sheet1, so you can change your sheet name if have    different 
+            string myexceldataquery = "select * from [" + ssqltable + "$]";
+            try
+            {
+                //create our connection strings 
+                string sexcelconnectionstring = string.Empty;
+                if (fileExtension == ".xls")
+                    sexcelconnectionstring = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Import_FileName + ";" + "Extended Properties='Excel 8.0;HDR=YES;'";
+                if (fileExtension == ".xlsx")
+                    sexcelconnectionstring = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + Import_FileName + ";" + "Extended Properties='Excel 12.0 Xml;HDR=YES;'";
+                string ssqlconnectionstring = "Data Source = PH2160863W1\\SQLEXPRESS; Initial Catalog = AEOIDB;Integrated Security=True";
+
+                //series of commands to bulk copy data from the excel file into our sql table 
+                OleDbConnection oledbconn = new OleDbConnection(sexcelconnectionstring);
+                OleDbCommand oledbcmd = new OleDbCommand(myexceldataquery, oledbconn);
+                oledbconn.Open();
+                OleDbDataReader dr = oledbcmd.ExecuteReader();
+                SqlBulkCopy bulkcopy = new SqlBulkCopy(ssqlconnectionstring);
+                bulkcopy.DestinationTableName = ssqltable;
+                while (dr.Read())
+                {
+                    bulkcopy.WriteToServer(dr);
+                }
+                dr.Close();
+                oledbconn.Close();
+            }
+            catch (Exception ex)
+            { Debug.WriteLine("Uploading error:" + ex.Message); }
         }
 
         public void ClearLogs()

@@ -57,6 +57,14 @@ namespace Project_XML.Views
               accountsList.DataBind();
             }
         }
+
+        public string UploadID
+        {
+            set
+            {
+                uploadID.Text = value;
+            }
+        }
         /*********************** Code-Behind *********************************/
 
         public ExportPanel()
@@ -139,26 +147,35 @@ namespace Project_XML.Views
 
         protected void UploadNewFile(object sender, EventArgs e)
         {
-            HttpPostedFile file = Request.Files["newFile"];
-
-            presenter.Import(file); 
-
-            if (file != null && file.ContentLength > 0)
+            string folderPath = Server.MapPath("~/Uploads/");
+            string fullPath = folderPath + Path.GetFileName(FileUpload1.FileName);
+           
+            //Check whether Directory (Folder) exists.
+            if (!Directory.Exists(folderPath))
             {
-                string filename = Path.GetFileName(file.FileName);
-
-                try
-                {
-                    Debug.WriteLine("Upload path:" + (Server.MapPath(Path.Combine("~/Uploads/", filename))));
-                    file.SaveAs(Server.MapPath(Path.Combine("~/Uploads/", filename)));
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("Uploading error:" + ex.Message);
-                }
+                //If Directory (Folder) does not exists. Create it.
+                Directory.CreateDirectory(folderPath);
             }
 
+            //Save the File to the Directory (Folder).
+            try
+            {
+                FileUpload1.SaveAs(fullPath);
+                presenter.Import(fullPath);
+                UploadPanel.Visible = true; 
+                UploadID = "Upload Success!";
+                UploadPanel.CssClass = "alert alert-success user-status";
+                UploadIcon.CssClass = "glyphicon glyphicon-ok-circle";
 
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Uploading error:" + ex.Message);
+                UploadPanel.Visible = true;
+                UploadID = "Upload Failed!";
+                UploadPanel.CssClass = "alert alert-danger user-status";
+                UploadIcon.CssClass = "glyphicon glyphicon-remove-circle";
+            }
         }
     }
 }
