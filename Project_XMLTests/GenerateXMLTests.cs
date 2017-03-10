@@ -1,33 +1,31 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Project_XML.Models.DbManager;
+using Project_XML.Models.EntityModels;
 using Project_XML.Presenters.ExportPanel;
+using Project_XML.Schema;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
-using Project_XML.Schema;
-using System.Diagnostics;
-using Project_XML.Models.DbManager;
-using Project_XML.Models.EntityModels;
-using System.IO;
-using System.Xml.Schema;
 using System.Xml;
-using System.Reflection;
+using System.Xml.Serialization;
 
-namespace Project_XML.Presenters.ExportPanel.Tests
+namespace Project_XMLTests
 {
-   // [TestClass()]
-    public class ExportPanelPresenterTests
+    [TestClass()]
+    public class GenerateXMLTests
     {
+
         //[TestMethod()]
         public void InitViewTest()
         {
             //Validate_XML();
         }
 
-        //[TestMethod()]
+        [TestMethod()]
         public void NewReport()
         {
             CrsReport crs = new CrsReport();
@@ -178,19 +176,10 @@ namespace Project_XML.Presenters.ExportPanel.Tests
             serializer.Serialize(writer, report);
             writer.Close();
             crs.Validate_XML();
-            /*
-            using (MemoryStream stream = new MemoryStream())
-            {
-                serializer.Serialize(stream, report);
-                stream.Position = 0;
-                doc.Load(stream);
-                //doc.Save("samplexml.xml");
-            }
-            */
+
             //  Validate_XML(doc);
             Assert.IsTrue(true);
             //Assert.AreEqual("EY Hong Kong", report.MessageSpec.FIName);
         }
-
     }
 }

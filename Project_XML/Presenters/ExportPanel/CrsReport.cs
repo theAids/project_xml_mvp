@@ -702,6 +702,7 @@ namespace Project_XML.Presenters.ExportPanel
 
             AddressFix_Type fix = new AddressFix_Type();
             string freeStr = "";
+
             foreach (PropertyInfo p in typeof(AddressModel).GetProperties())
             {
                 if (p.GetValue(addr) != null && !p.GetValue(addr).Equals(""))
@@ -745,15 +746,17 @@ namespace Project_XML.Presenters.ExportPanel
                             freeStr += p.GetValue(addr).ToString() + ", ";
                             break;
                     }
+
                 }
 
             }
             //addrArr.Add(fix);
 
             if (!freeStr.Equals(""))
+            {
+                addrArr.Add(fix);
                 addrArr.Add(AddressFree(freeStr.Substring(0, freeStr.Length - 2))); // concatination of fixed address fields
-            else if (addr.FreeLine == null || addr.FreeLine.Equals(""))
-                addrArr.Add(AddressFree(addr.CountryCode));
+            }
             else
                 addrArr.Add(AddressFree(addr.FreeLine));
 

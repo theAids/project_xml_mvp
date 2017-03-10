@@ -249,10 +249,15 @@ input.form-control.chkbox{
     margin-left: 5px;
 }
 
-.btn-export-panel{
+.btn-export-panel,
+.btn-upload-panel{
     margin-left: auto;
     margin-right: auto;
     text-align: center;
+}
+
+.btn-upload-panel{
+    margin-top: 10px;
 }
 
 .sub-report{

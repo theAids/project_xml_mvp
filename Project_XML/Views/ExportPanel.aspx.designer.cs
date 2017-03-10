@@ -184,6 +184,15 @@ namespace Project_XML.Views {
         protected global::System.Web.UI.WebControls.LinkButton LinkButton2;
         
         /// <summary>
+        /// uploadXML control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton uploadXML;
+        
+        /// <summary>
         /// clearBtn control.
         /// </summary>
         /// <remarks>
@@ -209,14 +218,5 @@ namespace Project_XML.Views {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Literal logPanel;
-        
-        /// <summary>
-        /// fileSerialNumberList control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater fileSerialNumberList;
     }
 }

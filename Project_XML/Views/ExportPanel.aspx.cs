@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Web;
@@ -113,15 +114,46 @@ namespace Project_XML.Views
             if (obj != null)
             {
                 XmlDocument xmlDoc = (XmlDocument)obj[0];
-                Debug.WriteLine("XML Document Name: " + obj[1].ToString());
-                byte[] bytes = Encoding.Default.GetBytes(xmlDoc.OuterXml);
+
+                MemoryStream mem = new MemoryStream();
+                XmlTextWriter writer = new XmlTextWriter(mem, Encoding.Unicode);
+
+                writer.Formatting = Formatting.Indented;    //for indented format XML
+
+                xmlDoc.WriteContentTo(writer);
+                writer.Flush();
+
+                byte[] bytes = mem.ToArray();
+                mem.Close();
+
                 Response.Buffer = true;
                 Response.Clear();
                 Response.ContentType = "text/xml";
                 Response.AddHeader("content-disposition", String.Format("attachment; filename={0}.xml", obj[1].ToString()));
+                Response.AppendHeader("Content-Length", bytes.Length.ToString());
                 Response.BinaryWrite(bytes);
                 Response.End();
                 Response.Flush();
+            }
+        }
+
+        protected void UploadNewFile(object sender, EventArgs e)
+        {
+            HttpPostedFile file = Request.Files["newFile"];
+
+            if (file != null && file.ContentLength > 0)
+            {
+                string filename = Path.GetFileName(file.FileName);
+
+                try
+                {
+                    Debug.WriteLine("Upload path:" + (Server.MapPath(Path.Combine("~/Uploads/", filename))));
+                    file.SaveAs(Server.MapPath(Path.Combine("~/Uploads/", filename)));
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("Uploading error:" + ex.Message);
+                }
             }
         }
     }

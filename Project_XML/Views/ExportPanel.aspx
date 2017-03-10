@@ -6,7 +6,7 @@
 
     <uc:UserMenu runat="server" ID="UserMenu1" />
 
-    <asp:HiddenField runat="server" ID="accountSelected"/>
+    <asp:HiddenField runat="server" ID="accountSelected" />
 
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
         <h1 class="page-header">Export XML</h1>
@@ -74,7 +74,7 @@
                                                             <input type="checkbox" name="accountCheckGroup" class="form-control chkbox" value='<%# Eval("AcctNumber") %>' /></td>
                                                         <td class="newAcctNumber"><%# Eval("AcctNumber") %></td>
                                                         <td class="newAcctHolder"><%# Eval("AcctHolder") %></td>
-                                                        <td class="newAcctHolderId" style="display:none;"><%# Eval("AcctHolderId") %></td>
+                                                        <td class="newAcctHolderId" style="display: none;"><%# Eval("AcctHolderId") %></td>
                                                     </tr>
                                                 </ItemTemplate>
                                                 <FooterTemplate>
@@ -242,6 +242,23 @@
             </div>
             <!-- / aeoi report panel -->
 
+            <!-- Upload file panel -->
+            <div class="col-sm-4 col-md-5">
+                <div class="panel panel-default sub-report">
+                    <div class="panel-heading">
+                        <span class="glyphicon glyphicon-inbox icon"></span>Upload File
+                    </div>
+                    <div class="panel-body">
+                        <label class="control_label">Upload New Data</label>
+                        <input type="file" class="filestyle" name="newFile" data-icon="false">
+                        <div class="btn-upload-panel">
+                            <asp:LinkButton runat="server" ID="uploadXML" OnClick="UploadNewFile" class="btn btn-export btn-md">Upload<span class="glyphicon glyphicon glyphicon-upload"></span></asp:LinkButton>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--/ Upload file panel -->
+
             <!-- Action Log -->
             <div class="col-sm-4 col-md-5">
                 <div class="panel panel-default log-panel">
@@ -261,41 +278,6 @@
                         </asp:UpdatePanel>
                     </div>
                 </div>
-
-                <!-- Downloaded files table -->
-                <div class="panel panel-default sub-report">
-                    <div class="panel-heading">
-                        <span class="glyphicon glyphicon-inbox icon"></span>Submitted Documents
-                    </div>
-                    <div class="table-responsive doc-table">
-                        <asp:Repeater runat="server" ID="fileSerialNumberList">
-                            <HeaderTemplate>
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Return Year</th>
-                                            <th>Message Ref ID</th>
-                                            <th>Message Type</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                            </HeaderTemplate>
-                            <ItemTemplate>
-                                <tr>
-                                    <td class="fileSerialNumber">12345677</td>
-                                    <td class="messageRefId">2017109898720170123125101</td>
-                                    <td class="acctHolder">New</td>
-                                </tr>
-                            </ItemTemplate>
-                            <FooterTemplate>
-                                </tbody>
-                            </table>
-                            </FooterTemplate>
-                        </asp:Repeater>
-                    </div>
-
-                </div>
-                <!--/ Action Log -->
             </div>
         </div>
     </div>
@@ -308,6 +290,8 @@
             $('#exportPanel').siblings().each(function () {
                 $(this).removeClass('active');
             });
+
+            //$('#newDataFile').fileinput();
         }
 
         //new data panel

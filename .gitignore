@@ -12,6 +12,7 @@ packages/
 **/bin
 logs/
 Project_XML/obj/
+Project_XML/Uploads/
 .vs/
 Deployment_Package/
 Project_XMLTests/obj/

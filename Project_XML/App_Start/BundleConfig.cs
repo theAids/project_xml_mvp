@@ -42,6 +42,9 @@ namespace Project_XML
             bundles.Add(new StyleBundle("~/Content/data").Include(
                             "~/Content/dataTables.bootstrap.min.css" ));
 
+            bundles.Add(new ScriptBundle("~/Scripts/fileInput").Include(
+                            "~/Scripts/bootstrap-filestyle.min.js"));
+
             ScriptManager.ScriptResourceMapping.AddDefinition(
                 "respond",
                 new ScriptResourceDefinition

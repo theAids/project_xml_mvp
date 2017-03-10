@@ -10,6 +10,7 @@
     <title><%: Page.Title %> - Project HK</title>
     <asp:PlaceHolder runat="server">
         <%: Styles.Render("~/Content/data") %>
+        <%: Styles.Render("~/Content/fileInput") %>
         <%: Scripts.Render("~/bundles/modernizr") %>
        
     </asp:PlaceHolder>
@@ -36,4 +37,5 @@
     </form>
 </body>
 <%: Scripts.Render("~/Scripts/data") %>
+<%: Scripts.Render("~/Scripts/fileInput") %>
 </html>
