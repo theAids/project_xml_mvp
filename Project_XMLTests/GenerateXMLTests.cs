@@ -15,7 +15,7 @@ using System.Xml.Serialization;
 
 namespace Project_XMLTests
 {
-    [TestClass()]
+    //[TestClass()]
     public class GenerateXMLTests
     {
 
