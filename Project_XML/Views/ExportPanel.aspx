@@ -268,7 +268,7 @@
 
             <!-- Action Log -->
             <div class="col-sm-4 col-md-5">
-                <div class="panel panel-default log-panel">
+                <div class="panel panel-default log-panel" style ="overflow: auto">
                     <div class="panel-heading">
                         <span class="glyphicon glyphicon-log-in icon"></span>Export Log
                     <asp:LinkButton runat="server" ID="clearBtn" OnClick="ClearLog" OnClientClick="showClearProgress()" CssClass="pull-right">Clear</asp:LinkButton>
