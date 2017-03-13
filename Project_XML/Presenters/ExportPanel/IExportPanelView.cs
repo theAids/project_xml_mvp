@@ -13,6 +13,7 @@ namespace Project_XML.Presenters.ExportPanel
         int[] YearList { set; }
         string LogMsg { set; get; }
         string LogPath { set; get; }
+        string UploadID { set;}
         List<AccountModel> AccountsList { set; }
     }
 }

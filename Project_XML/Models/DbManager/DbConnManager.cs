@@ -28,6 +28,18 @@ namespace Project_XML.Models.DbManager
 
         }
 
+        public string GetConnectionString(string connName)
+        {
+            try
+            {
+                return System.Configuration.ConfigurationManager.ConnectionStrings[connName].ToString();
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("Get Connection String Error:" + e.Message);
+                return null;
+            }
+        }
         public static List<ConnectionStringModel> GetConnectionStrings()
         {
             List<ConnectionStringModel> cStrings = new List<ConnectionStringModel>();

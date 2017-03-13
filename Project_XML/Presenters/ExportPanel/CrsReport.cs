@@ -788,9 +788,9 @@ namespace Project_XML.Presenters.ExportPanel
         {
 
             XmlSchemaSet schema = new XmlSchemaSet();
-            schema.Add("http://www.ird.gov.hk/AEOI/crs/v1", "C:\\Users\\adrian.m.perez\\Documents\\Visual Studio 2015\\Projects\\Project_XML\\Project_XML\\schema\\HK_XMLSchema_v0.1.xsd");
-            schema.Add("urn:oecd:ties:isocrstypes:v1", "C:\\Users\\adrian.m.perez\\Documents\\Visual Studio 2015\\Projects\\Project_XML\\Project_XML\\schema\\isocrstypes_v1.0.xsd");
-            schema.Add("http://www.ird.gov.hk/AEOI/aeoitypes/v1", "C:\\Users\\adrian.m.perez\\Documents\\Visual Studio 2015\\Projects\\Project_XML\\Project_XML\\schema\\aeoitypes_v0.1.xsd");
+            schema.Add("http://www.ird.gov.hk/AEOI/crs/v1", "C:\\Users\\gian.s.evidente\\Desktop\\project_xml_mvp\\Project_XML\\schema\\HK_XMLSchema_v0.1.xsd");
+            schema.Add("urn:oecd:ties:isocrstypes:v1", "C:\\Users\\gian.s.evidente\\Desktop\\project_xml_mvp\\Project_XML\\schema\\isocrstypes_v1.0.xsd");
+            schema.Add("http://www.ird.gov.hk/AEOI/aeoitypes/v1", "C:\\Users\\gian.s.evidente\\Desktop\\project_xml_mvp\\Project_XML\\schema\\aeoitypes_v0.1.xsd");
 
             ValidationEventHandler eventHandler = new ValidationEventHandler(ValidationEventHandler);
             doc.Schemas = schema;

@@ -10,6 +10,9 @@ using System.Text;
 using System.Web;
 using System.Web.Security;
 using System.Xml;
+using System.Data.OleDb;
+using System.Data;
+using System.Data.SqlClient;
 
 namespace Project_XML.Presenters.ExportPanel
 {
@@ -34,10 +37,10 @@ namespace Project_XML.Presenters.ExportPanel
                 int[] yearList = new int[20];
                 int year = DateTime.UtcNow.Year;
 
-                for(int i = 0; i < 20; i++)
+                for (int i = 0; i < 20; i++)
                 {
                     yearList[i] = year;
-                    year--;        
+                    year--;
                 }
 
                 view.YearList = yearList;
@@ -111,6 +114,95 @@ namespace Project_XML.Presenters.ExportPanel
             // export log into external file. log file is created for each day.
             Debug.WriteLine(path);
             File.AppendAllText(path, sb.ToString().Replace("\n", Environment.NewLine));
+        }
+
+        public void Import(string fullPath)
+        {
+            DbImportManager db = new DbImportManager();
+            /*
+             * 
+             * Individual Sheet Excel
+             * 
+             */
+            string indivSheetName = "Individual_tbl"; //also the sheet name in the excel file template
+
+            int count = db.isTableExists(indivSheetName);
+
+            if (count == 0)
+                db.CreateIndividualTable();
+
+            //declare variables - edit these based on your particular situation 
+            string Import_FileName = fullPath;
+            string fileExtension = Path.GetExtension(Import_FileName);
+            //string ssqltable = "Individual_tbl";
+            // make sure your sheet name is correct, here sheet name is sheet1, so you can change your sheet name if have    different 
+            string myexceldataquery = "select * from [" + indivSheetName + "$]";
+            try
+            {
+                //create our connection strings 
+                string sexcelconnectionstring = string.Empty;
+                if (fileExtension == ".xls")
+                    sexcelconnectionstring = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Import_FileName + ";" + "Extended Properties='Excel 8.0;HDR=YES;'";
+                if (fileExtension == ".xlsx")
+                    sexcelconnectionstring = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + Import_FileName + ";" + "Extended Properties='Excel 12.0 Xml;HDR=YES;'";
+                string ssqlconnectionstring = db.GetConnectionString("AeoiConnection");
+
+                //series of commands to bulk copy data from the excel file into our sql table 
+                OleDbConnection oledbconn = new OleDbConnection(sexcelconnectionstring);
+                OleDbCommand oledbcmd = new OleDbCommand(myexceldataquery, oledbconn);
+                oledbconn.Open();
+                OleDbDataReader dr = oledbcmd.ExecuteReader();
+                SqlBulkCopy bulkcopy = new SqlBulkCopy(ssqlconnectionstring);
+                bulkcopy.DestinationTableName = indivSheetName;
+                bulkcopy.WriteToServer(dr);
+                /* while (dr.Read())
+                 {
+                     bulkcopy.WriteToServer(dr);
+                 }*/
+                dr.Close();
+                oledbconn.Close();
+            }
+            catch (Exception ex)
+            { Debug.WriteLine("Uploading error:" + ex.Message); }
+
+
+            /*
+           * 
+           * Entity Sheet Excel
+           * 
+           */
+
+            string entSheetName = "Entity_tbl"; //also the sheet name in the excel file template
+
+            count = db.isTableExists(entSheetName);
+
+            if (count == 0)
+                db.CreateEntityTable();
+
+            myexceldataquery = "select * from [" + entSheetName + "$]";
+            try
+            {
+                //create our connection strings 
+                string sexcelconnectionstring = string.Empty;
+                if (fileExtension == ".xls")
+                    sexcelconnectionstring = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Import_FileName + ";" + "Extended Properties='Excel 8.0;HDR=YES;'";
+                if (fileExtension == ".xlsx")
+                    sexcelconnectionstring = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + Import_FileName + ";" + "Extended Properties='Excel 12.0 Xml;HDR=YES;'";
+                string ssqlconnectionstring = db.GetConnectionString("AeoiConnection");
+
+                //series of commands to bulk copy data from the excel file into our sql table 
+                OleDbConnection oledbconn = new OleDbConnection(sexcelconnectionstring);
+                OleDbCommand oledbcmd = new OleDbCommand(myexceldataquery, oledbconn);
+                oledbconn.Open();
+                OleDbDataReader dr = oledbcmd.ExecuteReader();
+                SqlBulkCopy bulkcopy = new SqlBulkCopy(ssqlconnectionstring);
+                bulkcopy.DestinationTableName = entSheetName;
+                bulkcopy.WriteToServer(dr);
+                dr.Close();
+                oledbconn.Close();
+            }
+            catch (Exception ex)
+            { Debug.WriteLine("Uploading error:" + ex.Message); }
         }
 
         public void ClearLogs()

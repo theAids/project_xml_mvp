@@ -249,10 +249,17 @@
                         <span class="glyphicon glyphicon-inbox icon"></span>Upload File
                     </div>
                     <div class="panel-body">
+                        <asp:Panel runat="server" ID="UploadPanel" Visible="false">
+                            <asp:Label runat="server" ID="UploadIcon">
+                            </asp:Label>
+                            <asp:Literal runat="server" ID="uploadID" />
+                        </asp:Panel>
+                        
                         <label class="control_label">Upload New Data</label>
-                        <input type="file" class="filestyle" name="newFile" data-icon="false">
+                        <!-- <input type="file" class="filestyle" id="UploadedFile" name="UploadedFile" data-icon="false"> -->
+                        <asp:FileUpload ID="FileUpload1" runat="server" CssClass="filestyle" data-icon="false" />
                         <div class="btn-upload-panel">
-                            <asp:LinkButton runat="server" ID="uploadXML" OnClick="UploadNewFile" class="btn btn-export btn-md">Upload<span class="glyphicon glyphicon glyphicon-upload"></span></asp:LinkButton>
+                            <asp:LinkButton runat="server" ID="uploadXML" OnClick="UploadNewFile" class="btn btn-export btn-md" enctype="multipart/form-data">Upload<span class="glyphicon glyphicon glyphicon-upload"></span></asp:LinkButton>
                         </div>
                     </div>
                 </div>

@@ -225,6 +225,7 @@
     <Compile Include="Models\DbManager\DbAccountManager.cs" />
     <Compile Include="Models\DbManager\DbConnManager.cs" />
     <Compile Include="Models\DbManager\DbExportManager.cs" />
+    <Compile Include="Models\DbManager\DbImportManager.cs" />
     <Compile Include="Models\EntityModels\AccountDetailsModel.cs" />
     <Compile Include="Models\EntityModels\AccountModel.cs" />
     <Compile Include="Models\EntityModels\AddressModel.cs" />
