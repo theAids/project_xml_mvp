@@ -93,7 +93,7 @@ namespace Project_XML.Presenters.ExportPanel
         }
         */
 
-        protected void LogAction(ConnectionStringModel conn)
+        public void LogAction(string database, string server, string action, string status)
         {
             DateTime datetime = DateTime.UtcNow;
 
@@ -103,11 +103,23 @@ namespace Project_XML.Presenters.ExportPanel
 
             StringBuilder sb = new StringBuilder();
 
-            sb.Append(string.Format("[{0} {1}]\nUser: {2}\nDatabase: {3}\nServer: {4}\n", datetime.ToString("yyyy-mm-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture)
-                                                    , TimeZoneInfo.Local.ToString()
-                                                    , view.Username
-                                                    , conn.dbname
-                                                    , conn.servername));
+            if (database == "none")
+            {
+                sb.Append(string.Format("[{0} {1}]\nUser: {2}\nFile: {3}\nStatus: {4}\n\n", datetime.ToString("yyyy-mm-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture)
+                                                        , TimeZoneInfo.Local.ToString()
+                                                        , view.Username
+                                                        , server
+                                                        , action + " " + status));
+            }
+            else
+            {
+                sb.Append(string.Format("[{0} {1}]\nUser: {2}\nDatabase: {3}\nServer: {4}\nStatus: {5}\n\n", datetime.ToString("yyyy-mm-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture)
+                                                        , TimeZoneInfo.Local.ToString()
+                                                        , view.Username
+                                                        , database
+                                                        , server
+                                                        , action + " " + status));
+            }
 
             view.LogMsg = System.Security.SecurityElement.Escape(sb.ToString()).Replace("\n", "<br>") + view.LogMsg;
 
@@ -116,9 +128,12 @@ namespace Project_XML.Presenters.ExportPanel
             File.AppendAllText(path, sb.ToString().Replace("\n", Environment.NewLine));
         }
 
+
         public void Import(string fullPath)
         {
+            string action = "Upload";
             DbImportManager db = new DbImportManager();
+            string ssqlconnectionstring = db.GetConnectionString("AeoiConnection");
             /*
              * 
              * Individual Sheet Excel
@@ -145,7 +160,7 @@ namespace Project_XML.Presenters.ExportPanel
                     sexcelconnectionstring = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Import_FileName + ";" + "Extended Properties='Excel 8.0;HDR=YES;'";
                 if (fileExtension == ".xlsx")
                     sexcelconnectionstring = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + Import_FileName + ";" + "Extended Properties='Excel 12.0 Xml;HDR=YES;'";
-                string ssqlconnectionstring = db.GetConnectionString("AeoiConnection");
+
 
                 //series of commands to bulk copy data from the excel file into our sql table 
                 OleDbConnection oledbconn = new OleDbConnection(sexcelconnectionstring);
@@ -155,10 +170,19 @@ namespace Project_XML.Presenters.ExportPanel
                 SqlBulkCopy bulkcopy = new SqlBulkCopy(ssqlconnectionstring);
                 bulkcopy.DestinationTableName = indivSheetName;
                 bulkcopy.WriteToServer(dr);
+
+                //System.Data.SqlClient.SqlConnectionStringBuilder builder = new System.Data.SqlClient.SqlConnectionStringBuilder(ssqlconnectionstring);
+                //string server = builder.DataSource;
+                //string database = builder.InitialCatalog;
+                //string status = "Success";
+
+                //LogAction(database, server, action, status);
+
                 /* while (dr.Read())
                  {
                      bulkcopy.WriteToServer(dr);
                  }*/
+
                 dr.Close();
                 oledbconn.Close();
             }
@@ -188,7 +212,6 @@ namespace Project_XML.Presenters.ExportPanel
                     sexcelconnectionstring = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Import_FileName + ";" + "Extended Properties='Excel 8.0;HDR=YES;'";
                 if (fileExtension == ".xlsx")
                     sexcelconnectionstring = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + Import_FileName + ";" + "Extended Properties='Excel 12.0 Xml;HDR=YES;'";
-                string ssqlconnectionstring = db.GetConnectionString("AeoiConnection");
 
                 //series of commands to bulk copy data from the excel file into our sql table 
                 OleDbConnection oledbconn = new OleDbConnection(sexcelconnectionstring);
@@ -198,11 +221,25 @@ namespace Project_XML.Presenters.ExportPanel
                 SqlBulkCopy bulkcopy = new SqlBulkCopy(ssqlconnectionstring);
                 bulkcopy.DestinationTableName = entSheetName;
                 bulkcopy.WriteToServer(dr);
+
+                System.Data.SqlClient.SqlConnectionStringBuilder builder = new System.Data.SqlClient.SqlConnectionStringBuilder(ssqlconnectionstring);
+                string server = builder.DataSource;
+                string database = builder.InitialCatalog;
+                string status = "Success";
+                LogAction(database, server, action, status);
+
                 dr.Close();
                 oledbconn.Close();
             }
             catch (Exception ex)
-            { Debug.WriteLine("Uploading error:" + ex.Message); }
+            {
+                Debug.WriteLine("Uploading error:" + ex.Message);
+                System.Data.SqlClient.SqlConnectionStringBuilder builder = new System.Data.SqlClient.SqlConnectionStringBuilder(ssqlconnectionstring);
+                string server = builder.DataSource;
+                string database = builder.InitialCatalog;
+                string status = "Failed";
+                LogAction(database, server, action, status);
+            }
 
             db.ImportEntityTable();
             db.ImportIndividualTable();

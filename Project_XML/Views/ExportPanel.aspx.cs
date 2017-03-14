@@ -13,6 +13,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Xml;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Project_XML.Views
 {
@@ -167,6 +168,7 @@ namespace Project_XML.Views
                 UploadPanel.CssClass = "alert alert-success user-status";
                 UploadIcon.CssClass = "glyphicon glyphicon-ok-circle";
 
+                presenter.LogAction("none", Path.GetFileName(FileUpload1.FileName).ToString(), "File Save", "Success"); 
             }
             catch (Exception ex)
             {
@@ -175,6 +177,7 @@ namespace Project_XML.Views
                 UploadID = "Upload Failed!";
                 UploadPanel.CssClass = "alert alert-danger user-status";
                 UploadIcon.CssClass = "glyphicon glyphicon-remove-circle";
+                presenter.LogAction("none", Path.GetFileName(FileUpload1.FileName).ToString(), "File Save", "failed");
             }
         }
     }
