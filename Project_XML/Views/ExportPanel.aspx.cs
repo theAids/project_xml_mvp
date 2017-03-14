@@ -117,7 +117,7 @@ namespace Project_XML.Views
                 { "docSpecType", "OECD1" }
             };
 
-            object[] obj = presenter.exportXML(accountSelected.Value, reportArgs);
+            object[] obj = presenter.exportXML(accountSelected.Value, reportArgs, Server.MapPath("~/schema"));
 
             if (obj != null)
             {

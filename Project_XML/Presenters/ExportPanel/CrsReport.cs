@@ -17,7 +17,7 @@ namespace Project_XML.Presenters.ExportPanel
 {
     public class CrsReport
     {
-        public object[] NewReport(string entries, Dictionary<string, string> reportArgs)
+        public object[] NewReport(string entries, Dictionary<string, string> reportArgs, string schemaPath)
         {
             //single data for testing:
             //string entries = "123-444-567890:2001,097-444-567890:1001";
@@ -168,7 +168,7 @@ namespace Project_XML.Presenters.ExportPanel
                 xmlDoc.Load(stream);
             }
 
-            if(Validate_XML(xmlDoc))
+            if(Validate_XML(xmlDoc, schemaPath))
             {
                 object[] obj = { xmlDoc, report.MessageSpec.MessageRefId };//[0] - xmldoc, [1] - name of the file
                 return obj;
@@ -784,13 +784,13 @@ namespace Project_XML.Presenters.ExportPanel
          * XML Validation Functions
          * 
          * *******************************************/
-        public static bool Validate_XML(XmlDocument doc)
+        public static bool Validate_XML(XmlDocument doc, string schemaPath)
         {
 
             XmlSchemaSet schema = new XmlSchemaSet();
-            schema.Add("http://www.ird.gov.hk/AEOI/crs/v1", "C:\\Users\\gian.s.evidente\\Desktop\\project_xml_mvp\\Project_XML\\schema\\HK_XMLSchema_v0.1.xsd");
-            schema.Add("urn:oecd:ties:isocrstypes:v1", "C:\\Users\\gian.s.evidente\\Desktop\\project_xml_mvp\\Project_XML\\schema\\isocrstypes_v1.0.xsd");
-            schema.Add("http://www.ird.gov.hk/AEOI/aeoitypes/v1", "C:\\Users\\gian.s.evidente\\Desktop\\project_xml_mvp\\Project_XML\\schema\\aeoitypes_v0.1.xsd");
+            schema.Add("http://www.ird.gov.hk/AEOI/crs/v1", schemaPath+"/HK_XMLSchema_v0.1.xsd");
+            schema.Add("urn:oecd:ties:isocrstypes:v1", schemaPath + "/isocrstypes_v1.0.xsd");
+            schema.Add("http://www.ird.gov.hk/AEOI/aeoitypes/v1", schemaPath + "/aeoitypes_v0.1.xsd");
 
             ValidationEventHandler eventHandler = new ValidationEventHandler(ValidationEventHandler);
             doc.Schemas = schema;

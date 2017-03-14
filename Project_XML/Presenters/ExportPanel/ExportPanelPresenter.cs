@@ -60,12 +60,12 @@ namespace Project_XML.Presenters.ExportPanel
                 UnauthenticatedRedirect(this, null);
         }
 
-        public object[] exportXML(string entries, Dictionary<string, string> reportArgs)
+        public object[] exportXML(string entries, Dictionary<string, string> reportArgs, string schemaPath)
         {
             CrsReport crs = new CrsReport();
 
             if (entries != null && !entries.Equals(""))
-                return crs.NewReport(entries, reportArgs);
+                return crs.NewReport(entries, reportArgs, schemaPath);
             else
                 return null;
         }
@@ -203,6 +203,13 @@ namespace Project_XML.Presenters.ExportPanel
             }
             catch (Exception ex)
             { Debug.WriteLine("Uploading error:" + ex.Message); }
+
+            db.ImportEntityTable();
+            db.ImportIndividualTable();
+
+            DbExportManager db2 = new DbExportManager();
+
+            view.AccountsList = db2.GetAllAccounts();
         }
 
         public void ClearLogs()
