@@ -143,12 +143,17 @@ ul.navbar-right{
     height: 660px;
 }
 
-.log-panel{
+.log-panel,
+.upload-panel{
     min-height: 320px;
     height: 320px;
 }
 
 .log-panel-body {
+    overflow-y: auto;
+}
+
+.upload-panel-body {
     overflow-y: auto;
 }
 
@@ -238,6 +243,11 @@ ul.navbar-right{
 
 input.form-control.chkbox{
     height: 13px;
+}
+
+.btn-import{
+    background-color: #ffe600;
+    color: #000000;
 }
 
 .btn-export{

@@ -17,12 +17,10 @@ namespace Project_XML.Presenters.ExportPanel
 {
     public class CrsReport
     {
+        private string messageRefId;
+
         public object[] NewReport(string entries, Dictionary<string, string> reportArgs, string schemaPath)
         {
-            //single data for testing:
-            //string entries = "123-444-567890:2001,097-444-567890:1001";
-            //int acctHolderId = 2001;
-            //string resCountryCode = "UK";
 
             var ent = entries.Split(',');
 
@@ -49,7 +47,7 @@ namespace Project_XML.Presenters.ExportPanel
                         //Account Reports
                         CorrectableAccountReport_Type account = new CorrectableAccountReport_Type();
                         //DocSpec
-                        account.DocSpec = DocSpec(reportArgs["docSpecType"], i);
+                        account.DocSpec = DocSpec(reportArgs["docSpecType"], i, acctNum);
 
                         AccountDetailsModel acctDetails = db.GetAccountDetials(acctNum);
                         //FIAccountNumber
@@ -106,7 +104,7 @@ namespace Project_XML.Presenters.ExportPanel
                         //Account Reports
                         CorrectableAccountReport_Type account = new CorrectableAccountReport_Type();
                         //DocSpec
-                        account.DocSpec = DocSpec("OECD1", i);
+                        account.DocSpec = DocSpec("OECD1", i, acctNum);
 
                         AccountDetailsModel acctDetails = db.GetAccountDetials(acctNum);
                         //FIAccountNumber
@@ -240,7 +238,11 @@ namespace Project_XML.Presenters.ExportPanel
             //get FI name based on ID
             msg.FIName = db.GetFIName(aeoiId);
 
-            db.NewMessageSpec(msgRefId, msgType, returnYear, note, con, aeoiId);
+            //insert into MessageSpec table
+            DbImportManager dbImport = new DbImportManager();
+            dbImport.NewMessageSpec(msgRefId, msgType, returnYear, note, con, aeoiId);
+
+            messageRefId = msgRefId;
 
             return msg;
         }
@@ -253,7 +255,7 @@ namespace Project_XML.Presenters.ExportPanel
          * *******************************************************************************/
 
         //DocSpec_ype
-        public DocSpec_Type DocSpec(string docType, int acctIndex)
+        public DocSpec_Type DocSpec(string docType, int acctIndex, string acctNum)
         {
             DocSpec_Type docSpec = new DocSpec_Type();
 
@@ -269,7 +271,13 @@ namespace Project_XML.Presenters.ExportPanel
             TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById("China Standard Time");
             DateTime date = TimeZoneInfo.ConvertTime(DateTime.UtcNow, tz);
 
-            docSpec.DocRefId = "DOC" + date.ToString("yyyyMMddHHmmssfff") + acctIndex.ToString().PadLeft(3, '0');
+            string refId = "DOC" + date.ToString("yyyyMMddHHmmssfff") + acctIndex.ToString().PadLeft(3, '0');
+            docSpec.DocRefId = refId;
+            
+
+            //Add entry to docspec table
+            DbImportManager dbImport = new DbImportManager();
+            dbImport.NewDocSpec(refId, docType, messageRefId, acctNum);
 
             return docSpec;
 

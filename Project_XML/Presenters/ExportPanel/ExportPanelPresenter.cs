@@ -70,29 +70,6 @@ namespace Project_XML.Presenters.ExportPanel
                 return null;
         }
 
-        /*
-        public void exportXML(string connectionName)
-        {
-
-            DateTime datetime = DateTime.UtcNow;
-
-            // get connection string name based from clicked LinkButton
-            ConnectionStringModel conn = DbConnManager.GetConnectionStrings().Find(cs => cs.name == connectionName);
-
-            string xmlpath = view.LogPath + "\\{0} {1}.xml";
-            xmlpath = string.Format(xmlpath, datetime.ToString("yyyy-MM-dd HHmmss", System.Globalization.CultureInfo.InvariantCulture), conn.dbname);
-
-            XmlDocument xmldoc = null;
-
-            DbExportManager db = new DbExportManager();
-            // execute corresponding actions for each db connection strings
-
-            //export xml file
-            File.AppendAllText(xmlpath, xmldoc.OuterXml);
-            LogAction(conn);
-        }
-        */
-
         public void LogAction(string database, string server, string action, string status)
         {
             DateTime datetime = DateTime.UtcNow;
