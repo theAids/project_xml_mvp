@@ -19,10 +19,10 @@ namespace Project_XML.Presenters.ExportPanel
     {
         private string messageRefId;
 
-        public object[] NewReport(string entries, Dictionary<string, string> reportArgs, string schemaPath)
+        public object[] NewReport(List<Dictionary<string, string>> entries, Dictionary<string, string> reportArgs, string schemaPath)
         {
 
-            var ent = entries.Split(',');
+            //var ent = entries.Split(',');
 
             DbExportManager db = new DbExportManager();
             AEOI_Report report = new AEOI_Report();
@@ -33,120 +33,115 @@ namespace Project_XML.Presenters.ExportPanel
             List<CorrectableAccountReport_Type> correctableAccounts = new List<CorrectableAccountReport_Type>();
             int i = 0;
 
-            foreach (string s in ent)
+            foreach (Dictionary<string, string> d in entries) 
             {
-                string acctNum = s.Split(':')[0];
-                int acctHolderId = Convert.ToInt32(s.Split(':')[1]);
+
+                string acctNum = d["AcctNumber"];
+                int acctHolderId = Convert.ToInt32(d["AcctHolderId"]);
+                string country = d["Country"];
 
                 if (db.isEntity(acctHolderId))
                 {
-                    string[] resCountries = db.GetEntityResCountry(acctHolderId);
+                    //Account Reports
+                    CorrectableAccountReport_Type account = new CorrectableAccountReport_Type();
+                    //DocSpec
 
-                    foreach (string country in resCountries)
+                    account.DocSpec = DocSpec
+                        (d["DocSpecType"], i, acctNum, d["CorrFileSerialNumber"], d["CorrDocRefId"], d["CorrAcctNumber"]); 
+
+                    AccountDetailsModel acctDetails = db.GetAccountDetials(acctNum);
+                    //FIAccountNumber
+                    account.AccountNumber = FIAccountNumber(acctDetails);
+                    //MonAmnt
+                    account.AccountBalance = MonAmntBalance(acctDetails);
+                    //Payment
+                    List<Payment_Type> payments = Payment(acctNum);
+                    if (payments != null)
+                        account.Payment = payments.ToArray();
+
+                    //AccountHolder
+                    AccountHolder_Type holder = new AccountHolder_Type();
+
+                    EntityDetailsModel model = db.GetEntityDetails(acctHolderId, country);
+                    List<object> acctHolderItems = new List<object>();
+
+                    OrganisationParty_Type org = OrganisationType(model, country);
+                    acctHolderItems.Add(org);
+
+                    //ControllingPerson
+                    Debug.WriteLine("Input: {0} {1} {2}", acctHolderId, country, acctNum);
+                    List<ControllingPersonModel> ctrlList = db.GetEntityCtrlPerson(acctHolderId, country, acctNum);
+                    if (ctrlList != null && ctrlList.Count != 0)
                     {
-                        //Account Reports
-                        CorrectableAccountReport_Type account = new CorrectableAccountReport_Type();
-                        //DocSpec
-                        account.DocSpec = DocSpec(reportArgs["docSpecType"], i, acctNum);
+                        ControllingPerson_Type[] ctrlPersons = ControllingPerson(ctrlList);
+                        account.ControllingPerson = ctrlPersons;
 
-                        AccountDetailsModel acctDetails = db.GetAccountDetials(acctNum);
-                        //FIAccountNumber
-                        account.AccountNumber = FIAccountNumber(acctDetails);
-                        //MonAmnt
-                        account.AccountBalance = MonAmntBalance(acctDetails);
-                        //Payment
-                        List<Payment_Type> payments = Payment(acctNum);
-                        if (payments != null)
-                            account.Payment = payments.ToArray();
+                        CrsAcctHolderType_EnumType acctType;
+                        if (Enum.TryParse<CrsAcctHolderType_EnumType>(model.AcctHolderType, out acctType) == true)
+                            acctHolderItems.Add(acctType);
 
-                        //AccountHolder
-                        AccountHolder_Type holder = new AccountHolder_Type();
-
-                        EntityDetailsModel model = db.GetEntityDetails(acctHolderId, country);
-                        List<object> acctHolderItems = new List<object>();
-
-                        OrganisationParty_Type org = OrganisationType(model, country);
-                        acctHolderItems.Add(org);
-
-                        //ControllingPerson
-                        Debug.WriteLine("Input: {0} {1} {2}", acctHolderId, country, acctNum);
-                        List<ControllingPersonModel> ctrlList = db.GetEntityCtrlPerson(acctHolderId, country, acctNum);
-                        if (ctrlList != null && ctrlList.Count != 0)
-                        {
-                            ControllingPerson_Type[] ctrlPersons = ControllingPerson(ctrlList);
-                            account.ControllingPerson = ctrlPersons;
-
-                            CrsAcctHolderType_EnumType acctType;
-                            if (Enum.TryParse<CrsAcctHolderType_EnumType>(model.AcctHolderType, out acctType) == true)
-                                acctHolderItems.Add(acctType);
-
-                        }
-                        else
-                        {
-                            acctHolderItems.Add(CrsAcctHolderType_EnumType.CRS102); // if entity has no controlling person in the same jurisdiction country
-                        }
-
-                        holder.Items = acctHolderItems.ToArray();
-                        account.AccountHolder = holder;
-
-                        correctableAccounts.Add(account);
-                        i++; // for DocRefId
                     }
+                    else
+                    {
+                        acctHolderItems.Add(CrsAcctHolderType_EnumType.CRS102); // if entity has no controlling person in the same jurisdiction country
+                    }
+
+                    holder.Items = acctHolderItems.ToArray();
+                    account.AccountHolder = holder;
+
+                    correctableAccounts.Add(account);
+                    i++; // for DocRefId
                 }
                 else // account holder is an Individual/Person
                 {
                     Debug.WriteLine("Individual Account.");
                     string[] resCountries = db.GetPersonReportableResCountry(acctHolderId);
 
-                    foreach (string country in resCountries)
+                    //Account Reports
+                    CorrectableAccountReport_Type account = new CorrectableAccountReport_Type();
+                    //DocSpec
+                    account.DocSpec = DocSpec
+                        (d["DocSpecType"], i, acctNum, d["CorrFileSerialNumber"], d["CorrDocRefId"], d["CorrAcctNumber"]);
+
+                    AccountDetailsModel acctDetails = db.GetAccountDetials(acctNum);
+                    //FIAccountNumber
+                    account.AccountNumber = FIAccountNumber(acctDetails);
+                    //MonAmnt
+                    account.AccountBalance = MonAmntBalance(acctDetails);
+                    //Payment
+                    List<Payment_Type> payments = Payment(acctNum);
+                    if (payments != null)
+                        account.Payment = payments.ToArray();
+
+                    //AccountHolder
+                    PersonDetailsModel model = db.GetPersonDetails(acctHolderId);
+
+                    //Get AcctHolder details
+                    PersonParty_Type person = PersonParty(model, false);
+
+                    CountryCode_Type[] countries = { (CountryCode_Type)Enum.Parse(typeof(CountryCode_Type), country) };
+                    person.ResCountryCode = countries;
+
+                    List<object> acctHolderItems = new List<object>();
+                    acctHolderItems.Add(person);
+
+                    AccountHolder_Type holder = new AccountHolder_Type();
+                    holder.Items = acctHolderItems.ToArray();
+                    account.AccountHolder = holder;
+
+                    /*
+                    //ControllingPerson
+                    Debug.WriteLine("Input: {0} {1} {2}", acctHolderId, country, acctNum);
+                    List<ControllingPersonModel> ctrlList = db.GetIndividualCtrlPerson(acctHolderId, country, acctNum);
+                    if (ctrlList != null && ctrlList.Count != 0)
                     {
-
-                        //Account Reports
-                        CorrectableAccountReport_Type account = new CorrectableAccountReport_Type();
-                        //DocSpec
-                        account.DocSpec = DocSpec("OECD1", i, acctNum);
-
-                        AccountDetailsModel acctDetails = db.GetAccountDetials(acctNum);
-                        //FIAccountNumber
-                        account.AccountNumber = FIAccountNumber(acctDetails);
-                        //MonAmnt
-                        account.AccountBalance = MonAmntBalance(acctDetails);
-                        //Payment
-                        List<Payment_Type> payments = Payment(acctNum);
-                        if (payments != null)
-                            account.Payment = payments.ToArray();
-
-                        //AccountHolder
-                        PersonDetailsModel model = db.GetPersonDetails(acctHolderId);
-
-                        //Get AcctHolder details
-                        PersonParty_Type person = PersonParty(model, false);
-
-                        CountryCode_Type[] countries = { (CountryCode_Type)Enum.Parse(typeof(CountryCode_Type), country) };
-                        person.ResCountryCode = countries;
-
-                        List<object> acctHolderItems = new List<object>();
-                        acctHolderItems.Add(person);
-
-                        AccountHolder_Type holder = new AccountHolder_Type();
-                        holder.Items = acctHolderItems.ToArray();
-                        account.AccountHolder = holder;
-
-                        /*
-                        //ControllingPerson
-                        Debug.WriteLine("Input: {0} {1} {2}", acctHolderId, country, acctNum);
-                        List<ControllingPersonModel> ctrlList = db.GetIndividualCtrlPerson(acctHolderId, country, acctNum);
-                        if (ctrlList != null && ctrlList.Count != 0)
-                        {
-                            ControllingPerson_Type[] ctrlPersons = ControllingPerson(ctrlList);
-                            account.ControllingPerson = ctrlPersons;
-                        }
-                        */
-
-                        correctableAccounts.Add(account);
-                        i++;
+                        ControllingPerson_Type[] ctrlPersons = ControllingPerson(ctrlList);
+                        account.ControllingPerson = ctrlPersons;
                     }
+                    */
 
+                    correctableAccounts.Add(account);
+                    i++;
                 }
             }
 
@@ -255,10 +250,11 @@ namespace Project_XML.Presenters.ExportPanel
          * *******************************************************************************/
 
         //DocSpec_ype
-        public DocSpec_Type DocSpec(string docType, int acctIndex, string acctNum)
+        public DocSpec_Type DocSpec(string docType, int acctIndex, string acctNum, string corrFSN, string corrDocRef, string corrAcct)
         {
             DocSpec_Type docSpec = new DocSpec_Type();
 
+            // if corraccountnumber != null 
             try
             {
                 docSpec.DocTypeIndic = (OECDDocTypeIndic_EnumType)Enum.Parse(typeof(OECDDocTypeIndic_EnumType), docType);
@@ -273,11 +269,10 @@ namespace Project_XML.Presenters.ExportPanel
 
             string refId = "DOC" + date.ToString("yyyyMMddHHmmssfff") + acctIndex.ToString().PadLeft(3, '0');
             docSpec.DocRefId = refId;
-            
 
             //Add entry to docspec table
             DbImportManager dbImport = new DbImportManager();
-            dbImport.NewDocSpec(refId, docType, messageRefId, acctNum);
+            dbImport.NewDocSpec(refId, docType, messageRefId, corrFSN, corrDocRef, corrAcct, acctNum);
 
             return docSpec;
 

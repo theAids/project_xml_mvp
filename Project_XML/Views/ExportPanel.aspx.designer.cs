@@ -31,6 +31,15 @@ namespace Project_XML.Views {
         protected global::System.Web.UI.WebControls.HiddenField accountSelected;
         
         /// <summary>
+        /// corrAccountNumList control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField corrAccountNumList;
+        
+        /// <summary>
         /// newContact control.
         /// </summary>
         /// <remarks>
@@ -112,13 +121,13 @@ namespace Project_XML.Views {
         protected global::System.Web.UI.WebControls.TextBox corrFSN;
         
         /// <summary>
-        /// corrDocRefList control.
+        /// CorrRepeater control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater corrDocRefList;
+        protected global::System.Web.UI.WebControls.Repeater CorrRepeater;
         
         /// <summary>
         /// LinkButton1 control.

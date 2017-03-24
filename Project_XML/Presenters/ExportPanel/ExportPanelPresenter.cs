@@ -49,6 +49,7 @@ namespace Project_XML.Presenters.ExportPanel
 
                 //populate Accounts table
                 view.AccountsList = db.GetAllAccounts();
+                
             }
 
             view.LogPath = Directory.CreateDirectory(server.MapPath("~/logs")).FullName; // set log directory
@@ -60,12 +61,58 @@ namespace Project_XML.Presenters.ExportPanel
                 UnauthenticatedRedirect(this, null);
         }
 
-        public object[] exportXML(string entries, Dictionary<string, string> reportArgs, string schemaPath)
+        public object[] exportXML(string entries, Dictionary<string, string> reportArgs, string schemaPath, string FSN, string typeCheck)
         {
+            List<Dictionary<string, string>> accountList = new List<Dictionary<string, string>>();
             CrsReport crs = new CrsReport();
 
             if (entries != null && !entries.Equals(""))
-                return crs.NewReport(entries, reportArgs, schemaPath);
+            {
+                List<string> accounts = new List<string>();
+                if (entries.Split(',').Length >= 1)
+                    accounts = entries.Split(',').ToList();
+                else
+                    accounts.Add(entries);
+
+                if (typeCheck == "Correction")
+                {
+                    foreach (string str in accounts)
+                    {
+                        var accountListContent = new Dictionary<string, string>();
+
+                        accountListContent.Add("AcctNumber", null);
+                        accountListContent.Add("AcctHolderId", null);
+                        accountListContent.Add("Country", str.Split(':')[2]);
+                        accountListContent.Add("DocSpecType", "OECD2");
+                        accountListContent.Add("CorrFileSerialNumber", FSN.ToString());
+                        accountListContent.Add("CorrDocRefId", str.Split(':')[4]);
+                        accountListContent.Add("CorrAcctNumber", str.Split(':')[0]);
+
+                        accountList.Add(accountListContent);
+                    };
+
+                }
+
+                else if (typeCheck == "New")
+                {
+                    foreach (string str in accounts)
+                    {
+                        var accountListContent = new Dictionary<string, string>();
+
+                        accountListContent.Add("AcctNumber", str.Split(':')[0]);
+                        accountListContent.Add("AcctHolderId", str.Split(':')[1]);
+                        accountListContent.Add("Country", str.Split(':')[2]);
+                        accountListContent.Add("DocSpecType", "OECD1");
+                        accountListContent.Add("CorrFileSerialNumber", null);
+                        accountListContent.Add("CorrDocRefId", null);
+                        accountListContent.Add("CorrAcctNumber", null);
+
+                        accountList.Add(accountListContent);
+                    };
+                }
+                return crs.NewReport(accountList, reportArgs, schemaPath);
+            }
+
             else
                 return null;
         }
@@ -106,7 +153,7 @@ namespace Project_XML.Presenters.ExportPanel
         }
 
 
-        public void Import(string fullPath)
+        public void Import(string fullPath, string typeCheck)
         {
             string action = "Upload";
             DbImportManager db = new DbImportManager();
@@ -147,18 +194,6 @@ namespace Project_XML.Presenters.ExportPanel
                 SqlBulkCopy bulkcopy = new SqlBulkCopy(ssqlconnectionstring);
                 bulkcopy.DestinationTableName = indivSheetName;
                 bulkcopy.WriteToServer(dr);
-
-                //System.Data.SqlClient.SqlConnectionStringBuilder builder = new System.Data.SqlClient.SqlConnectionStringBuilder(ssqlconnectionstring);
-                //string server = builder.DataSource;
-                //string database = builder.InitialCatalog;
-                //string status = "Success";
-
-                //LogAction(database, server, action, status);
-
-                /* while (dr.Read())
-                 {
-                     bulkcopy.WriteToServer(dr);
-                 }*/
 
                 dr.Close();
                 oledbconn.Close();
@@ -223,7 +258,12 @@ namespace Project_XML.Presenters.ExportPanel
 
             DbExportManager db2 = new DbExportManager();
 
-            view.AccountsList = db2.GetAllAccounts();
+            /*
+            if (typeCheck == "New")
+                view.AccountsList = db2.GetAllAccounts();
+            else if (typeCheck == "Corrected")
+                view.CorrAccountsList = db2.GetCorrAccounts(messageRef, corrAccounts); 
+            */
         }
 
         public void ClearLogs()

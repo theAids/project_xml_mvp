@@ -1,0 +1,17 @@
+Check status
+	>git status
+	Note: GREEN means the changes are added/tracked
+
+Add/Track all changes:
+	>git add .
+
+Commit changes:
+	>git commit -m "<comments or info regarding the commit>"
+
+Get latest commits/changes from the repo:
+	>git pull origin master
+
+	Note:In case of conflicts or git updates, edit the affected files and do ADD and COMMIT again.
+
+Push to the Remote Repository:
+	>git push origin master

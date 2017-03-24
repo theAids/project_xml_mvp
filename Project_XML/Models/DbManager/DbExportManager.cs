@@ -21,14 +21,19 @@ namespace Project_XML.Models.DbManager
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     conn.Open();
-                    string cmdstr = @"SELECT A.AcctNumber, t2.Name, t2.AcctHolderId
+                    string cmdstr = @"SELECT DISTINCT A.AcctNumber, t2.Name, t2.AcctHolderId, B.CountryCode
                                         FROM Account A
-                                        LEFT JOIN(SELECT A.AcctNumber, E.Name, EntityId AS AcctHolderId FROM Account A, Entity E WHERE A.AcctNumber=E.AcctNumber
-			                                        UNION
-			                                        SELECT A.AcctNumber, P.LastName+', '+P.FirstName AS Name, P.PId AS AcctHolderId
-				                                        FROM Account A, Person P, PersonAcctHolder PH
-				                                        WHERE A.AcctNumber=PH.AcctNumber AND P.PId=PH.PId)
-			                                        t2 ON t2.AcctNumber=A.AcctNumber
+                                        LEFT JOIN(SELECT A.AcctNumber, E.Name, EntityId AS AcctHolderId
+			                                        FROM Account A, Entity E 
+			                                        WHERE A.AcctNumber=E.AcctNumber
+                                                  UNION
+                                                  SELECT A.AcctNumber, P.LastName+', '+P.FirstName AS Name, P.PId AS AcctHolderId
+			                                        FROM Account A, Person P, PersonAcctHolder PH
+		                                            WHERE A.AcctNumber=PH.AcctNumber AND P.PId=PH.PId)t2 
+                                        ON t2.AcctNumber=A.AcctNumber
+                                        LEFT JOIN ResCountryCode B 
+	                                        ON B.P_Ent_Id = t2.AcctHolderId
+	                                        -- AND B.isReportable = 1
                                         ORDER BY t2.Name ASC";
                     cmd.CommandText = cmdstr;
                     cmd.Prepare();
@@ -47,6 +52,7 @@ namespace Project_XML.Models.DbManager
 
                             model.AcctHolder = reader[1].ToString();
                             model.AcctHolderId = Convert.ToInt32(reader[2]);
+                            model.Country = reader[3].ToString();
 
                             accounts.Add(model);
                         }
@@ -62,6 +68,74 @@ namespace Project_XML.Models.DbManager
 
             }
         }
+
+        public List<CorrAccountModel> GetCorrAccounts(string messageRef, List<string> corrAccountsList)
+        {
+            using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
+            {
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+                    string cmdstr = @"SELECT DISTINCT A.AcctNumber, B.CountryCode
+                                        FROM Account A
+                                        LEFT JOIN(SELECT A.AcctNumber, E.Name, EntityId AS AcctHolderId
+			                                        FROM Account A, Entity E
+			                                        WHERE A.AcctNumber=E.AcctNumber
+                                                  UNION
+                                                  SELECT A.AcctNumber, P.LastName+', '+P.FirstName AS Name, P.PId AS AcctHolderId
+			                                        FROM Account A, Person P, PersonAcctHolder PH
+		                                            WHERE A.AcctNumber=PH.AcctNumber AND P.PId=PH.PId)t2 
+                                        ON t2.AcctNumber=A.AcctNumber
+                                        LEFT JOIN ResCountryCode B 
+	                                        ON B.P_Ent_Id = t2.AcctHolderId
+                                        WHERE A.AcctNumber = @AcctNumber
+                                        AND (B.CountryName=UPPER(@Country) 
+                                            OR B.CountryCode=UPPER(@Country))
+                                            
+                                        ORDER BY t2.Name ASC";
+                    cmd.CommandText = cmdstr;
+                    cmd.Parameters.Add(new SqlParameter("@AcctNumber", SqlDbType.NVarChar, 72));
+                    cmd.Parameters.Add(new SqlParameter("@Country", SqlDbType.NVarChar, 40));
+                    cmd.Prepare();
+                    cmd.Parameters["@MessageRef"].Value = messageRef; 
+
+                    List<CorrAccountModel> corrAccounts = new List<CorrAccountModel>();
+
+                    try
+                    {
+                        SqlDataReader reader = cmd.ExecuteReader();
+
+                        while (reader.Read())
+                        {
+                            CorrAccountModel model = new CorrAccountModel();
+
+                            model.AcctNumber = reader[0].ToString();
+
+                            model.AcctHolder = reader[1].ToString();
+                            model.AcctHolderId = Convert.ToInt32(reader[2]);
+                            model.Country = reader[3].ToString();
+                            model.DocRefId = reader[4].ToString();
+                            //model.CorrAcctList = GetCorrAcctNum();
+                            corrAccounts.Add(model);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine("Get All Accounts Error: " + e.Message);
+                        return null;
+                    }
+
+                    return corrAccounts;
+                }
+
+            }
+        }
+
+        /*
+        public List<string> GetCorrAcctNum (string messageRef)
+        {
+        }
+        */
 
         public List<MessageSpecModel> GetAllMessageSpec()
         {

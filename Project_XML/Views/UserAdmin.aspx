@@ -209,7 +209,7 @@
                             <div class="form-group">
                                 <label class="control-label col-sm-3" for="roleEdit">Role</label>
                                 <div class="col-sm-9">
-                                    <asp:DropDownList runat="server" C ID="roleEdit" AutoPostBack="false" CssClass="form-control" EnableViewState="false">
+                                    <asp:DropDownList runat="server" ID="roleEdit" AutoPostBack="false" CssClass="form-control" EnableViewState="false">
                                         <asp:ListItem Value="2"> User </asp:ListItem>
                                         <asp:ListItem Value="1"> Administrator </asp:ListItem>
                                     </asp:DropDownList>

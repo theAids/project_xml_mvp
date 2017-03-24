@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:crs="http://www.ird.gov.hk/AEOI/crs/v1" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:cfc="http://www.ird.gov.hk/AEOI/aeoitypes/v1" xmlns:iso="urn:oecd:ties:isocrstypes:v1" targetNamespace="http://www.ird.gov.hk/AEOI/crs/v1" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0.1">
+	<xsd:import namespace="urn:oecd:ties:isocrstypes:v1" schemaLocation="isocrstypes_v1.0.xsd"/>
+	<xsd:import namespace="http://www.ird.gov.hk/AEOI/aeoitypes/v1" schemaLocation="aeoitypes_v0.1.xsd"/>
+	<!--+++++++++++++++++++++++  Reusable Simple types ++++++++++++++++++++++++++++++++++++++ -->
+	<!--  -->
+	<!-- Account Holder Type - 1 -->
+	<xsd:simpleType name="CrsAcctHolderType_EnumType">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">Account Holder Type</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="CRS101">
+				<xsd:annotation>
+					<xsd:documentation>Passive Non-Financial Entity with one or more controlling person that is a Reportable Person</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="CRS102">
+				<xsd:annotation>
+					<xsd:documentation>Reportable Person</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="CRS103">
+				<xsd:annotation>
+					<xsd:documentation>Passive NFE that is a Reportable Person</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!--  -->
+	<!-- CRS Payment Type - 5 -->
+	<xsd:simpleType name="CrsPaymentType_EnumType">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">The code describing the nature of the payments</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="CRS501">
+				<xsd:annotation>
+					<xsd:documentation>Dividends</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="CRS502">
+				<xsd:annotation>
+					<xsd:documentation>Interest</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="CRS503">
+				<xsd:annotation>
+					<xsd:documentation>Gross Proceeds/Redemptions</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="CRS504">
+				<xsd:annotation>
+					<xsd:documentation>Other - CRS</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!--  -->
+	<!-- MessageTypeIndic - 7 -->
+	<xsd:simpleType name="CrsMessageTypeIndic_EnumType">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">The MessageTypeIndic defines the type of message sent</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="CRS701">
+				<xsd:annotation>
+					<xsd:documentation>The message contains new information</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="CRS702">
+				<xsd:annotation>
+					<xsd:documentation>The message contains corrections for previously sent information</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!--  -->
+	<!-- Controlling Person Type - 8 -->
+	<xsd:simpleType name="CrsCtrlgPersonType_EnumType">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">Controlling Person Type</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="CRS801">
+				<xsd:annotation>
+					<xsd:documentation>CP of legal person - ownership</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="CRS802">
+				<xsd:annotation>
+					<xsd:documentation>CP of legal person - other means</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="CRS803">
+				<xsd:annotation>
+					<xsd:documentation>CP of legal person - senior managing official</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="CRS804">
+				<xsd:annotation>
+					<xsd:documentation>CP of legal arrangement - trust - settlor</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="CRS805">
+				<xsd:annotation>
+					<xsd:documentation>CP of legal arrangement - trust - trustee</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="CRS806">
+				<xsd:annotation>
+					<xsd:documentation>CP of legal arrangement - trust - protector</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="CRS807">
+				<xsd:annotation>
+					<xsd:documentation>CP of legal arrangement - trust - beneficiary</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="CRS808">
+				<xsd:annotation>
+					<xsd:documentation>CP of legal arrangement - trust - other</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="CRS809">
+				<xsd:annotation>
+					<xsd:documentation>CP of legal arrangement - other - settlor-equivalent</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="CRS810">
+				<xsd:annotation>
+					<xsd:documentation>CP of legal arrangement - other - trustee-equivalent</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="CRS811">
+				<xsd:annotation>
+					<xsd:documentation>CP of legal arrangement - other - protector-equivalent</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="CRS812">
+				<xsd:annotation>
+					<xsd:documentation>CP of legal arrangement - other - beneficiary-equivalent</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="CRS813">
+				<xsd:annotation>
+					<xsd:documentation>CP of legal arrangement - other - other-equivalent</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!--  -->
+	<!--++++++++++++++++++ Reusable Complex types +++++++++++++++++++++++++++++++++++++ -->
+	<!-- Message specification: Data identifying and describing the message as a whole -->
+	<xsd:complexType name="MessageSpec_Type">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">Information in the message header identifies the Financial Institution that is sending the message.  It specifies when the message was created, what period (normally a year) the report is for, and the nature of the report (original, corrected, supplemental, etc).</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="AeoiId" type="cfc:AeoiId_Type"/>
+			<xsd:element name="FIName" type="cfc:Char120_Type"/>
+			<xsd:element name="AttentionNote" type="cfc:Char150_Type" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">Free text field allowing input of notes on matters requiring the attention of the recipient.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="Contact" type="cfc:Char120_Type" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">All necessary contact information about persons responsible for and involved in the processing of the data transmitted in this message.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="MessageRefId" type="cfc:Char40_Type">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">Sender's unique identifier for this message</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="MessageTypeIndic" type="crs:CrsMessageTypeIndic_EnumType"/>
+			<xsd:element name="ReturnYear" type="cfc:ReturnYear_Type">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">The year of return for which information is transmitted in documents of the current message.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="Timestamp" type="xsd:dateTime"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!-- -->
+	<!-- Document specification: Data identifying and describing the document -->
+	<xsd:complexType name="DocSpec_Type">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">Document specification: Data identifying and describing the document, where 'document' here means the part of a message that is to transmit the data about a single block of information. </xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="DocTypeIndic" type="cfc:OECDDocTypeIndic_EnumType"/>
+			<xsd:element name="DocRefId" type="cfc:Char40_Type">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">Sender's unique identifier of this document </xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="CorrFileSerialNumber" type="cfc:FileSerialNumber_Type" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">File Serial Number given by IRD when acknowledging receipt of the data file previously submitted to the AEOI Portal containing the record to be corrected / deleted</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="CorrDocRefId" type="cfc:Char40_Type" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">Reference ID of the document referred to if this is correction / deletion</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="CorrAccountNumber" type="cfc:Char72_Type" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">Account Number of the account to be corrected / deleted</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!-- -->
+	<!-- Account Holder Type -->
+	<xsd:complexType name="AccountHolder_Type">
+		<xsd:sequence>
+			<xsd:choice>
+				<xsd:element name="Individual" type="crs:PersonParty_Type"/>
+				<xsd:sequence>
+					<xsd:element name="Organisation" type="crs:OrganisationParty_Type"/>
+					<xsd:element name="AcctHolderType" type="crs:CrsAcctHolderType_EnumType"/>
+				</xsd:sequence>
+			</xsd:choice>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!-- -->
+	<!-- Controlling Person Type -->
+	<xsd:complexType name="ControllingPerson_Type">
+		<xsd:sequence>
+			<xsd:element name="Individual" type="crs:PersonParty_Type"/>
+			<xsd:element name="CtrlgPersonType" type="crs:CrsCtrlgPersonType_EnumType" minOccurs="0"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!-- -->
+	<!-- Account number -->
+	<xsd:complexType name="FIAccountNumber_Type">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">Account number definition  </xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleContent>
+			<xsd:extension base="cfc:Char72_Type">
+				<xsd:attribute name="AcctNumberType" type="cfc:AcctNumberType_EnumType">
+					<xsd:annotation>
+						<xsd:documentation xml:lang="en">Account Number Type</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:attribute name="UndocumentedAccount" type="xsd:boolean">
+					<xsd:annotation>
+						<xsd:documentation xml:lang="en">Undocumented Account</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:attribute name="ClosedAccount" type="xsd:boolean">
+					<xsd:annotation>
+						<xsd:documentation xml:lang="en">Closed Account</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:attribute name="DormantAccount" type="xsd:boolean">
+					<xsd:annotation>
+						<xsd:documentation xml:lang="en">Dormant Account</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<!--  -->
+	<!-- Correctable Account Report -->
+	<xsd:complexType name="CorrectableAccountReport_Type">
+		<xsd:sequence>
+			<xsd:element name="DocSpec" type="crs:DocSpec_Type"/>
+			<xsd:element name="AccountNumber" type="crs:FIAccountNumber_Type"/>
+			<xsd:element name="AccountHolder" type="crs:AccountHolder_Type"/>
+			<xsd:element name="ControllingPerson" type="crs:ControllingPerson_Type" minOccurs="0" maxOccurs="unbounded"/>
+			<xsd:element name="AccountBalance" type="cfc:MonAmnt_Type"/>
+			<xsd:element name="Payment" type="crs:Payment_Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!--  -->
+	<!-- The Name of a Party, given in fixed Form-->
+	<xsd:complexType name="NamePerson_Type">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">The user should spread the data about the name of a party over separate elements.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="PrecedingTitle" type="cfc:Char30_Type" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">Example: His Excellency, Estate of the Late...</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="Title" type="cfc:Char30_Type" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">Greeting title. Example: Mr, Dr, Ms, Herr, etc. Can have multiple titles.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="FirstName" type="cfc:Char70_Type">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">FirstName of the person. Input an initial or "NFN" in case no complete first name can be provided.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="MiddleName" type="cfc:Char120_Type" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">Middle name (essential part of the name for many nationalities). Example: Sakthi in "Nivetha Sakthi Shantha". Input all the middle names here.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="NamePrefix" type="cfc:Char30_Type" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">de, van, van de, von, etc. Example: Derick de Clarke</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="LastName" type="cfc:Char70_Type">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">Represents the position of the name in a name string. Can be Given Name, Forename, Christian Name, Surname, Family Name, etc. </xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="GenerationIdentifier" type="cfc:Char30_Type" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">Example: Jnr, Thr Third, III</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="Suffix" type="cfc:Char30_Type" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">Could be compressed initials
+Example: PhD, VC, QC</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="GeneralSuffix" type="cfc:Char30_Type" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">Example: Deceased, Retired</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="nameType" type="cfc:OECDNameType_EnumType" use="optional"/>
+	</xsd:complexType>
+	<!-- -->
+	<!-- Collection of all Data describing a person as a  Party -->
+	<xsd:complexType name="PersonParty_Type">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">This container brings together all data about a person as a party. Name and address are required components and each can be present more than once to enable as complete a description as possible. Whenever possible one or more identifiers (TIN, etc.) should be added as well as a residence country code. Additional data that describes and identifies the party can be given. The structures of all of the subelements are defined elsewhere in this schema.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="ResCountryCode" type="iso:CountryCode_Type" maxOccurs="unbounded"/>
+			<xsd:element name="TIN" type="cfc:TIN_Type" minOccurs="0" maxOccurs="unbounded"/>
+			<xsd:element name="Name" type="crs:NamePerson_Type" maxOccurs="unbounded"/>
+			<xsd:element name="Address" type="cfc:Address_Type" maxOccurs="unbounded"/>
+			<xsd:element name="BirthInfo" minOccurs="0">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="BirthDate" type="xsd:date" minOccurs="0"/>
+						<xsd:element name="City" type="cfc:Char70_Type" minOccurs="0"/>
+						<xsd:element name="CitySubentity" type="cfc:Char70_Type" minOccurs="0"/>
+						<xsd:element name="CountryInfo" minOccurs="0">
+							<xsd:complexType>
+								<xsd:choice>
+									<xsd:element name="CountryCode" type="iso:CountryCode_Type"/>
+									<xsd:element name="FormerCountryName" type="cfc:Char70_Type"/>
+								</xsd:choice>
+							</xsd:complexType>
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!-- -->
+	<!-- Organisation Identification Number -->
+	<xsd:complexType name="OrganisationIN_Type">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">This is the identification number/identification code for the Entity in question. As the identifier may be not strictly numeric, it is just defined as a string of characters. Attribute 'issuedBy' is required to designate the issuer of the identifier.  Attribute 'INType' defines the type of identification number. </xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleContent>
+			<xsd:extension base="cfc:Char80_Type">
+				<xsd:attribute name="issuedBy" type="iso:CountryCode_Type" use="optional">
+					<xsd:annotation>
+						<xsd:documentation xml:lang="en">Country code of issuing country, indicating country of Residence (to taxes and other)</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:attribute name="INType" type="cfc:Char30_Type" use="optional">
+					<xsd:annotation>
+						<xsd:documentation xml:lang="en">Identification Number Type</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<!-- -->
+	<!-- Collection of all Data describing an organisationy  as party-->
+	<xsd:complexType name="OrganisationParty_Type">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en">This container brings together all data about an organisation as a party. Name and address are required components and each can be present more than once to enable as complete a description as possible. Whenever possible one or more identifiers (TIN, etc.) should be added as well as a residence country code. Additional data that describes and identifies the party can be given . The structures of all of the subelements are defined elsewhere in this schema.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="ResCountryCode" type="iso:CountryCode_Type" maxOccurs="unbounded"/>
+			<xsd:element name="IN" type="crs:OrganisationIN_Type" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">Entity Identification Number</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="Name" type="cfc:NameOrganisation_Type" maxOccurs="unbounded"/>
+			<xsd:element name="Address" type="cfc:Address_Type" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!-- -->
+	<!-- Payment   -->
+	<xsd:complexType name="Payment_Type">
+		<xsd:sequence>
+			<xsd:element name="Type" type="crs:CrsPaymentType_EnumType">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">Type of payment (interest, dividend,...)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="PaymentAmnt" type="cfc:MonAmnt_Type">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en">The amount of payment</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!-- -->
+	<!--  -->
+	<!-- CRS Body Type - CRS Report  -->
+	<xsd:complexType name="CrsBody_Type">
+		<xsd:sequence>
+			<xsd:element name="ReportingGroup">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="AccountReport" type="crs:CorrectableAccountReport_Type" maxOccurs="unbounded"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Schema  element ++++++++++++++++++++++++++++++++++++++++++++ -->
+	<!-- CrsOECD File Message structure  -->
+	<!-- -->
+	<!-- CRS Message structure  -->
+	<xsd:element name="AEOI_Report">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="MessageSpec" type="crs:MessageSpec_Type"/>
+				<xsd:element name="CrsBody" type="crs:CrsBody_Type"/>
+			</xsd:sequence>
+			<xsd:attribute name="version" type="xsd:decimal"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!-- -->
+</xsd:schema>

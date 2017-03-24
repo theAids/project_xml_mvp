@@ -10,5 +10,6 @@ namespace Project_XML.Models.EntityModels
         public string AcctNumber { set; get;}
         public string AcctHolder { set; get; }
         public int AcctHolderId { set; get; }
+        public string Country { set; get; } 
     }
 }

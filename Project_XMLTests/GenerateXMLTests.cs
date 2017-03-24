@@ -59,7 +59,7 @@ namespace Project_XMLTests
                         //Account Reports
                         CorrectableAccountReport_Type account = new CorrectableAccountReport_Type();
                         //DocSpec
-                        account.DocSpec = crs.DocSpec("OECD1", i);
+                        //account.DocSpec = crs.DocSpec("OECD1", i);
 
                         AccountDetailsModel acctDetails = db.GetAccountDetials(acctNum);
                         //FIAccountNumber
@@ -116,7 +116,7 @@ namespace Project_XMLTests
                         //Account Reports
                         CorrectableAccountReport_Type account = new CorrectableAccountReport_Type();
                         //DocSpec
-                        account.DocSpec = crs.DocSpec("OECD1", i);
+                        //account.DocSpec = crs.DocSpec("OECD1", i);
 
                         AccountDetailsModel acctDetails = db.GetAccountDetials(acctNum);
                         //FIAccountNumber

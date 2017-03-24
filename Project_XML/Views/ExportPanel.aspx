@@ -1,4 +1,4 @@
-﻿<%@ Page Title="Export" Language="C#" AutoEventWireup="true" MasterPageFile="~/Site.Master" CodeBehind="ExportPanel.aspx.cs" Inherits="Project_XML.Views.ExportPanel" %>
+﻿<%@ Page Title="Export" Language="C#" AutoEventWireup="True" MasterPageFile="~/Site.Master" CodeBehind="ExportPanel.aspx.cs" Inherits="Project_XML.Views.ExportPanel" %>
 
 <%@ Register TagPrefix="uc" TagName="UserMenu" Src="./UserControls/UserMenu.ascx" %>
 
@@ -7,6 +7,7 @@
     <uc:UserMenu runat="server" ID="UserMenu1" />
 
     <asp:HiddenField runat="server" ID="accountSelected" />
+    <asp:HiddenField runat="server" ID="corrAccountNumList" />
 
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
         <h1 class="page-header">Export XML</h1>
@@ -64,6 +65,7 @@
                                                                     <input type="checkbox" id="selectAllAccountsBox" class="form-control chkbox" /></th>
                                                                 <th>Account Number</th>
                                                                 <th>Account Holder</th>
+                                                                <th>Country</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -74,6 +76,7 @@
                                                             <input type="checkbox" name="accountCheckGroup" class="form-control chkbox" value='<%# Eval("AcctNumber") %>' /></td>
                                                         <td class="newAcctNumber"><%# Eval("AcctNumber") %></td>
                                                         <td class="newAcctHolder"><%# Eval("AcctHolder") %></td>
+                                                        <td class="Country"><%# Eval("Country") %></td>
                                                         <td class="newAcctHolderId" style="display: none;"><%# Eval("AcctHolderId") %></td>
                                                     </tr>
                                                 </ItemTemplate>
@@ -105,6 +108,7 @@
                                     <div class="form-group required">
                                         <label class="control-label" for="corrMessageRefId">Message Reference Id:</label>
                                         <asp:DropDownList runat="server" ID="corrMessageRefId" CssClass="form-control"></asp:DropDownList>
+
                                     </div>
                                 </div>
 
@@ -127,27 +131,36 @@
                                     <div class="panel panel-default accounts-table required">
                                         <div class="panel-heading"><b>Accounts</b></div>
                                         <div class="table-responsive">
-                                            <asp:Repeater runat="server" ID="corrDocRefList">
+                                            <asp:Repeater runat="server" ID="CorrRepeater">
                                                 <HeaderTemplate>
                                                     <table class="table table-striped">
                                                         <thead>
                                                             <tr>
                                                                 <th>
-                                                                    <input type="checkbox" id="selectAllDocsBox_corr" class="form-control chkbox" /></th>
-                                                                <th>Doc Ref ID</th>
+                                                                    <input type="checkbox" id="selectAllCorrAccountsBox" class="form-control chkbox" /></th>
+                                                                <th>Corrected Account Number</th>
+                                                                <th>Corrected Account Holder</th>
+                                                                <th>Corrected Country</th>
                                                                 <th>Account Number</th>
-                                                                <th>Account Holder</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
                                                 </HeaderTemplate>
                                                 <ItemTemplate>
                                                     <tr>
-                                                        <td class="corrDocCheckBox">
-                                                            <input type="checkbox" name="corrDocCheckGroup" class="form-control chkbox" /></td>
-                                                        <td class="corrDocRefId">00001234</td>
-                                                        <td class="corrDocAcctNumber">3099984</td>
-                                                        <td class="corrDocAcctHolder">Adrian Perez</td>
+                                                        <td class="accountCheckBox">
+                                                            <input type="checkbox" name="corrAccountCheckGroup" class="form-control chkbox" value='<%# Eval("AcctNumber") %>' /></td>
+                                                        <td class="newAcctNumber"><%# Eval("AcctNumber") %></td>
+                                                        <td class="newAcctHolder"><%# Eval("AcctHolder") %></td>
+                                                        <td class="Country"><%# Eval("Country") %></td>
+                                                        <td class="select">
+                                                            <select class="corrSelect form-control">
+                                                            </select>
+                                                        </td>
+
+
+                                                        <td class="newAcctHolderId" style="display: none;"><%# Eval("AcctHolderId") %></td>
+                                                        <!-- <td class="docRefId" style="display: none;"></td> -->
                                                     </tr>
                                                 </ItemTemplate>
                                                 <FooterTemplate>
@@ -159,7 +172,7 @@
                                     </div>
                                 </div>
                                 <div class="btn-export-panel">
-                                    <asp:LinkButton runat="server" ID="LinkButton1" class="btn btn-export btn-md">Export XML<span class="glyphicon glyphicon-download-alt"></span></asp:LinkButton>
+                                    <asp:LinkButton runat="server" ID="LinkButton1" class="btn btn-export btn-md" OnClick="CorrectData" OnClientClick="getCheckedAccounts()">Export XML<span class="glyphicon glyphicon-download-alt"></span></asp:LinkButton>
                                 </div>
                             </div>
                         </div>
@@ -244,7 +257,7 @@
 
             <!-- Upload file panel -->
             <div class="col-sm-4 col-md-5">
-                <div class="panel panel-default upload-panel" style ="overflow: auto">
+                <div class="panel panel-default upload-panel" style="overflow: auto">
                     <div class="panel-heading">
                         <span class="glyphicon glyphicon-inbox icon"></span>Upload File
                     </div>
@@ -254,7 +267,7 @@
                             </asp:Label>
                             <asp:Literal runat="server" ID="uploadID" />
                         </asp:Panel>
-                        
+
                         <label class="control-label">Upload New Data</label>
                         <asp:FileUpload ID="FileUpload1" runat="server" CssClass="filestyle" data-icon="false" />
                         <div class="btn-upload-panel">
@@ -266,7 +279,7 @@
                         <label class="control-label">Upload Corrected Data</label>
                         <asp:FileUpload ID="FileUpload2" runat="server" CssClass="filestyle" data-icon="false" />
                         <div class="btn-upload-panel">
-                            <asp:LinkButton runat="server" ID="LinkButton3" OnClick="UploadNewFile" class="btn btn-import btn-md" enctype="multipart/form-data">Upload<span class="glyphicon glyphicon glyphicon-upload"></span></asp:LinkButton>
+                            <asp:LinkButton runat="server" ID="LinkButton3" OnClick="UploadCorrectedFile" class="btn btn-import btn-md" enctype="multipart/form-data">Upload<span class="glyphicon glyphicon glyphicon-upload"></span></asp:LinkButton>
                         </div>
                     </div>
                 </div>
@@ -275,7 +288,7 @@
 
             <!-- Action Log -->
             <div class="col-sm-4 col-md-5">
-                <div class="panel panel-default log-panel" style ="overflow: auto">
+                <div class="panel panel-default log-panel" style="overflow: auto">
                     <div class="panel-heading">
                         <span class="glyphicon glyphicon-log-in icon"></span>Export Log
                     <asp:LinkButton runat="server" ID="clearBtn" OnClick="ClearLog" OnClientClick="showClearProgress()" CssClass="pull-right">Clear</asp:LinkButton>
@@ -305,71 +318,98 @@
                 $(this).removeClass('active');
             });
 
-            //$('#newDataFile').fileinput();
-        }
+            var corAcountList = JSON.stringify($("#<%=corrAccountNumList.ClientID%>").val());
+            corAcountList = corAcountList.substring(1, corAcountList.length - 1);
+            var correctedAccounts = corAcountList.split(',');
+            
+
+            //alert(corAcountList);
+            for (var i = 0; i < correctedAccounts.length; i++) {
+                $('.corrSelect').append($('<option>', {
+                    value: correctedAccounts[i],
+                    text: correctedAccounts[i]
+                }));
+            }
+
+            /*
+            for (var i = 0; i < correctedAccounts.length; i++)
+            {
+                $('<option>').val(correctedAccounts[i]).html(correctedAccounts[i]).appendTo('.corrSelect');
+            }
+        
+            $.each(correctedAccounts, function (i, item) {
+                $('.corrSelect').append($('<option>', {
+                    value: item.value,
+                    text: item.text
+                }));
+            });*/
+                //Populate select tag using hidden field value 
+
+                //$('#newDataFile').fileinput();
+            }
 
         //new data panel
         $('#new-data-link').click(function () {
-            if (!$(this).parent().hasClass('active')) {
-                $(this).parent().addClass('active');
-            }
+                if (!$(this).parent().hasClass('active')) {
+                    $(this).parent().addClass('active');
+                }
 
-            $(this).parent().siblings().each(function () {
-                $(this).removeClass('active');
+                $(this).parent().siblings().each(function () {
+                    $(this).removeClass('active');
+                });
+
+
+                $('.correction-data').css('display', 'none');
+                $('.delete-data').css('display', 'none');
+                $('.new-data').css('display', 'block');
+            });
+
+            //correction data panel
+            $('#corr-data-link').click(function () {
+                if (!$(this).parent().hasClass('active')) {
+                    $(this).parent().addClass('active');
+                }
+
+                $(this).parent().siblings().each(function () {
+                    $(this).removeClass('active');
+                });
+
+                $('.delete-data').css('display', 'none');
+                $('.new-data').css('display', 'none');
+                $('.correction-data').css('display', 'block');
+            });
+
+            //delete data panel
+            $('#del-data-link').click(function () {
+                if (!$(this).parent().hasClass('active')) {
+                    $(this).parent().addClass('active');
+                }
+
+                $(this).parent().siblings().each(function () {
+                    $(this).removeClass('active');
+                });
+
+                $('.new-data').css('display', 'none');
+                $('.correction-data').css('display', 'none');
+                $('.delete-data').css('display', 'block');
             });
 
 
-            $('.correction-data').css('display', 'none');
-            $('.delete-data').css('display', 'none');
-            $('.new-data').css('display', 'block');
-        });
 
-        //correction data panel
-        $('#corr-data-link').click(function () {
-            if (!$(this).parent().hasClass('active')) {
-                $(this).parent().addClass('active');
-            }
 
-            $(this).parent().siblings().each(function () {
-                $(this).removeClass('active');
+            //select all accounts checkbox
+            $('#selectAllAccountsBox').click(function () {
+                $('input[name=accountCheckGroup]').toggleCheckBoxes(this.checked);
             });
 
-            $('.delete-data').css('display', 'none');
-            $('.new-data').css('display', 'none');
-            $('.correction-data').css('display', 'block');
-        });
+            //add selected accounts to list
+            var accounts;
 
-        //delete data panel
-        $('#del-data-link').click(function () {
-            if (!$(this).parent().hasClass('active')) {
-                $(this).parent().addClass('active');
-            }
+            function getCheckedAccounts() {
+                accounts = new Array();
 
-            $(this).parent().siblings().each(function () {
-                $(this).removeClass('active');
-            });
-
-            $('.new-data').css('display', 'none');
-            $('.correction-data').css('display', 'none');
-            $('.delete-data').css('display', 'block');
-        });
-
-
-
-
-        //select all accounts checkbox
-        $('#selectAllAccountsBox').click(function () {
-            $('input[name=accountCheckGroup]').toggleCheckBoxes(this.checked);
-        });
-
-        //add selected accounts to list
-        var accounts;
-
-        function getCheckedAccounts() {
-            accounts = new Array();
-
-            $('input[name=accountCheckGroup]').each(addSelected);
-            $('#<%= accountSelected.ClientID%>').val(accounts);
+                $('input[name=accountCheckGroup]').each(addSelected);
+                $('#<%= accountSelected.ClientID%>').val(accounts); //hiddenfield
 
             alert(accounts)
 
@@ -377,10 +417,11 @@
 
         function addSelected() {
             if (this.checked)
-                accounts.push(this.value + ':' + $(this).parent().siblings('.newAcctHolderId').text());
+                accounts.push(this.value + ':' + $(this).parent().siblings('.newAcctHolderId').text() + ':' + $(this).parent().siblings('.Country').text()
+                               + ':' + $(this).parent().siblings('.DocRefId').text());
         }
 
-        //toggle all checkboxes function
+            //toggle all checkboxes function
         $.fn.toggleCheckBoxes = function (checked) {
             if (checked) {
                 this.prop('checked', true);
@@ -390,7 +431,7 @@
             }
         };
 
-        //clear log async progress status
+            //clear log async progress status
         function showClearProgress() {
             $('.log-panel-body').addClass('clear-log').css('opacity', 0.5);
         }
