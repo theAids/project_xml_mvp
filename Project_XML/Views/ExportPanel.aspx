@@ -152,7 +152,7 @@
                                                             <input type="checkbox" name="corrAccountCheckGroup" class="form-control chkbox" value='<%# Eval("AcctNumber") %>' /></td>
                                                         <td class="newAcctNumber"><%# Eval("AcctNumber") %></td>
                                                         <td class="newAcctHolder"><%# Eval("AcctHolder") %></td>
-                                                        <td class="Country"><%# Eval("Country") %></td>
+                                                        <td class="CountryCorr"><%# Eval("Country") %></td>
                                                         <td class="select">
                                                             <select class="corrSelect form-control">
                                                             </select>
@@ -160,7 +160,7 @@
 
 
                                                         <td class="newAcctHolderId" style="display: none;"><%# Eval("AcctHolderId") %></td>
-                                                        <!-- <td class="docRefId" style="display: none;"></td> -->
+                                                        <td class="docRefId" style="display: none;"><%# Eval("DocRefId") %></td>
                                                     </tr>
                                                 </ItemTemplate>
                                                 <FooterTemplate>
@@ -172,7 +172,7 @@
                                     </div>
                                 </div>
                                 <div class="btn-export-panel">
-                                    <asp:LinkButton runat="server" ID="LinkButton1" class="btn btn-export btn-md" OnClick="CorrectData" OnClientClick="getCheckedAccounts()">Export XML<span class="glyphicon glyphicon-download-alt"></span></asp:LinkButton>
+                                    <asp:LinkButton runat="server" ID="LinkButton1" class="btn btn-export btn-md" OnClientClick="getCheckedCorrAccounts()" OnClick ="CorrectData">Export XML<span class="glyphicon glyphicon-download-alt"></span></asp:LinkButton>
                                 </div>
                             </div>
                         </div>
@@ -346,7 +346,14 @@
                 //Populate select tag using hidden field value 
 
                 //$('#newDataFile').fileinput();
-            }
+        }
+
+        /*
+        $('.corrSelect').change(function () {
+            alert($(this).find(':selected').text());
+        });
+
+         */
 
         //new data panel
         $('#new-data-link').click(function () {
@@ -410,16 +417,42 @@
 
                 $('input[name=accountCheckGroup]').each(addSelected);
                 $('#<%= accountSelected.ClientID%>').val(accounts); //hiddenfield
+            }
 
-            alert(accounts)
+                function addSelected() {
+                    if (this.checked)
+                        accounts.push(this.value + ':' + $(this).parent().siblings('.newAcctHolderId').text() + ':' + $(this).parent().siblings('.Country').text()
+                                       + ':' + $(this).parent().siblings('.DocRefId').text());
+                }
 
-        }
+                
 
-        function addSelected() {
+            //select all corrected accounts checkbox
+            $('#selectAllCorrAccountsBox').click(function () {
+                $('input[name=corrAccountCheckGroup]').toggleCheckBoxes(this.checked);
+            });
+
+            //add selected accounts to list
+            var corrAccounts;
+
+            function getCheckedCorrAccounts() {
+                corrAccounts = new Array();
+
+                $('input[name=corrAccountCheckGroup]').each(addSelectedCorr);
+                $('#<%= accountSelected.ClientID%>').val(corrAccounts); //hiddenfield
+                alert(corrAccounts)
+            }
+
+        
+
+        function addSelectedCorr() {
             if (this.checked)
-                accounts.push(this.value + ':' + $(this).parent().siblings('.newAcctHolderId').text() + ':' + $(this).parent().siblings('.Country').text()
-                               + ':' + $(this).parent().siblings('.DocRefId').text());
+                corrAccounts.push(this.value + ':' + $(this).parent().siblings('.newAcctHolderId').text() + ':' + $(this).parent().siblings('.CountryCorr').text()
+                               + ':' + $(this).parent().siblings('.docRefId').text() + ':' + $(this).parent().siblings('.select').find('.corrSelect').find(':selected').text());
+
         }
+
+        //alert(accounts)
 
             //toggle all checkboxes function
         $.fn.toggleCheckBoxes = function (checked) {

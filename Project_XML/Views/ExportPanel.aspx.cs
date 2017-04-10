@@ -59,9 +59,24 @@ namespace Project_XML.Views
             {
               accountsList.DataSource = value;
               accountsList.DataBind();
+            }
+        }
 
-            CorrRepeater.DataSource = value;
-            CorrRepeater.DataBind(); 
+        public List<CorrAccountModel> CorrAccountsList
+        {
+            set
+            {
+                CorrRepeater.DataSource = value;
+                CorrRepeater.DataBind();
+            }
+        }
+
+        public List<string> MessageRefIDList
+        {
+            set
+            {
+                corrMessageRefId.DataSource = value;
+                corrMessageRefId.DataBind();
             }
         }
         // Seperate public... for dropdown and table 
@@ -92,8 +107,13 @@ namespace Project_XML.Views
             UserMenuPresenter umPresenter = new UserMenuPresenter(UserMenu1);
             UserMenu1.AttachPresenter(umPresenter);
             umPresenter.RenderMenu(HttpContext.Current);
+                        
+            presenter.InitView(Page.IsPostBack, Server, corrMessageRefId.SelectedValue.ToString());
 
-            presenter.InitView(Page.IsPostBack, Server);
+            List<string> values = new List<string>();
+            values = presenter.ReturnCorrAcctNum();
+
+            corrAccountNumList.Value = string.Join(",", values.ToArray());
         }
 
         protected void exportXML(object sender, CommandEventArgs e)
@@ -161,14 +181,17 @@ namespace Project_XML.Views
             {
                 { "year", newYear.SelectedValue},
                 { "aeoiId", "AZ00099"},
-                { "msgSpecType", "CRS701"}, //CRS702 for corrected 
+                { "msgSpecType", "CRS702"}, //CRS702 for corrected 
                 { "contact", newContact.Text},
                 { "attentionNote", newAttentionNote.Text},
 
             };
-
+            
             object[] obj = presenter.exportXML
-                (accountSelected.Value, reportArgs, Server.MapPath("~/schema"), corrFSN.ToString(), "Correction");
+                (accountSelected.Value, reportArgs, 
+                Server.MapPath("~/schema"), corrFSN.Text.ToString(), 
+                "Correction"); 
+
 
             if (obj != null)
             {
@@ -218,7 +241,8 @@ namespace Project_XML.Views
                 UploadPanel.CssClass = "alert alert-success user-status";
                 UploadIcon.CssClass = "glyphicon glyphicon-ok-circle";
 
-                presenter.LogAction("none", Path.GetFileName(FileUpload1.FileName).ToString(), "New File Save", "Success"); 
+                presenter.LogAction("none", Path.GetFileName(FileUpload1.FileName).ToString(), "New File Save", "Success");
+                //Response.Redirect(Request.RawUrl);
             }
             catch (Exception ex)
             {
@@ -250,73 +274,14 @@ namespace Project_XML.Views
             {
                 FileUpload2.SaveAs(fullPath);
                 presenter.Import(fullPath, "Corrected");
-
-                /* CONVERTING ACCOUNT NUMBER EXCEL COLUMN TO LIST */
-                string indivSheetName = "Individual_tbl";
-                string entSheetName = "Entity_tbl";
-
-                List<string> values = new List<string>(); 
-
-                Microsoft.Office.Interop.Excel._Application oApp = new Microsoft.Office.Interop.Excel.Application();
-
-                Microsoft.Office.Interop.Excel.Workbook oWorkbook = oApp.Workbooks.Open(fullPath);
-                Microsoft.Office.Interop.Excel.Worksheet oWorksheet = oWorkbook.Worksheets[indivSheetName];
-                Microsoft.Office.Interop.Excel.Worksheet pWorksheet = oWorkbook.Worksheets[entSheetName];
-
-                int colNo = oWorksheet.UsedRange.Columns.Count;
-                int rowNo = oWorksheet.UsedRange.Rows.Count;
-
-                // read the value into an array.
-                object[,] indiv_array = oWorksheet.UsedRange.Value;
-                for (int j = 1; j <= colNo; j++)
-                {
-                    for (int i = 1; i <= rowNo; i++)
-                    {
-                        if (indiv_array[i, j] != null)
-                            if (indiv_array[i, j].ToString() == "Account Number")
-                            {
-                                for (int m = i + 1; m < rowNo; m++)
-                                {
-                                    values.Add(
-                                        indiv_array[m, j].ToString().Replace(',', ' ')
-                                        + " : "
-                                        + indiv_array[m, j - 10].ToString().Replace(',', ' ')
-                                    );
-                                }
-                            }
-                    }
-                }
-                object[,] ent_array = pWorksheet.UsedRange.Value;
-                for (int j = 1; j <= colNo; j++)
-                {
-                    for (int i = 1; i <= rowNo; i++)
-                    {
-                        if (ent_array[i, j] != null)
-                            if (ent_array[i, j].ToString() == "Account Number")
-                            {
-                                for (int m = i + 1; m < rowNo; m++)
-                                {
-                                    values.Add(
-                                        ent_array[m, j].ToString().Replace(',', ' ') 
-                                        + " : " 
-                                        + ent_array[m, j - 10].ToString().Replace(',', ' ')
-                                    );
-                                }
-                            }
-                    }
-                }
-                /* END OF CONVERTING ACCOUNT NUMBER EXCEL COLUMN TO LIST */
-
-                corrAccountNumList.Value = string.Join(",", values.ToArray());
-
-                //presenter.Import(fullPath, "Corrected", corrMessageRefId.ToString(), values);
-                
+                                
                 UploadPanel.Visible = true;
                 UploadID = "Upload Success!";
                 UploadPanel.CssClass = "alert alert-success user-status";
                 UploadIcon.CssClass = "glyphicon glyphicon-ok-circle";
 
                 presenter.LogAction("none", Path.GetFileName(FileUpload2.FileName).ToString(), "Corrected File Save", "Success");
+                //Response.Redirect(Request.RawUrl);
             }
             catch (Exception ex)
             {

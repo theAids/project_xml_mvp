@@ -15,6 +15,7 @@ namespace Project_XML.Presenters.ExportPanel
         string LogPath { set; get; }
         string UploadID { set;}
         List<AccountModel> AccountsList { set; }
-        //List<CorrAccountModel> CorrAccountsList { set; }
+        List<CorrAccountModel> CorrAccountsList { set; }
+        List<string> MessageRefIDList { set; }
     }
 }

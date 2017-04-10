@@ -33,7 +33,6 @@ namespace Project_XML.Models.DbManager
                                         ON t2.AcctNumber=A.AcctNumber
                                         LEFT JOIN ResCountryCode B 
 	                                        ON B.P_Ent_Id = t2.AcctHolderId
-	                                        -- AND B.isReportable = 1
                                         ORDER BY t2.Name ASC";
                     cmd.CommandText = cmdstr;
                     cmd.Prepare();
@@ -69,17 +68,20 @@ namespace Project_XML.Models.DbManager
             }
         }
 
-        public List<CorrAccountModel> GetCorrAccounts(string messageRef, List<string> corrAccountsList)
+        public List<CorrAccountModel> GetCorrAccounts(string messageRef)//, List<string> corrAccountsList)
         {
             using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
             {
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     conn.Open();
-                    string cmdstr = @"SELECT DISTINCT A.AcctNumber, B.CountryCode
+                    string cmdstr = string.Empty; 
+                    if (string.IsNullOrEmpty(messageRef))
+                    {
+                        cmdstr = @"SELECT DISTINCT A.AcctNumber, t2.Name, t2.AcctHolderId, B.CountryCode, DS.DocRefId
                                         FROM Account A
                                         LEFT JOIN(SELECT A.AcctNumber, E.Name, EntityId AS AcctHolderId
-			                                        FROM Account A, Entity E
+			                                        FROM Account A, Entity E 
 			                                        WHERE A.AcctNumber=E.AcctNumber
                                                   UNION
                                                   SELECT A.AcctNumber, P.LastName+', '+P.FirstName AS Name, P.PId AS AcctHolderId
@@ -88,16 +90,38 @@ namespace Project_XML.Models.DbManager
                                         ON t2.AcctNumber=A.AcctNumber
                                         LEFT JOIN ResCountryCode B 
 	                                        ON B.P_Ent_Id = t2.AcctHolderId
-                                        WHERE A.AcctNumber = @AcctNumber
-                                        AND (B.CountryName=UPPER(@Country) 
-                                            OR B.CountryCode=UPPER(@Country))
-                                            
+	                                        -- AND B.isReportable = 1
+	                                    LEFT JOIN DocSpec DS 
+											ON A.AcctNumber = DS.AcctNumber
                                         ORDER BY t2.Name ASC";
-                    cmd.CommandText = cmdstr;
-                    cmd.Parameters.Add(new SqlParameter("@AcctNumber", SqlDbType.NVarChar, 72));
-                    cmd.Parameters.Add(new SqlParameter("@Country", SqlDbType.NVarChar, 40));
-                    cmd.Prepare();
-                    cmd.Parameters["@MessageRef"].Value = messageRef; 
+                        cmd.CommandText = cmdstr;
+                        cmd.Prepare();
+                    }
+                    else
+                    {
+                        cmdstr = @"SELECT DISTINCT A.AcctNumber, t2.Name, t2.AcctHolderId, B.CountryCode, DS.[DocRefId]
+                                        FROM Account A
+                                        LEFT JOIN(SELECT A.AcctNumber, E.Name, EntityId AS AcctHolderId
+                                                    FROM Account A, Entity E
+                                                    WHERE A.AcctNumber=E.AcctNumber
+                                                  UNION
+                                                  SELECT A.AcctNumber, P.LastName+', '+P.FirstName AS Name, P.PId AS AcctHolderId
+                                                    FROM Account A, Person P, PersonAcctHolder PH
+                                                    WHERE A.AcctNumber=PH.AcctNumber AND P.PId=PH.PId)t2 
+                                        ON t2.AcctNumber=A.AcctNumber
+                                        LEFT JOIN dbo.ResCountryCode B 
+                                            ON B.P_Ent_Id = t2.AcctHolderId
+                                        LEFT JOIN dbo.DocSpec DS
+	                                        ON A.AcctNumber = DS.AcctNumber
+                                        LEFT JOIN dbo.MessageSpec MS 
+	                                        ON DS.MessageRefId = MS.MessageRefid
+                                        WHERE MS.MessageRefid = @MessageRef
+                                        ORDER BY t2.Name ASC";
+                        cmd.CommandText = cmdstr;
+                        cmd.Parameters.Add(new SqlParameter("@MessageRef", SqlDbType.NVarChar, 40));
+                        cmd.Prepare();
+                        cmd.Parameters["@MessageRef"].Value = messageRef;
+                    }
 
                     List<CorrAccountModel> corrAccounts = new List<CorrAccountModel>();
 
@@ -110,18 +134,16 @@ namespace Project_XML.Models.DbManager
                             CorrAccountModel model = new CorrAccountModel();
 
                             model.AcctNumber = reader[0].ToString();
-
                             model.AcctHolder = reader[1].ToString();
                             model.AcctHolderId = Convert.ToInt32(reader[2]);
                             model.Country = reader[3].ToString();
                             model.DocRefId = reader[4].ToString();
-                            //model.CorrAcctList = GetCorrAcctNum();
                             corrAccounts.Add(model);
                         }
                     }
                     catch (Exception e)
                     {
-                        Debug.WriteLine("Get All Accounts Error: " + e.Message);
+                        Debug.WriteLine("Get Corrected Accounts Error: " + e.Message);
                         return null;
                     }
 
@@ -132,10 +154,125 @@ namespace Project_XML.Models.DbManager
         }
 
         /*
-        public List<string> GetCorrAcctNum (string messageRef)
+        public List<string> GetCorrAcctNum(string messageRef, string AcctNumber, string Country)
         {
+            using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
+            {
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+                    string cmdstr = @"SELECT DISTINCT A.AcctNumber, B.CountryCode, t2.AcctHolderId
+                                        FROM Account A
+                                        LEFT JOIN(SELECT A.AcctNumber, E.Name, EntityId AS AcctHolderId
+                                                    FROM Account A, Entity E
+                                                    WHERE A.AcctNumber = E.AcctNumber
+                                                  UNION
+                                                  SELECT A.AcctNumber, P.LastName+', '+P.FirstName AS Name, P.PId AS AcctHolderId
+                                                    FROM Account A, Person P, PersonAcctHolder PH
+                                                    WHERE A.AcctNumber = PH.AcctNumber AND P.PId = PH.PId)t2 
+                                        ON t2.AcctNumber=A.AcctNumber
+                                        LEFT JOIN dbo.ResCountryCode B 
+                                            ON B.P_Ent_Id = t2.AcctHolderId
+                                        LEFT JOIN dbo.DocSpec DS
+	                                        ON A.AcctNumber = DS.AcctNumber
+                                        LEFT JOIN dbo.MessageSpec MS 
+	                                        ON DS.MessageRefId = MS.MessageRefid
+                                        WHERE 
+                                        AND A.AcctNumber = @AcctNumber
+                                        AND (
+                                                B.CountryName=UPPER(@Country) 
+                                                    OR B.CountryCode=UPPER(@Country)
+                                                    OR B.CountryCode 
+                                                        = ISNULL((SELECT CountryCode FROM CountryList WHERE CountryName=UPPER(@Country) OR CountryCode=UPPER(@Country),NULL)
+                                            )
+                                        ";
+                    cmd.CommandText = cmdstr;
+                    cmd.Parameters.Add(new SqlParameter("@AcctNumber", SqlDbType.NVarChar, 72));
+                    cmd.Parameters.Add(new SqlParameter("@Country", SqlDbType.NVarChar, 40));
+                    cmd.Prepare();
+                    cmd.Parameters["@AcctNumber"].Value = AcctNumber;
+                    cmd.Parameters["@Country"].Value = Country;
+
+                    List<string> corrAcctNums = new List<string>();
+
+                    try
+                    {
+                        SqlDataReader reader = cmd.ExecuteReader();
+
+                        while (reader.Read())
+                        {
+                            CorrAccountModel model = new CorrAccountModel();
+
+                            model.AcctNumber = reader[0].ToString();
+                            model.AcctHolder = reader[1].ToString();
+                            model.AcctHolderId = Convert.ToInt32(reader[2]);
+                            model.Country = reader[3].ToString();
+                            model.DocRefId = reader[4].ToString();
+                            //model.CorrAcctList = GetCorrAcctNum();
+                            corrAccounts.Add(model);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine("Get Corrected Accounts Error: " + e.Message);
+                        return null;
+                    }
+
+                    return corrAcctNums;
+                }
+
+            }
         }
         */
+
+        
+        public List<string> GetCorrAcctNum ()
+        {
+        using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
+            {
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+                    string cmdstr = @"SELECT DISTINCT A.AcctNumber, B.CountryCode, t2.Name, t2.AcctHolderID 
+                                        FROM Account A
+                                        LEFT JOIN(SELECT A.AcctNumber, E.Name, EntityId AS AcctHolderId
+                                                    FROM Account A, Entity E
+                                                    WHERE A.AcctNumber = E.AcctNumber
+                                                  UNION
+                                                  SELECT A.AcctNumber, P.LastName+', '+P.FirstName AS Name, P.PId AS AcctHolderId
+                                                    FROM Account A, Person P, PersonAcctHolder PH
+                                                    WHERE A.AcctNumber = PH.AcctNumber AND P.PId = PH.PId)t2 
+                                        ON t2.AcctNumber=A.AcctNumber
+                                        LEFT JOIN dbo.ResCountryCode B 
+                                            ON B.P_Ent_Id = t2.AcctHolderId
+                                        WHERE A.AcctType LIKE 'Corrected'
+                                        ORDER BY A.AcctNumber
+                                        ";
+                    cmd.CommandText = cmdstr;
+                    cmd.Prepare();
+
+                    List<string> corrAccounts = new List<string>();
+
+                    try
+                    {
+                        SqlDataReader reader = cmd.ExecuteReader();
+
+                        while (reader.Read())
+                        {
+                            corrAccounts.Add(reader[0].ToString() + ':' + reader[1].ToString()  + ':' + reader[2].ToString() + ':' + reader[3].ToString());
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine("Get Corrected Account Numbers Error: " + e.Message);
+                        return null;
+                    }
+
+                    return corrAccounts;
+                }
+
+            }
+        }
 
         public List<MessageSpecModel> GetAllMessageSpec()
         {

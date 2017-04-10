@@ -28,7 +28,7 @@ namespace Project_XML.Presenters.ExportPanel
             this.view = view;
         }
 
-        public void InitView(bool PageIsPostback, HttpServerUtility server)
+        public void InitView(bool PageIsPostback, HttpServerUtility server, string messageRefID)
         {
             if (!PageIsPostback)
             {
@@ -49,7 +49,16 @@ namespace Project_XML.Presenters.ExportPanel
 
                 //populate Accounts table
                 view.AccountsList = db.GetAllAccounts();
-                
+
+                view.MessageRefIDList = db.GetAllMsgRefId();
+
+                List<string> test = db.GetAllMsgRefId();
+
+                if (test != null && test.Count > 0)
+                    view.CorrAccountsList = db.GetCorrAccounts(test.FirstOrDefault().ToString());
+                else
+                    view.CorrAccountsList = db.GetCorrAccounts(null); 
+
             }
 
             view.LogPath = Directory.CreateDirectory(server.MapPath("~/logs")).FullName; // set log directory
@@ -61,7 +70,8 @@ namespace Project_XML.Presenters.ExportPanel
                 UnauthenticatedRedirect(this, null);
         }
 
-        public object[] exportXML(string entries, Dictionary<string, string> reportArgs, string schemaPath, string FSN, string typeCheck)
+        public object[] exportXML(string entries, Dictionary<string, string> reportArgs, 
+            string schemaPath, string FSN, string typeCheck)
         {
             List<Dictionary<string, string>> accountList = new List<Dictionary<string, string>>();
             CrsReport crs = new CrsReport();
@@ -79,13 +89,13 @@ namespace Project_XML.Presenters.ExportPanel
                     foreach (string str in accounts)
                     {
                         var accountListContent = new Dictionary<string, string>();
-
-                        accountListContent.Add("AcctNumber", null);
-                        accountListContent.Add("AcctHolderId", null);
-                        accountListContent.Add("Country", str.Split(':')[2]);
+                        
+                        accountListContent.Add("AcctNumber", str.Split(':')[4]);
+                        accountListContent.Add("AcctHolderId", str.Split(':')[7]);
+                        accountListContent.Add("Country", str.Split(':')[5]);
                         accountListContent.Add("DocSpecType", "OECD2");
                         accountListContent.Add("CorrFileSerialNumber", FSN.ToString());
-                        accountListContent.Add("CorrDocRefId", str.Split(':')[4]);
+                        accountListContent.Add("CorrDocRefId", str.Split(':')[3]);
                         accountListContent.Add("CorrAcctNumber", str.Split(':')[0]);
 
                         accountList.Add(accountListContent);
@@ -158,6 +168,13 @@ namespace Project_XML.Presenters.ExportPanel
             string action = "Upload";
             DbImportManager db = new DbImportManager();
             string ssqlconnectionstring = db.GetConnectionString("AeoiConnection");
+                  
+            if (typeCheck == "Corrected")
+            {
+                db.DeleteCorrAcctNum();
+            }
+                
+
             /*
              * 
              * Individual Sheet Excel
@@ -174,8 +191,9 @@ namespace Project_XML.Presenters.ExportPanel
             string Import_FileName = fullPath;
             string fileExtension = Path.GetExtension(Import_FileName);
             //string ssqltable = "Individual_tbl";
-            // make sure your sheet name is correct, here sheet name is sheet1, so you can change your sheet name if have    different 
-            string myexceldataquery = "select * from [" + indivSheetName + "$]";
+            // make sure your sheet name is correct, here sheet name is sheet1, so you can change your sheet name if have different 
+            string myexceldataquery = string.Empty;
+            myexceldataquery = "select * from [" + indivSheetName + "$]";
             try
             {
                 //create our connection strings 
@@ -184,19 +202,30 @@ namespace Project_XML.Presenters.ExportPanel
                     sexcelconnectionstring = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Import_FileName + ";" + "Extended Properties='Excel 8.0;HDR=YES;'";
                 if (fileExtension == ".xlsx")
                     sexcelconnectionstring = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + Import_FileName + ";" + "Extended Properties='Excel 12.0 Xml;HDR=YES;'";
-
-
+                
                 //series of commands to bulk copy data from the excel file into our sql table 
                 OleDbConnection oledbconn = new OleDbConnection(sexcelconnectionstring);
                 OleDbCommand oledbcmd = new OleDbCommand(myexceldataquery, oledbconn);
                 oledbconn.Open();
                 OleDbDataReader dr = oledbcmd.ExecuteReader();
+
+                DataTable dt = new DataTable();
+                dt.Load(dr);
+                dt.Columns.Add("AcctType", typeof(string));
+                
+                foreach (DataRow row in dt.Rows)
+                {
+                    //need to set value to NewColumn column
+                    row["AcctType"] = typeCheck;   // or set it to some other value
+                }
+
                 SqlBulkCopy bulkcopy = new SqlBulkCopy(ssqlconnectionstring);
                 bulkcopy.DestinationTableName = indivSheetName;
-                bulkcopy.WriteToServer(dr);
+                bulkcopy.WriteToServer(dt);
 
                 dr.Close();
                 oledbconn.Close();
+                dt.Clear();
             }
             catch (Exception ex)
             { Debug.WriteLine("Uploading error:" + ex.Message); }
@@ -224,15 +253,26 @@ namespace Project_XML.Presenters.ExportPanel
                     sexcelconnectionstring = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Import_FileName + ";" + "Extended Properties='Excel 8.0;HDR=YES;'";
                 if (fileExtension == ".xlsx")
                     sexcelconnectionstring = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + Import_FileName + ";" + "Extended Properties='Excel 12.0 Xml;HDR=YES;'";
-
+                
                 //series of commands to bulk copy data from the excel file into our sql table 
                 OleDbConnection oledbconn = new OleDbConnection(sexcelconnectionstring);
                 OleDbCommand oledbcmd = new OleDbCommand(myexceldataquery, oledbconn);
                 oledbconn.Open();
                 OleDbDataReader dr = oledbcmd.ExecuteReader();
+
+                DataTable dt = new DataTable();
+                dt.Load(dr);
+                dt.Columns.Add("AcctType", typeof(string));
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    //need to set value to NewColumn column
+                    row["AcctType"] = typeCheck;   // or set it to some other value
+                }
+                
                 SqlBulkCopy bulkcopy = new SqlBulkCopy(ssqlconnectionstring);
                 bulkcopy.DestinationTableName = entSheetName;
-                bulkcopy.WriteToServer(dr);
+                bulkcopy.WriteToServer(dt);
 
                 System.Data.SqlClient.SqlConnectionStringBuilder builder = new System.Data.SqlClient.SqlConnectionStringBuilder(ssqlconnectionstring);
                 string server = builder.DataSource;
@@ -242,6 +282,7 @@ namespace Project_XML.Presenters.ExportPanel
 
                 dr.Close();
                 oledbconn.Close();
+                dt.Clear(); 
             }
             catch (Exception ex)
             {
@@ -252,11 +293,10 @@ namespace Project_XML.Presenters.ExportPanel
                 string status = "Failed";
                 LogAction(database, server, action, status);
             }
-
+            
             db.ImportEntityTable();
             db.ImportIndividualTable();
-
-            DbExportManager db2 = new DbExportManager();
+            db.DeleteSourceTables();
 
             /*
             if (typeCheck == "New")
@@ -269,6 +309,12 @@ namespace Project_XML.Presenters.ExportPanel
         public void ClearLogs()
         {
             view.LogMsg = "";
+        }
+
+        public List<string> ReturnCorrAcctNum ()
+        {
+            DbExportManager db = new DbExportManager();
+            return db.GetCorrAcctNum(); 
         }
     }
 }

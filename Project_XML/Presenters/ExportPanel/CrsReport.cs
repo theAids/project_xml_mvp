@@ -254,7 +254,13 @@ namespace Project_XML.Presenters.ExportPanel
         {
             DocSpec_Type docSpec = new DocSpec_Type();
 
-            // if corraccountnumber != null 
+            // if corraccountnumber != null
+            if ((corrFSN != null || corrFSN != "") && (corrDocRef != null || corrDocRef != "") && (corrAcct != null || corrAcct != ""))
+            {
+                docSpec.CorrFileSerialNumber = corrFSN;
+                docSpec.CorrDocRefId = corrDocRef;
+                docSpec.CorrAccountNumber = corrAcct;
+            }
             try
             {
                 docSpec.DocTypeIndic = (OECDDocTypeIndic_EnumType)Enum.Parse(typeof(OECDDocTypeIndic_EnumType), docType);

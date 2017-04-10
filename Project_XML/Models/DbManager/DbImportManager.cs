@@ -178,6 +178,81 @@ namespace Project_XML.Models.DbManager
             }
         }
 
+        public void DeleteCorrAcctNum()
+        {
+            using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
+            {
+                using (SqlCommand cmd= conn.CreateCommand())
+                {
+                    conn.Open();
+                    string cmdstr = @"DELETE FROM [AEOIDB].[dbo].[DocSpec]
+                                    WHERE AcctNumber IN 
+	                                    (SELECT A.AcctNumber FROM [AEOIDB].[dbo].[Account] A
+	                                    WHERE A.AcctType LIKE 'Corrected') ; 
+
+                                    DELETE FROM [AEOIDB].dbo.Payment
+                                    WHERE AcctNumber IN 
+	                                    (SELECT A.AcctNumber FROM [AEOIDB].[dbo].[Account] A
+	                                    WHERE A.AcctType LIKE 'Corrected') ; 
+
+                                    DELETE FROM [AEOIDB].dbo.ControllingPerson 
+                                    WHERE AcctNumber IN 
+	                                    (SELECT A.AcctNumber FROM [AEOIDB].[dbo].[Account] A
+	                                    WHERE A.AcctType LIKE 'Corrected') ; 
+
+                                    DELETE FROM [AEOIDB].dbo.PersonAcctHolder 
+                                    WHERE AcctNumber IN 
+	                                    (SELECT A.AcctNumber FROM [AEOIDB].[dbo].[Account] A
+	                                    WHERE A.AcctType LIKE 'Corrected') ; 
+
+                                    DELETE FROM [AEOIDB].dbo.Entity 
+                                    WHERE AcctNumber IN 
+	                                    (SELECT A.AcctNumber FROM [AEOIDB].[dbo].[Account] A
+	                                    WHERE A.AcctType LIKE 'Corrected') ; 
+            
+                                    DELETE FROM [AEOIDB].[dbo].[Account] WHERE [AcctType] LIKE 'Corrected'";
+                    cmd.CommandText = cmdstr;
+                    cmd.Prepare();
+
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine("Delete Corrected Account Numbers Error: " + e.Message);
+                    }
+
+                }
+
+            }
+        }
+
+        public void DeleteSourceTables()
+        {
+            using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
+            {
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+                    string cmdstr = @"DELETE FROM [AEOIDB].[dbo].[Entity_tbl]; DELETE FROM [AEOIDB].[dbo].[Individual_tbl]; ";
+                    cmd.CommandText = cmdstr;
+                    cmd.Prepare();
+
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine("Delete Source Tables Error: " + e.Message);
+                    }
+
+                }
+
+            }
+        }
+
         public void ImportIndividualTable()
         {
             using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
@@ -219,6 +294,7 @@ namespace Project_XML.Models.DbManager
                                     DECLARE @Dividend decimal(16, 2)
                                     DECLARE @OtherIncome decimal(16, 2)
                                     DECLARE @Proceeds decimal(16, 2)
+                                    DECLARE @AcctType nvarchar(10)
 
                                     DECLARE @PId int
 
@@ -229,13 +305,13 @@ namespace Project_XML.Models.DbManager
                                     FETCH NEXT FROM indiv_cursor
                                     INTO @FirstName,@LastName,@AddressFree,@City,@Country,@BirthDate,
                                     @BirthPlace,@Jurisdiction1,@Jurisdiction2,@Jurisdiction3,@TIN1,@TIN1Ctry,@TIN2,@TIN2Ctry,@TIN3,@TIN3Ctry,@AccountNumber,
-                                    @CurrencyCode,@AccountBalance,@Interest,@Dividend,@OtherIncome,@Proceeds
+                                    @CurrencyCode,@AccountBalance,@Interest,@Dividend,@OtherIncome,@Proceeds, @AcctType
 
                                     WHILE @@FETCH_STATUS = 0
                                     BEGIN
-	                                    IF(SELECT AcctNumber FROM Account WHERE AcctNumber=@AccountNumber) IS NULL
-		                                    INSERT INTO Account(AcctNumber, CurrCode, AccountBalance) 
-		                                    VALUES(@AccountNumber,@CurrencyCode, @AccountBalance)
+	                                    IF(SELECT AcctNumber FROM Account WHERE [AcctNumber]=@AccountNumber AND [AcctType]=@AcctType) IS NULL
+		                                    INSERT INTO Account(AcctNumber, CurrCode, AccountBalance, AcctType) 
+		                                    VALUES(@AccountNumber,@CurrencyCode, @AccountBalance, @AcctType)
 
 	                                    INSERT INTO Person(FirstName, LastName, BirthDate, BirthCountry)
 	                                    VALUES(@FirstName, @LastName, @BirthDate, @BirthPlace)
@@ -243,16 +319,25 @@ namespace Project_XML.Models.DbManager
 	
 	                                    INSERT INTO Address(FreeLine, City, CountryCode, P_Ent_Id)
 	                                    VALUES(@AddressFree, @City,@Country, @PId)
-	
+	                                    
 	                                    IF(@Jurisdiction1 IS NOT NULL)
-		                                    INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
-		                                    VALUES(@PId,@Jurisdiction1,1)
+                                        BEGIN
+	                                        IF (SELECT COUNT(*) FROM ResCountryCode WHERE P_Ent_id = @PId AND CountryCode = @Jurisdiction1) = 0 
+		                                        INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
+		                                        VALUES(@PId,@Jurisdiction1,1)
+                                        END 
 	                                    IF(@Jurisdiction2 IS NOT NULL)
-		                                    INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
-		                                    VALUES(@PId,@Jurisdiction2,1)
+                                        BEGIN
+	                                        IF (SELECT COUNT(*) FROM ResCountryCode WHERE P_Ent_id = @PId AND CountryCode = @Jurisdiction2) = 0 
+		                                        INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
+		                                        VALUES(@PId,@Jurisdiction2,1)
+                                        END 
 	                                    IF(@Jurisdiction3 IS NOT NULL)
-		                                    INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
-		                                    VALUES(@PId,@Jurisdiction3,1)
+                                        BEGIN
+	                                        IF (SELECT COUNT(*) FROM ResCountryCode WHERE P_Ent_id = @PId AND CountryCode = @Jurisdiction3) = 0 
+		                                        INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
+		                                        VALUES(@PId,@Jurisdiction3,1)
+                                        END 
 	
 	                                    IF(@TIN1 IS NOT NULL)
 		                                    INSERT INTO INType(Value,CountryCode,IType,P_Ent_Id)
@@ -270,7 +355,7 @@ namespace Project_XML.Models.DbManager
 	                                    FETCH NEXT FROM indiv_cursor
 	                                    INTO @FirstName,@LastName,@AddressFree,@City,@Country,@BirthDate,
 		                                    @BirthPlace,@Jurisdiction1,@Jurisdiction2,@Jurisdiction3,@TIN1,@TIN1Ctry,@TIN2,@TIN2Ctry,@TIN3,@TIN3Ctry,@AccountNumber,
-		                                    @CurrencyCode,@AccountBalance,@Interest,@Dividend,@OtherIncome,@Proceeds
+		                                    @CurrencyCode,@AccountBalance,@Interest,@Dividend,@OtherIncome,@Proceeds, @AcctType
                                     END
 
                                     CLOSE indiv_cursor
@@ -418,6 +503,8 @@ namespace Project_XML.Models.DbManager
 	                                    DECLARE @CP3TIN3  nvarchar(255)
 	                                    DECLARE @CP3TIN3Ctry nvarchar(255)
 
+                                        DECLARE @AcctType nvarchar(10)
+
                                     DECLARE @EntityId int
                                     DECLARE @PId int
 
@@ -446,15 +533,17 @@ namespace Project_XML.Models.DbManager
 		                                    /* Controlling Person 3 */
 		                                    @CP3FirstName, @CP3LastName, @CP3AddressFree, @CP3City, @CP3Country, @CP3BirthDate, @CP3BirthPlace, 
 		                                    @CP3Jurisdiction1, @CP3Jurisdiction2, @CP3Jurisdiction3, @CP3TIN1, @CP3TIN1Ctry, @CP3TIN2, 
-		                                    @CP3TIN2Ctry, @CP3TIN3, @CP3TIN3Ctry
+		                                    @CP3TIN2Ctry, @CP3TIN3, @CP3TIN3Ctry,
+
+                                            @AcctType
 
                                     WHILE @@FETCH_STATUS = 0
                                     BEGIN
 	                                    /* Entity */
 	
 	                                    --Account Info
-	                                    INSERT INTO Account(AcctNumber, CurrCode, AccountBalance) 
-	                                    VALUES(@AccountNumber,@CurrencyCode, @AccountBalance)
+	                                    INSERT INTO Account(AcctNumber, CurrCode, AccountBalance, AcctType) 
+	                                    VALUES(@AccountNumber,@CurrencyCode, @AccountBalance, @AcctType)
 		
 	                                    --Entity Account Holder Info
 	                                    INSERT INTO Entity(Name, AcctNumber)
@@ -466,15 +555,24 @@ namespace Project_XML.Models.DbManager
 	                                    VALUES(@AddressFree, @City,@Country, @EntityId)
 	
 	                                    --Entity ResCountry
-	                                    IF(@Jurisdiction1 IS NOT NULL)
-		                                    INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
-		                                    VALUES(@EntityId,@Jurisdiction1,1)
-	                                    IF(@Jurisdiction2 IS NOT NULL)
-		                                    INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
-		                                    VALUES(@EntityId,@Jurisdiction2,1)
-	                                    IF(@Jurisdiction3 IS NOT NULL)
+                                        IF(@Jurisdiction1 IS NOT NULL)
+                                        BEGIN
+	                                        IF (SELECT COUNT(*) FROM ResCountryCode WHERE P_Ent_id = @EntityId AND CountryCode = @Jurisdiction1) = 0 
+		                                        INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
+		                                        VALUES(@EntityId,@Jurisdiction1,1)
+                                        END
+                                        IF(@Jurisdiction2 IS NOT NULL)
+                                        BEGIN
+	                                        IF (SELECT COUNT(*) FROM ResCountryCode WHERE P_Ent_id = @EntityId AND CountryCode = @Jurisdiction2) = 0 
+		                                        INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
+		                                        VALUES(@EntityId,@Jurisdiction2,1)
+                                        END
+                                        IF(@Jurisdiction3 IS NOT NULL)
+                                        BEGIN
+	                                    IF (SELECT COUNT(*) FROM ResCountryCode WHERE P_Ent_id = @EntityId AND CountryCode = @Jurisdiction3) = 0 
 		                                    INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
 		                                    VALUES(@EntityId,@Jurisdiction3,1)
+                                        END
 	
 	                                    --Entity TIN
 	                                    IF(@TIN1 IS NOT NULL)
@@ -502,8 +600,9 @@ namespace Project_XML.Models.DbManager
 				                                    ELSE
 					                                    SET @PId = (SELECT PId FROM Person WHERE LastName=@CP1LastName AND FirstName=@CP1FirstName)
 
-				                                    INSERT INTO ControllingPerson(AcctNumber,PId)
-				                                    VALUES(@AccountNumber,@PId)
+                                                    IF((SELECT COUNT(*) FROM dbo.ControllingPerson WHERE AcctNumber=@AccountNumber AND PId=@PId) = 0)
+				                                        INSERT INTO ControllingPerson(AcctNumber,PId)
+				                                        VALUES(@AccountNumber,@PId)
 				
 				                                    --CP1 Individual Address
 				                                    INSERT INTO Address(FreeLine, City, CountryCode, P_Ent_Id)
@@ -511,14 +610,17 @@ namespace Project_XML.Models.DbManager
 				
 				                                    --CP1 Individual ResCountry
 				                                    IF(@CP1Jurisdiction1 IS NOT NULL)
-					                                    INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
-					                                    VALUES(@PId,@CP1Jurisdiction1,1)
+                                                        IF (SELECT COUNT(*) FROM ResCountryCode WHERE P_Ent_id = @PId AND CountryCode = @CP1Jurisdiction1) = 0 
+					                                        INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
+					                                        VALUES(@PId,@CP1Jurisdiction1,1)
 				                                    IF(@CP1Jurisdiction2 IS NOT NULL)
-					                                    INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
-					                                    VALUES(@PId,@CP1Jurisdiction2,1)
+                                                        IF (SELECT COUNT(*) FROM ResCountryCode WHERE P_Ent_id = @PId AND CountryCode = @CP1Jurisdiction2) = 0 
+					                                        INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
+					                                        VALUES(@PId,@CP1Jurisdiction2,1)
 				                                    IF(@CP1Jurisdiction3 IS NOT NULL)
-					                                    INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
-					                                    VALUES(@PId,@CP1Jurisdiction3,1)
+                                                        IF (SELECT COUNT(*) FROM ResCountryCode WHERE P_Ent_id = @PId AND CountryCode = @CP1Jurisdiction3) = 0 
+					                                        INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
+					                                        VALUES(@PId,@CP1Jurisdiction3,1)
 				
 				                                    --CP1 Individual TIN
 				                                    IF(@CP1TIN1 IS NOT NULL)
@@ -546,9 +648,10 @@ namespace Project_XML.Models.DbManager
 					                                    END
 				                                    ELSE
 					                                    SET @PId = (SELECT PId FROM Person WHERE LastName=@CP2LastName AND FirstName=@CP2FirstName)
-					
-				                                    INSERT INTO ControllingPerson(AcctNumber,PId)
-				                                    VALUES(@AccountNumber,@PId)
+					                            
+                                                    IF((SELECT COUNT(*) FROM dbo.ControllingPerson WHERE AcctNumber=@AccountNumber AND PId=@PId) = 0)
+				                                        INSERT INTO ControllingPerson(AcctNumber,PId)
+				                                        VALUES(@AccountNumber,@PId)
 				
 				                                    --CP2 Individual Address
 				                                    INSERT INTO Address(FreeLine, City, CountryCode, P_Ent_Id)
@@ -556,14 +659,17 @@ namespace Project_XML.Models.DbManager
 				
 				                                    --CP2 Individual ResCountry
 				                                    IF(@CP2Jurisdiction1 IS NOT NULL)
-					                                    INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
-					                                    VALUES(@PId,@CP2Jurisdiction1,1)
+                                                        IF (SELECT COUNT(*) FROM ResCountryCode WHERE P_Ent_id = @PId AND CountryCode = @CP2Jurisdiction1) = 0 
+					                                        INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
+					                                        VALUES(@PId,@CP2Jurisdiction1,1)
 				                                    IF(@CP2Jurisdiction2 IS NOT NULL)
-					                                    INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
-					                                    VALUES(@PId,@CP2Jurisdiction2,1)
+                                                        IF (SELECT COUNT(*) FROM ResCountryCode WHERE P_Ent_id = @PId AND CountryCode = @CP2Jurisdiction2) = 0 
+					                                        INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
+					                                        VALUES(@PId,@CP2Jurisdiction2,1)
 				                                    IF(@CP2Jurisdiction3 IS NOT NULL)
-					                                    INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
-					                                    VALUES(@PId,@CP2Jurisdiction3,1)
+                                                        IF (SELECT COUNT(*) FROM ResCountryCode WHERE P_Ent_id = @PId AND CountryCode = @CP2Jurisdiction3) = 0 
+					                                        INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
+					                                        VALUES(@PId,@CP2Jurisdiction3,1)
 				
 				                                    --CP2 Individual TIN
 				                                    IF(@CP2TIN1 IS NOT NULL)
@@ -593,8 +699,9 @@ namespace Project_XML.Models.DbManager
 				                                    ELSE
 					                                    SET @PId = (SELECT PId FROM Person WHERE LastName=@CP3LastName AND FirstName=@CP3FirstName)
 
-				                                    INSERT INTO ControllingPerson(AcctNumber,PId)
-				                                    VALUES(@AccountNumber,@PId)
+                                                    IF((SELECT COUNT(*) FROM dbo.ControllingPerson WHERE AcctNumber=@AccountNumber AND PId=@PId) = 0)
+				                                        INSERT INTO ControllingPerson(AcctNumber,PId)
+				                                        VALUES(@AccountNumber,@PId)
 				
 				                                    --CP3 Individual Address
 				                                    INSERT INTO Address(FreeLine, City, CountryCode, P_Ent_Id)
@@ -602,14 +709,17 @@ namespace Project_XML.Models.DbManager
 				
 				                                    --CP3 Individual ResCountry
 				                                    IF(@CP3Jurisdiction1 IS NOT NULL)
-					                                    INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
-					                                    VALUES(@PId,@CP3Jurisdiction1,1)
+                                                        IF (SELECT COUNT(*) FROM ResCountryCode WHERE P_Ent_id = @PId AND CountryCode = @CP3Jurisdiction1) = 0 
+					                                        INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
+					                                        VALUES(@PId,@CP3Jurisdiction1,1)
 				                                    IF(@CP3Jurisdiction2 IS NOT NULL)
-					                                    INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
-					                                    VALUES(@PId,@CP3Jurisdiction2,1)
+                                                        IF (SELECT COUNT(*) FROM ResCountryCode WHERE P_Ent_id = @PId AND CountryCode = @CP3Jurisdiction2) = 0 
+					                                        INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
+					                                        VALUES(@PId,@CP3Jurisdiction2,1)
 				                                    IF(@CP3Jurisdiction3 IS NOT NULL)
-					                                    INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
-					                                    VALUES(@PId,@CP3Jurisdiction3,1)
+                                                        IF (SELECT COUNT(*) FROM ResCountryCode WHERE P_Ent_id = @PId AND CountryCode = @CP3Jurisdiction3) = 0 
+					                                        INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
+					                                        VALUES(@PId,@CP3Jurisdiction3,1)
 				
 				                                    --CP3 Individual TIN
 				                                    IF(@CP3TIN1 IS NOT NULL)
@@ -636,7 +746,7 @@ namespace Project_XML.Models.DbManager
 		                                    @CP2TIN2Ctry, @CP2TIN3, @CP2TIN3Ctry,
 		                                    @CP3FirstName, @CP3LastName, @CP3AddressFree, @CP3City, @CP3Country, @CP3BirthDate, @CP3BirthPlace, 
 		                                    @CP3Jurisdiction1, @CP3Jurisdiction2, @CP3Jurisdiction3, @CP3TIN1, @CP3TIN1Ctry, @CP3TIN2, 
-		                                    @CP3TIN2Ctry, @CP3TIN3, @CP3TIN3Ctry
+		                                    @CP3TIN2Ctry, @CP3TIN3, @CP3TIN3Ctry, @AcctType
                                     END
 
                                     CLOSE entity_cursor
