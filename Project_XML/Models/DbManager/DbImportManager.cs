@@ -186,28 +186,28 @@ namespace Project_XML.Models.DbManager
                 {
                     conn.Open();
                     string cmdstr = @"DELETE FROM [AEOIDB].[dbo].[DocSpec]
-                                    WHERE AcctNumber IN 
-	                                    (SELECT A.AcctNumber FROM [AEOIDB].[dbo].[Account] A
+                                    WHERE AcctID IN 
+	                                    (SELECT A.AcctID FROM [AEOIDB].[dbo].[Account] A
 	                                    WHERE A.AcctType LIKE 'Corrected') ; 
 
                                     DELETE FROM [AEOIDB].dbo.Payment
-                                    WHERE AcctNumber IN 
-	                                    (SELECT A.AcctNumber FROM [AEOIDB].[dbo].[Account] A
+                                    WHERE AcctID IN 
+	                                    (SELECT A.AcctID FROM [AEOIDB].[dbo].[Account] A
 	                                    WHERE A.AcctType LIKE 'Corrected') ; 
 
                                     DELETE FROM [AEOIDB].dbo.ControllingPerson 
-                                    WHERE AcctNumber IN 
-	                                    (SELECT A.AcctNumber FROM [AEOIDB].[dbo].[Account] A
+                                    WHERE AcctID IN 
+	                                    (SELECT A.AcctID FROM [AEOIDB].[dbo].[Account] A
 	                                    WHERE A.AcctType LIKE 'Corrected') ; 
 
                                     DELETE FROM [AEOIDB].dbo.PersonAcctHolder 
-                                    WHERE AcctNumber IN 
-	                                    (SELECT A.AcctNumber FROM [AEOIDB].[dbo].[Account] A
+                                    WHERE AcctID IN 
+	                                    (SELECT A.AcctID FROM [AEOIDB].[dbo].[Account] A
 	                                    WHERE A.AcctType LIKE 'Corrected') ; 
 
                                     DELETE FROM [AEOIDB].dbo.Entity 
-                                    WHERE AcctNumber IN 
-	                                    (SELECT A.AcctNumber FROM [AEOIDB].[dbo].[Account] A
+                                    WHERE AcctID IN 
+	                                    (SELECT A.AcctID FROM [AEOIDB].[dbo].[Account] A
 	                                    WHERE A.AcctType LIKE 'Corrected') ; 
             
                                     DELETE FROM [AEOIDB].[dbo].[Account] WHERE [AcctType] LIKE 'Corrected'";
@@ -221,6 +221,37 @@ namespace Project_XML.Models.DbManager
                     catch (Exception e)
                     {
                         Debug.WriteLine("Delete Corrected Account Numbers Error: " + e.Message);
+                    }
+
+                }
+
+            }
+        }
+
+        public void InsertFSN(string FileSerialNumber, string MessageRefid)
+        {
+            using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
+            {
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+                    string cmdstr = @"UPDATE [dbo].[MessageSpec]
+                                      SET [FileSerialNumber] = @FileSerialNumber
+                                      WHERE [MessageRefid] = @MessageRefid";
+                    cmd.CommandText = cmdstr;
+                    cmd.Parameters.Add(new SqlParameter("@FileSerialNumber", SqlDbType.NVarChar, 20));
+                    cmd.Parameters.Add(new SqlParameter("@MessageRefid", SqlDbType.NVarChar, 40));
+                    cmd.Prepare();
+                    cmd.Parameters["@FileSerialNumber"].Value = FileSerialNumber; 
+                    cmd.Parameters["@MessageRefid"].Value = MessageRefid;
+
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine("Update Message Reference Error: " + e.Message);
                     }
 
                 }
@@ -294,7 +325,9 @@ namespace Project_XML.Models.DbManager
                                     DECLARE @Dividend decimal(16, 2)
                                     DECLARE @OtherIncome decimal(16, 2)
                                     DECLARE @Proceeds decimal(16, 2)
+
                                     DECLARE @AcctType nvarchar(10)
+                                    DECLARE @AcctID int
 
                                     DECLARE @PId int
 
@@ -312,6 +345,9 @@ namespace Project_XML.Models.DbManager
 	                                    IF(SELECT AcctNumber FROM Account WHERE [AcctNumber]=@AccountNumber AND [AcctType]=@AcctType) IS NULL
 		                                    INSERT INTO Account(AcctNumber, CurrCode, AccountBalance, AcctType) 
 		                                    VALUES(@AccountNumber,@CurrencyCode, @AccountBalance, @AcctType)
+
+                                        SET @AcctID = (SELECT DISTINCT [AcctID] 
+                                                        FROM Account WHERE AcctNumber=@AccountNumber AND AcctType=@AcctType AND CurrCode = @CurrCode AND AccountBalance = @AccountBalance)
 
 	                                    INSERT INTO Person(FirstName, LastName, BirthDate, BirthCountry)
 	                                    VALUES(@FirstName, @LastName, @BirthDate, @BirthPlace)
@@ -349,8 +385,8 @@ namespace Project_XML.Models.DbManager
 		                                    INSERT INTO INType(Value,CountryCode,IType,P_Ent_Id)
 		                                    VALUES(@TIN3,@TIN1Ctry,'TIN',@PId)
 
-	                                    INSERT INTO PersonAcctHolder(AcctNumber,PId)
-	                                    VALUES(@AccountNumber,@PId)
+	                                    INSERT INTO PersonAcctHolder(AcctID, AcctNumber,PId)
+	                                    VALUES(@AcctID, @AccountNumber,@PId)
 	
 	                                    FETCH NEXT FROM indiv_cursor
 	                                    INTO @FirstName,@LastName,@AddressFree,@City,@Country,@BirthDate,
@@ -504,6 +540,7 @@ namespace Project_XML.Models.DbManager
 	                                    DECLARE @CP3TIN3Ctry nvarchar(255)
 
                                         DECLARE @AcctType nvarchar(10)
+                                    DECLARE @AcctID int
 
                                     DECLARE @EntityId int
                                     DECLARE @PId int
@@ -545,9 +582,12 @@ namespace Project_XML.Models.DbManager
 	                                    INSERT INTO Account(AcctNumber, CurrCode, AccountBalance, AcctType) 
 	                                    VALUES(@AccountNumber,@CurrencyCode, @AccountBalance, @AcctType)
 		
+                                        SET @AcctID = (SELECT DISTINCT [AcctID] 
+                                                        FROM Account WHERE AcctNumber=@AccountNumber AND AcctType=@AcctType AND CurrCode = @CurrCode AND AccountBalance = @AccountBalance)
+
 	                                    --Entity Account Holder Info
-	                                    INSERT INTO Entity(Name, AcctNumber)
-	                                    VALUES(@Name, @AccountNumber)
+	                                    INSERT INTO Entity(Name, AcctID, AcctNumber)
+	                                    VALUES(@Name, @AcctID, @AccountNumber)
 	                                    SET @EntityId = (SELECT SCOPE_IDENTITY()) --(SELECT PId FROM Person WHERE FirstName=@FirstName AND LastName=@LastName)
 		
 	                                    --Entity Address
@@ -601,8 +641,8 @@ namespace Project_XML.Models.DbManager
 					                                    SET @PId = (SELECT PId FROM Person WHERE LastName=@CP1LastName AND FirstName=@CP1FirstName)
 
                                                     IF((SELECT COUNT(*) FROM dbo.ControllingPerson WHERE AcctNumber=@AccountNumber AND PId=@PId) = 0)
-				                                        INSERT INTO ControllingPerson(AcctNumber,PId)
-				                                        VALUES(@AccountNumber,@PId)
+				                                        INSERT INTO ControllingPerson(AcctID, AcctNumber,PId)
+				                                        VALUES(@AcctID, @AccountNumber,@PId)
 				
 				                                    --CP1 Individual Address
 				                                    INSERT INTO Address(FreeLine, City, CountryCode, P_Ent_Id)
@@ -650,8 +690,8 @@ namespace Project_XML.Models.DbManager
 					                                    SET @PId = (SELECT PId FROM Person WHERE LastName=@CP2LastName AND FirstName=@CP2FirstName)
 					                            
                                                     IF((SELECT COUNT(*) FROM dbo.ControllingPerson WHERE AcctNumber=@AccountNumber AND PId=@PId) = 0)
-				                                        INSERT INTO ControllingPerson(AcctNumber,PId)
-				                                        VALUES(@AccountNumber,@PId)
+				                                        INSERT INTO ControllingPerson(AcctID, AcctNumber,PId)
+				                                        VALUES(@AcctID, @AccountNumber,@PId)
 				
 				                                    --CP2 Individual Address
 				                                    INSERT INTO Address(FreeLine, City, CountryCode, P_Ent_Id)
@@ -700,8 +740,8 @@ namespace Project_XML.Models.DbManager
 					                                    SET @PId = (SELECT PId FROM Person WHERE LastName=@CP3LastName AND FirstName=@CP3FirstName)
 
                                                     IF((SELECT COUNT(*) FROM dbo.ControllingPerson WHERE AcctNumber=@AccountNumber AND PId=@PId) = 0)
-				                                        INSERT INTO ControllingPerson(AcctNumber,PId)
-				                                        VALUES(@AccountNumber,@PId)
+				                                        INSERT INTO ControllingPerson(AcctID, AcctNumber,PId)
+				                                        VALUES(@AcctID, @AccountNumber,@PId)
 				
 				                                    --CP3 Individual Address
 				                                    INSERT INTO Address(FreeLine, City, CountryCode, P_Ent_Id)

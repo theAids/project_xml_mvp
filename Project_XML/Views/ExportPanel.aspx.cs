@@ -101,7 +101,7 @@ namespace Project_XML.Views
         {
             presenter.ValidateRequest(Request.IsAuthenticated);
         }
-
+        
         protected void Page_Load(object sender, EventArgs e)
         {
             UserMenuPresenter umPresenter = new UserMenuPresenter(UserMenu1);
@@ -112,13 +112,15 @@ namespace Project_XML.Views
 
             List<string> values = new List<string>();
             values = presenter.ReturnCorrAcctNum();
+            corrAccountNumList.Value = string.Join("|", values.ToArray());
 
-            corrAccountNumList.Value = string.Join(",", values.ToArray());
+            List<string> FSN = new List<string>();
+            FSN = presenter.ReturnFileSerialNumbers();
+            corrFSNList.Value = string.Join("|", FSN.ToArray());
         }
 
         protected void exportXML(object sender, CommandEventArgs e)
         {
-          //  presenter.exportXML(e.CommandArgument.ToString());
 
         }
 
@@ -146,7 +148,7 @@ namespace Project_XML.Views
             };
 
             object[] obj = presenter.exportXML
-                (accountSelected.Value, reportArgs, Server.MapPath("~/schema"), null, "New");
+                (accountSelected.Value, reportArgs, Server.MapPath("~/schema"), "New");
 
             if (obj != null)
             {
@@ -189,8 +191,7 @@ namespace Project_XML.Views
             
             object[] obj = presenter.exportXML
                 (accountSelected.Value, reportArgs, 
-                Server.MapPath("~/schema"), corrFSN.Text.ToString(), 
-                "Correction"); 
+                Server.MapPath("~/schema"), "Correction"); 
 
 
             if (obj != null)
@@ -251,7 +252,7 @@ namespace Project_XML.Views
                 UploadID = "Upload Failed!";
                 UploadPanel.CssClass = "alert alert-danger user-status";
                 UploadIcon.CssClass = "glyphicon glyphicon-remove-circle";
-                presenter.LogAction("none", Path.GetFileName(FileUpload1.FileName).ToString(), "New File Save", "failed");
+                presenter.LogAction("none", Path.GetFileName(FileUpload1.FileName).ToString(), "New File Save", "Failed");
             }
         }
 
@@ -265,7 +266,6 @@ namespace Project_XML.Views
             //Check whether Directory (Folder) exists.
             if (!Directory.Exists(folderPath))
             {
-                //If Directory (Folder) does not exists. Create it.
                 Directory.CreateDirectory(folderPath);
             }
 
@@ -290,7 +290,21 @@ namespace Project_XML.Views
                 UploadID = "Upload Failed!";
                 UploadPanel.CssClass = "alert alert-danger user-status";
                 UploadIcon.CssClass = "glyphicon glyphicon-remove-circle";
-                presenter.LogAction("none", Path.GetFileName(FileUpload2.FileName).ToString(), "Corrected File Save", "failed");
+                presenter.LogAction("none", Path.GetFileName(FileUpload2.FileName).ToString(), "Corrected File Save", "Failed");
+            }
+        }
+
+        protected void AddCorrectedFSN(object sender, EventArgs e)
+        {
+            try
+            {
+                presenter.UploadFSN(addCorrFSNText.Text, corrMessageRefId.SelectedValue.ToString()); 
+                presenter.LogAction("none", "","Add Corrected FSN", "Success");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Adding FSN error:" + ex.Message);
+                presenter.LogAction("none", "", "Add Corrected FSN", "Failed");
             }
         }
     }

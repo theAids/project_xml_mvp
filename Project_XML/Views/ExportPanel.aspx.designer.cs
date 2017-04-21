@@ -40,6 +40,15 @@ namespace Project_XML.Views {
         protected global::System.Web.UI.WebControls.HiddenField corrAccountNumList;
         
         /// <summary>
+        /// corrFSNList control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField corrFSNList;
+        
+        /// <summary>
         /// newContact control.
         /// </summary>
         /// <remarks>
@@ -103,6 +112,24 @@ namespace Project_XML.Views {
         protected global::System.Web.UI.WebControls.DropDownList corrMessageRefId;
         
         /// <summary>
+        /// addCorrFSNText control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox addCorrFSNText;
+        
+        /// <summary>
+        /// addCorrFSNBtn control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton addCorrFSNBtn;
+        
+        /// <summary>
         /// corrAttentionNote control.
         /// </summary>
         /// <remarks>
@@ -110,15 +137,6 @@ namespace Project_XML.Views {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox corrAttentionNote;
-        
-        /// <summary>
-        /// corrFSN control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox corrFSN;
         
         /// <summary>
         /// CorrRepeater control.

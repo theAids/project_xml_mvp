@@ -71,7 +71,7 @@ namespace Project_XML.Presenters.ExportPanel
         }
 
         public object[] exportXML(string entries, Dictionary<string, string> reportArgs, 
-            string schemaPath, string FSN, string typeCheck)
+            string schemaPath, string typeCheck)
         {
             List<Dictionary<string, string>> accountList = new List<Dictionary<string, string>>();
             CrsReport crs = new CrsReport();
@@ -94,7 +94,7 @@ namespace Project_XML.Presenters.ExportPanel
                         accountListContent.Add("AcctHolderId", str.Split(':')[7]);
                         accountListContent.Add("Country", str.Split(':')[5]);
                         accountListContent.Add("DocSpecType", "OECD2");
-                        accountListContent.Add("CorrFileSerialNumber", FSN.ToString());
+                        accountListContent.Add("CorrFileSerialNumber", str.Split(':')[8]);
                         accountListContent.Add("CorrDocRefId", str.Split(':')[3]);
                         accountListContent.Add("CorrAcctNumber", str.Split(':')[0]);
 
@@ -186,12 +186,9 @@ namespace Project_XML.Presenters.ExportPanel
 
             if (count == 0)
                 db.CreateIndividualTable();
-
-            //declare variables - edit these based on your particular situation 
+            
             string Import_FileName = fullPath;
             string fileExtension = Path.GetExtension(Import_FileName);
-            //string ssqltable = "Individual_tbl";
-            // make sure your sheet name is correct, here sheet name is sheet1, so you can change your sheet name if have different 
             string myexceldataquery = string.Empty;
             myexceldataquery = "select * from [" + indivSheetName + "$]";
             try
@@ -215,8 +212,7 @@ namespace Project_XML.Presenters.ExportPanel
                 
                 foreach (DataRow row in dt.Rows)
                 {
-                    //need to set value to NewColumn column
-                    row["AcctType"] = typeCheck;   // or set it to some other value
+                    row["AcctType"] = typeCheck;  
                 }
 
                 SqlBulkCopy bulkcopy = new SqlBulkCopy(ssqlconnectionstring);
@@ -266,8 +262,7 @@ namespace Project_XML.Presenters.ExportPanel
 
                 foreach (DataRow row in dt.Rows)
                 {
-                    //need to set value to NewColumn column
-                    row["AcctType"] = typeCheck;   // or set it to some other value
+                    row["AcctType"] = typeCheck;   
                 }
                 
                 SqlBulkCopy bulkcopy = new SqlBulkCopy(ssqlconnectionstring);
@@ -297,13 +292,6 @@ namespace Project_XML.Presenters.ExportPanel
             db.ImportEntityTable();
             db.ImportIndividualTable();
             db.DeleteSourceTables();
-
-            /*
-            if (typeCheck == "New")
-                view.AccountsList = db2.GetAllAccounts();
-            else if (typeCheck == "Corrected")
-                view.CorrAccountsList = db2.GetCorrAccounts(messageRef, corrAccounts); 
-            */
         }
 
         public void ClearLogs()
@@ -316,5 +304,18 @@ namespace Project_XML.Presenters.ExportPanel
             DbExportManager db = new DbExportManager();
             return db.GetCorrAcctNum(); 
         }
+
+        public void UploadFSN(string FileSerialNumber, string MessageRefid)
+        {
+            DbImportManager db = new DbImportManager();
+            db.InsertFSN(FileSerialNumber, MessageRefid); 
+        }
+
+        public List<string> ReturnFileSerialNumbers()
+        {
+            DbExportManager db = new DbExportManager();
+            return db.GetFileSerialNumber();
+        }
+
     }
 }

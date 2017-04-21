@@ -8,6 +8,7 @@
 
     <asp:HiddenField runat="server" ID="accountSelected" />
     <asp:HiddenField runat="server" ID="corrAccountNumList" />
+    <asp:HiddenField runat="server" ID="corrFSNList" />
 
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
         <h1 class="page-header">Export XML</h1>
@@ -110,18 +111,20 @@
                                         <asp:DropDownList runat="server" ID="corrMessageRefId" CssClass="form-control"></asp:DropDownList>
 
                                     </div>
+                                    <!-- File Serial Number -->
+                                    <div class="form-group  required">
+                                        <label class="control-label" for="corrFSN">File Serial Number:</label>
+                                        <asp:TextBox runat="server" ID="addCorrFSNText" CssClass="form-control"></asp:TextBox>
+                                    </div>
+                                    <div class="btn-upload-panel">
+                                        <asp:LinkButton runat="server" ID="addCorrFSNBtn" OnClick="AddCorrectedFSN" class="btn btn-import btn-md" enctype="multipart/form-data">Add<span class="glyphicon glyphicon glyphicon-upload"></span></asp:LinkButton>
+                                    </div>
                                 </div>
-
                                 <div class="col-sm-6">
                                     <!-- Attention note field -->
                                     <div class="form-group">
                                         <label class="control-label" for="corrAttentionNote">Attention Note:</label>
                                         <asp:TextBox runat="server" ID="corrAttentionNote" CssClass="form-control"></asp:TextBox>
-                                    </div>
-                                    <!-- File Serial Number -->
-                                    <div class="form-group  required">
-                                        <label class="control-label" for="corrFSN">File Serial Number:</label>
-                                        <asp:TextBox runat="server" ID="corrFSN" CssClass="form-control"></asp:TextBox>
                                     </div>
                                 </div>
                             </div>
@@ -142,6 +145,7 @@
                                                                 <th>Corrected Account Holder</th>
                                                                 <th>Corrected Country</th>
                                                                 <th>Account Number</th>
+                                                                <th>File Serial Number</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -153,8 +157,12 @@
                                                         <td class="newAcctNumber"><%# Eval("AcctNumber") %></td>
                                                         <td class="newAcctHolder"><%# Eval("AcctHolder") %></td>
                                                         <td class="CountryCorr"><%# Eval("Country") %></td>
-                                                        <td class="select">
+                                                        <td class="Cselect">
                                                             <select class="corrSelect form-control">
+                                                            </select>
+                                                        </td>
+                                                        <td class="Fselect">
+                                                            <select class="fsnSelect form-control">
                                                             </select>
                                                         </td>
 
@@ -320,8 +328,12 @@
 
             var corAcountList = JSON.stringify($("#<%=corrAccountNumList.ClientID%>").val());
             corAcountList = corAcountList.substring(1, corAcountList.length - 1);
-            var correctedAccounts = corAcountList.split(',');
+            var correctedAccounts = corAcountList.split('|');
             
+            
+            var fsnAcountList = JSON.stringify($("#<%=corrFSNList.ClientID%>").val());
+            fsnAcountList = fsnAcountList.substring(1, fsnAcountList.length - 1);
+            var fsnList = fsnAcountList.split('|');
 
             //alert(corAcountList);
             for (var i = 0; i < correctedAccounts.length; i++) {
@@ -448,7 +460,8 @@
         function addSelectedCorr() {
             if (this.checked)
                 corrAccounts.push(this.value + ':' + $(this).parent().siblings('.newAcctHolderId').text() + ':' + $(this).parent().siblings('.CountryCorr').text()
-                               + ':' + $(this).parent().siblings('.docRefId').text() + ':' + $(this).parent().siblings('.select').find('.corrSelect').find(':selected').text());
+                               + ':' + $(this).parent().siblings('.docRefId').text() + ':' + $(this).parent().siblings('.Cselect').find('.corrSelect').find(':selected').text()
+                               + ':' + $(this).parent().siblings('.Fselect').find('.fsnSelect').find(':selected').text());
 
         }
 

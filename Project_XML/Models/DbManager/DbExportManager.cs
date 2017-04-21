@@ -152,79 +152,6 @@ namespace Project_XML.Models.DbManager
 
             }
         }
-
-        /*
-        public List<string> GetCorrAcctNum(string messageRef, string AcctNumber, string Country)
-        {
-            using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
-            {
-                using (SqlCommand cmd = conn.CreateCommand())
-                {
-                    conn.Open();
-                    string cmdstr = @"SELECT DISTINCT A.AcctNumber, B.CountryCode, t2.AcctHolderId
-                                        FROM Account A
-                                        LEFT JOIN(SELECT A.AcctNumber, E.Name, EntityId AS AcctHolderId
-                                                    FROM Account A, Entity E
-                                                    WHERE A.AcctNumber = E.AcctNumber
-                                                  UNION
-                                                  SELECT A.AcctNumber, P.LastName+', '+P.FirstName AS Name, P.PId AS AcctHolderId
-                                                    FROM Account A, Person P, PersonAcctHolder PH
-                                                    WHERE A.AcctNumber = PH.AcctNumber AND P.PId = PH.PId)t2 
-                                        ON t2.AcctNumber=A.AcctNumber
-                                        LEFT JOIN dbo.ResCountryCode B 
-                                            ON B.P_Ent_Id = t2.AcctHolderId
-                                        LEFT JOIN dbo.DocSpec DS
-	                                        ON A.AcctNumber = DS.AcctNumber
-                                        LEFT JOIN dbo.MessageSpec MS 
-	                                        ON DS.MessageRefId = MS.MessageRefid
-                                        WHERE 
-                                        AND A.AcctNumber = @AcctNumber
-                                        AND (
-                                                B.CountryName=UPPER(@Country) 
-                                                    OR B.CountryCode=UPPER(@Country)
-                                                    OR B.CountryCode 
-                                                        = ISNULL((SELECT CountryCode FROM CountryList WHERE CountryName=UPPER(@Country) OR CountryCode=UPPER(@Country),NULL)
-                                            )
-                                        ";
-                    cmd.CommandText = cmdstr;
-                    cmd.Parameters.Add(new SqlParameter("@AcctNumber", SqlDbType.NVarChar, 72));
-                    cmd.Parameters.Add(new SqlParameter("@Country", SqlDbType.NVarChar, 40));
-                    cmd.Prepare();
-                    cmd.Parameters["@AcctNumber"].Value = AcctNumber;
-                    cmd.Parameters["@Country"].Value = Country;
-
-                    List<string> corrAcctNums = new List<string>();
-
-                    try
-                    {
-                        SqlDataReader reader = cmd.ExecuteReader();
-
-                        while (reader.Read())
-                        {
-                            CorrAccountModel model = new CorrAccountModel();
-
-                            model.AcctNumber = reader[0].ToString();
-                            model.AcctHolder = reader[1].ToString();
-                            model.AcctHolderId = Convert.ToInt32(reader[2]);
-                            model.Country = reader[3].ToString();
-                            model.DocRefId = reader[4].ToString();
-                            //model.CorrAcctList = GetCorrAcctNum();
-                            corrAccounts.Add(model);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.WriteLine("Get Corrected Accounts Error: " + e.Message);
-                        return null;
-                    }
-
-                    return corrAcctNums;
-                }
-
-            }
-        }
-        */
-
         
         public List<string> GetCorrAcctNum ()
         {
@@ -269,6 +196,40 @@ namespace Project_XML.Models.DbManager
                     }
 
                     return corrAccounts;
+                }
+
+            }
+        }
+
+        public List<string> GetFileSerialNumber()
+        {
+            using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
+            {
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+                    string cmdstr = @"SELECT DISTINCT [FileSerialNumber] FROM [dbo].[MessageSpec]";
+                    cmd.CommandText = cmdstr;
+                    cmd.Prepare();
+
+                    List<string> fileSerialNumbers = new List<string>();
+
+                    try
+                    {
+                        SqlDataReader reader = cmd.ExecuteReader();
+
+                        while (reader.Read())
+                        {
+                            fileSerialNumbers.Add(reader[0].ToString());
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine("Get File Serial Numbers Error: " + e.Message);
+                        return null;
+                    }
+
+                    return fileSerialNumbers;
                 }
 
             }
