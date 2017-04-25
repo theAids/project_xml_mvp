@@ -287,7 +287,7 @@
                         <label class="control-label">Upload Corrected Data</label>
                         <asp:FileUpload ID="FileUpload2" runat="server" CssClass="filestyle" data-icon="false" />
                         <div class="btn-upload-panel">
-                            <asp:LinkButton runat="server" ID="LinkButton3" OnClick="UploadCorrectedFile" class="btn btn-import btn-md" enctype="multipart/form-data">Upload<span class="glyphicon glyphicon glyphicon-upload"></span></asp:LinkButton>
+                            <asp:LinkButton runat="server" ID="uploadCorr" OnClick="UploadCorrectedFile" class="btn btn-import btn-md" enctype="multipart/form-data">Upload<span class="glyphicon glyphicon glyphicon-upload"></span></asp:LinkButton>
                         </div>
                     </div>
                 </div>
@@ -340,6 +340,13 @@
                 $('.corrSelect').append($('<option>', {
                     value: correctedAccounts[i],
                     text: correctedAccounts[i]
+                }));
+            }
+
+            for (var i = 0; i < fsnList.length; i++) {
+                $('.fsnSelect').append($('<option>', {
+                    value: fsnList[i],
+                    text: fsnList[i]
                 }));
             }
 
@@ -425,10 +432,14 @@
             var accounts;
 
             function getCheckedAccounts() {
-                accounts = new Array();
+                accounts = [];
 
                 $('input[name=accountCheckGroup]').each(addSelected);
-                $('#<%= accountSelected.ClientID%>').val(accounts); //hiddenfield
+
+                var newConversion = accounts.join('|');
+
+                $('#<%= accountSelected.ClientID%>').val(newConversion); //hiddenfield
+                alert(newConversion);
             }
 
                 function addSelected() {
@@ -448,19 +459,27 @@
             var corrAccounts;
 
             function getCheckedCorrAccounts() {
-                corrAccounts = new Array();
+                corrAccounts = [];
 
                 $('input[name=corrAccountCheckGroup]').each(addSelectedCorr);
-                $('#<%= accountSelected.ClientID%>').val(corrAccounts); //hiddenfield
-                alert(corrAccounts)
+                
+                var corrConversion = corrAccounts.join('|');
+
+                $('#<%= accountSelected.ClientID%>').val(corrConversion); //hiddenfield
+
+
+                alert(corrConversion);
             }
 
         
 
         function addSelectedCorr() {
             if (this.checked)
-                corrAccounts.push(this.value + ':' + $(this).parent().siblings('.newAcctHolderId').text() + ':' + $(this).parent().siblings('.CountryCorr').text()
-                               + ':' + $(this).parent().siblings('.docRefId').text() + ':' + $(this).parent().siblings('.Cselect').find('.corrSelect').find(':selected').text()
+                corrAccounts.push(this.value
+                               + ':' + $(this).parent().siblings('.newAcctHolderId').text()
+                               + ':' + $(this).parent().siblings('.CountryCorr').text()
+                               + ':' + $(this).parent().siblings('.docRefId').text()
+                               + ':' + $(this).parent().siblings('.Cselect').find('.corrSelect').find(':selected').text()
                                + ':' + $(this).parent().siblings('.Fselect').find('.fsnSelect').find(':selected').text());
 
         }

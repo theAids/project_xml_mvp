@@ -52,10 +52,10 @@ namespace Project_XML.Presenters.ExportPanel
 
                 view.MessageRefIDList = db.GetAllMsgRefId();
 
-                List<string> test = db.GetAllMsgRefId();
+                List<string> messageRef = db.GetAllMsgRefId();
 
-                if (test != null && test.Count > 0)
-                    view.CorrAccountsList = db.GetCorrAccounts(test.FirstOrDefault().ToString());
+                if (messageRef != null && messageRef.Count > 0)
+                    view.CorrAccountsList = db.GetCorrAccounts(messageRef.FirstOrDefault().ToString());
                 else
                     view.CorrAccountsList = db.GetCorrAccounts(null); 
 
@@ -79,12 +79,12 @@ namespace Project_XML.Presenters.ExportPanel
             if (entries != null && !entries.Equals(""))
             {
                 List<string> accounts = new List<string>();
-                if (entries.Split(',').Length >= 1)
-                    accounts = entries.Split(',').ToList();
+                if (entries.Split('|').Length >= 1)
+                    accounts = entries.Split('|').ToList();
                 else
                     accounts.Add(entries);
 
-                if (typeCheck == "Correction")
+                if (typeCheck == "Corrected")
                 {
                     foreach (string str in accounts)
                     {
@@ -120,7 +120,7 @@ namespace Project_XML.Presenters.ExportPanel
                         accountList.Add(accountListContent);
                     };
                 }
-                return crs.NewReport(accountList, reportArgs, schemaPath);
+                return crs.NewReport(accountList, reportArgs, schemaPath, typeCheck);
             }
 
             else

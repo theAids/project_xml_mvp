@@ -191,7 +191,7 @@ namespace Project_XML.Views
             
             object[] obj = presenter.exportXML
                 (accountSelected.Value, reportArgs, 
-                Server.MapPath("~/schema"), "Correction"); 
+                Server.MapPath("~/schema"), "Corrected"); 
 
 
             if (obj != null)

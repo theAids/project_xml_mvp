@@ -347,7 +347,7 @@ namespace Project_XML.Models.DbManager
 		                                    VALUES(@AccountNumber,@CurrencyCode, @AccountBalance, @AcctType)
 
                                         SET @AcctID = (SELECT DISTINCT [AcctID] 
-                                                        FROM Account WHERE AcctNumber=@AccountNumber AND AcctType=@AcctType AND CurrCode = @CurrCode AND AccountBalance = @AccountBalance)
+                                                        FROM Account WHERE AcctNumber=@AccountNumber AND AcctType=@AcctType AND CurrCode = @CurrencyCode AND AccountBalance = @AccountBalance)
 
 	                                    INSERT INTO Person(FirstName, LastName, BirthDate, BirthCountry)
 	                                    VALUES(@FirstName, @LastName, @BirthDate, @BirthPlace)
@@ -583,7 +583,7 @@ namespace Project_XML.Models.DbManager
 	                                    VALUES(@AccountNumber,@CurrencyCode, @AccountBalance, @AcctType)
 		
                                         SET @AcctID = (SELECT DISTINCT [AcctID] 
-                                                        FROM Account WHERE AcctNumber=@AccountNumber AND AcctType=@AcctType AND CurrCode = @CurrCode AND AccountBalance = @AccountBalance)
+                                                        FROM Account WHERE AcctNumber=@AccountNumber AND AcctType=@AcctType AND CurrCode = @CurrencyCode AND AccountBalance = @AccountBalance)
 
 	                                    --Entity Account Holder Info
 	                                    INSERT INTO Entity(Name, AcctID, AcctNumber)
@@ -849,15 +849,15 @@ namespace Project_XML.Models.DbManager
             }
         }
 
-        public void NewDocSpec(string docRefId, string docType, string msgRefId, string corrFSN, string corrDocRef, string corrAcct, string acctNum)
+        public void NewDocSpec(string docRefId, string docType, string msgRefId, string corrFSN, string corrDocRef, string corrAcct, string acctNum, int acctID)
         {
             using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
             {
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     conn.Open();
-                    string cmdstr = @"INSERT INTO DocSpec(DocRefId, DocTypeIndic, MessageRefId, CorrFileSerialNumber, CorrDocRefId, CorrAccountNumber, AcctNumber)
-                                        VALUES(@docRefId,@docType,@msgRefId,@corrFSN, @corrDocRef, @corrAcct, @acctNum)";
+                    string cmdstr = @"INSERT INTO DocSpec(DocRefId, DocTypeIndic, MessageRefId, CorrFileSerialNumber, CorrDocRefId, CorrAccountNumber, AcctNumber, AcctID)
+                                        VALUES(@docRefId,@docType,@msgRefId,@corrFSN, @corrDocRef, @corrAcct, @acctNum, @acctID)";
                     cmd.CommandText = cmdstr;
                     cmd.Parameters.Add(new SqlParameter("@docRefId", SqlDbType.NVarChar, 40));
                     cmd.Parameters.Add(new SqlParameter("@docType", SqlDbType.NVarChar, 12));
@@ -868,6 +868,7 @@ namespace Project_XML.Models.DbManager
                     cmd.Parameters.Add(new SqlParameter("@corrAcct", SqlDbType.NVarChar, 72));
 
                     cmd.Parameters.Add(new SqlParameter("@acctNum", SqlDbType.NVarChar, 72));
+                    cmd.Parameters.Add(new SqlParameter("@acctID", SqlDbType.Int));
                     cmd.Prepare();
 
                     cmd.Parameters["@docRefId"].Value = docRefId;
@@ -879,6 +880,7 @@ namespace Project_XML.Models.DbManager
                     cmd.Parameters["@corrAcct"].Value = corrAcct == null ? (object)DBNull.Value : corrAcct;
 
                     cmd.Parameters["@acctNum"].Value = acctNum;
+                    cmd.Parameters["@acctID"].Value = acctID;
 
                     try
                     {

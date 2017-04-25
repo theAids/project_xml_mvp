@@ -23,14 +23,14 @@ namespace Project_XML.Models.DbManager
                     conn.Open();
                     string cmdstr = @"SELECT DISTINCT A.AcctNumber, t2.Name, t2.AcctHolderId, B.CountryCode
                                         FROM Account A
-                                        LEFT JOIN(SELECT A.AcctNumber, E.Name, EntityId AS AcctHolderId
+                                        LEFT JOIN(SELECT A.AcctID, A.AcctNumber, E.Name, EntityId AS AcctHolderId
 			                                        FROM Account A, Entity E 
 			                                        WHERE A.AcctNumber=E.AcctNumber
                                                   UNION
-                                                  SELECT A.AcctNumber, P.LastName+', '+P.FirstName AS Name, P.PId AS AcctHolderId
+                                                  SELECT A.AcctID, A.AcctNumber, P.LastName+', '+P.FirstName AS Name, P.PId AS AcctHolderId
 			                                        FROM Account A, Person P, PersonAcctHolder PH
 		                                            WHERE A.AcctNumber=PH.AcctNumber AND P.PId=PH.PId)t2 
-                                        ON t2.AcctNumber=A.AcctNumber
+                                        ON t2.AcctID=A.AcctID
                                         LEFT JOIN ResCountryCode B 
 	                                        ON B.P_Ent_Id = t2.AcctHolderId
                                         ORDER BY t2.Name ASC";
@@ -80,19 +80,19 @@ namespace Project_XML.Models.DbManager
                     {
                         cmdstr = @"SELECT DISTINCT A.AcctNumber, t2.Name, t2.AcctHolderId, B.CountryCode, DS.DocRefId
                                         FROM Account A
-                                        LEFT JOIN(SELECT A.AcctNumber, E.Name, EntityId AS AcctHolderId
+                                        LEFT JOIN(SELECT A.AcctID, A.AcctNumber, E.Name, EntityId AS AcctHolderId
 			                                        FROM Account A, Entity E 
 			                                        WHERE A.AcctNumber=E.AcctNumber
                                                   UNION
-                                                  SELECT A.AcctNumber, P.LastName+', '+P.FirstName AS Name, P.PId AS AcctHolderId
+                                                  SELECT A.AcctID, A.AcctNumber, P.LastName+', '+P.FirstName AS Name, P.PId AS AcctHolderId
 			                                        FROM Account A, Person P, PersonAcctHolder PH
 		                                            WHERE A.AcctNumber=PH.AcctNumber AND P.PId=PH.PId)t2 
-                                        ON t2.AcctNumber=A.AcctNumber
+                                        ON t2.AcctID=A.AcctID
                                         LEFT JOIN ResCountryCode B 
 	                                        ON B.P_Ent_Id = t2.AcctHolderId
 	                                        -- AND B.isReportable = 1
 	                                    LEFT JOIN DocSpec DS 
-											ON A.AcctNumber = DS.AcctNumber
+											ON A.AcctID = DS.AcctID
                                         ORDER BY t2.Name ASC";
                         cmd.CommandText = cmdstr;
                         cmd.Prepare();
@@ -101,18 +101,18 @@ namespace Project_XML.Models.DbManager
                     {
                         cmdstr = @"SELECT DISTINCT A.AcctNumber, t2.Name, t2.AcctHolderId, B.CountryCode, DS.[DocRefId]
                                         FROM Account A
-                                        LEFT JOIN(SELECT A.AcctNumber, E.Name, EntityId AS AcctHolderId
+                                        LEFT JOIN(SELECT A.AcctID, A.AcctNumber, E.Name, EntityId AS AcctHolderId
                                                     FROM Account A, Entity E
                                                     WHERE A.AcctNumber=E.AcctNumber
                                                   UNION
-                                                  SELECT A.AcctNumber, P.LastName+', '+P.FirstName AS Name, P.PId AS AcctHolderId
+                                                  SELECT A.AcctID, A.AcctNumber, P.LastName+', '+P.FirstName AS Name, P.PId AS AcctHolderId
                                                     FROM Account A, Person P, PersonAcctHolder PH
                                                     WHERE A.AcctNumber=PH.AcctNumber AND P.PId=PH.PId)t2 
-                                        ON t2.AcctNumber=A.AcctNumber
+                                        ON t2.AcctID=A.AcctID
                                         LEFT JOIN dbo.ResCountryCode B 
                                             ON B.P_Ent_Id = t2.AcctHolderId
                                         LEFT JOIN dbo.DocSpec DS
-	                                        ON A.AcctNumber = DS.AcctNumber
+	                                        ON A.AcctID = DS.AcctID
                                         LEFT JOIN dbo.MessageSpec MS 
 	                                        ON DS.MessageRefId = MS.MessageRefid
                                         WHERE MS.MessageRefid = @MessageRef
@@ -160,16 +160,26 @@ namespace Project_XML.Models.DbManager
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     conn.Open();
-                    string cmdstr = @"SELECT DISTINCT A.AcctNumber, B.CountryCode, t2.Name, t2.AcctHolderID 
+                    string cmdstr = @"SELECT DISTINCT A.AcctNumber, B.CountryCode 	
+                                            /*
+                                            , CASE WHEN t2.Name LIKE '%,%'
+		                                        THEN 
+		                                            LTRIM(RTRIM(RIGHT(t2.Name, CHARINDEX(',', REVERSE(t2.Name))-1))) --FIRST NAME
+		                                            + ' ' +  LTRIM(RTRIM(LEFT(t2.Name, CHARINDEX(',', t2.Name)-1))) -- LAST NAME 
+                                                ELSE t2.Name		
+		                                    END AS [Name]
+                                            */
+                                            , t2.Name
+                                            , t2.AcctHolderID 
                                         FROM Account A
-                                        LEFT JOIN(SELECT A.AcctNumber, E.Name, EntityId AS AcctHolderId
+                                        LEFT JOIN(SELECT A.AcctID, A.AcctNumber, E.Name, EntityId AS AcctHolderId
                                                     FROM Account A, Entity E
                                                     WHERE A.AcctNumber = E.AcctNumber
                                                   UNION
-                                                  SELECT A.AcctNumber, P.LastName+', '+P.FirstName AS Name, P.PId AS AcctHolderId
+                                                  SELECT A.AcctID, A.AcctNumber, P.LastName+', '+P.FirstName AS Name, P.PId AS AcctHolderId
                                                     FROM Account A, Person P, PersonAcctHolder PH
                                                     WHERE A.AcctNumber = PH.AcctNumber AND P.PId = PH.PId)t2 
-                                        ON t2.AcctNumber=A.AcctNumber
+                                        ON t2.AcctID=A.AcctID
                                         LEFT JOIN dbo.ResCountryCode B 
                                             ON B.P_Ent_Id = t2.AcctHolderId
                                         WHERE A.AcctType LIKE 'Corrected'
@@ -230,6 +240,42 @@ namespace Project_XML.Models.DbManager
                     }
 
                     return fileSerialNumbers;
+                }
+
+            }
+        }
+
+        public int GetAccountID(string AcctNumber, string AcctType)
+        {
+            using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
+            {
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+                    string cmdstr = @"SELECT DISTINCT [AcctID] FROM [dbo].[Account] WHERE [AcctNumber] = @AcctNumber AND [AcctType] = @AcctType";
+                    cmd.CommandText = cmdstr;
+                    cmd.Parameters.Add(new SqlParameter("@AcctNumber", SqlDbType.NVarChar, 72));
+                    cmd.Parameters.Add(new SqlParameter("@AcctType", SqlDbType.NVarChar, 10));
+                    cmd.Prepare();
+                    cmd.Parameters["@AcctNumber"].Value = AcctNumber;
+                    cmd.Parameters["@AcctType"].Value = AcctType;
+
+                    List<int> AccountIDs = new List<int>();
+
+                    try
+                    {
+                        SqlDataReader reader = cmd.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            AccountIDs.Add(Convert.ToInt32(reader[0].ToString()));
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine("Get Account ID Error: " + e.Message);
+                    }
+
+                    return AccountIDs.FirstOrDefault();
                 }
 
             }
@@ -308,55 +354,7 @@ namespace Project_XML.Models.DbManager
                 }
             }
         }
-        /*
-        public List<DocSpecModel> GetAllDocSpec(string msgRefId)
-        {
-            using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
-            {
-                using (SqlCommand cmd = conn.CreateCommand())
-                {
-                    conn.Open();
-                    string cmdstr = @"SELECT DocRefId, Account.AcctNumber, Name, FirstName+' '+LastName as PName
-                                        FROM DocSpec, MessageSpec, Account
-                                        LEFT JOIN Entity on P_Ent_Id = EntityId
-                                        LEFT JOIN Person on P_Ent_Id = PId
-                                        WHERE DocSpec.AcctNumber = Account.AcctNumber 
-                                        AND DocSpec.MessageRefId = MessageSpec.MessageRefid 
-                                        AND DocSpec.MessageRefId = @msgRefId";
-                    cmd.CommandText = cmdstr;
-                    cmd.Parameters.Add(new SqlParameter("@msgRefId", SqlDbType.NVarChar, 40));
-                    cmd.Prepare();
 
-                    cmd.Parameters["@msgRefId"].Value = msgRefId;
-
-                    List<DocSpecModel> docSpec = new List<DocSpecModel>();
-
-                    try
-                    {
-                        SqlDataReader reader = cmd.ExecuteReader();
-
-                        while (reader.Read())
-                        {
-                            DocSpecModel model = new DocSpecModel();
-
-                            model.DocRefId = reader[0].ToString();
-                            model.AcctNumber = reader[1].ToString();
-                            model.AcctHolder = GetAcctHolderName(reader[2].ToString(), reader[3].ToString());
-
-                            docSpec.Add(model);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.WriteLine("Get All Doc Spec Error: " + e.Message);
-                        return null;
-                    }
-
-                    return docSpec;
-                }
-            }
-        }
-        */
         public string GetFIName(string aeoiId)
         {
             using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
@@ -1079,7 +1077,7 @@ namespace Project_XML.Models.DbManager
             }
             else if (codeType.Equals("CRS702"))
             {
-                return "Correction";
+                return "Corrected";
             }
 
             return null;

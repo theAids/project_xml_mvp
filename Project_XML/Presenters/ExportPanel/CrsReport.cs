@@ -19,7 +19,7 @@ namespace Project_XML.Presenters.ExportPanel
     {
         private string messageRefId;
 
-        public object[] NewReport(List<Dictionary<string, string>> entries, Dictionary<string, string> reportArgs, string schemaPath)
+        public object[] NewReport(List<Dictionary<string, string>> entries, Dictionary<string, string> reportArgs, string schemaPath, string acctTypeCheck)
         {
 
             //var ent = entries.Split(',');
@@ -45,9 +45,8 @@ namespace Project_XML.Presenters.ExportPanel
                     //Account Reports
                     CorrectableAccountReport_Type account = new CorrectableAccountReport_Type();
                     //DocSpec
-
                     account.DocSpec = DocSpec
-                        (d["DocSpecType"], i, acctNum, d["CorrFileSerialNumber"], d["CorrDocRefId"], d["CorrAcctNumber"]); 
+                        (d["DocSpecType"], i, acctNum, d["CorrFileSerialNumber"], d["CorrDocRefId"], d["CorrAcctNumber"], db.GetAccountID(acctNum, acctTypeCheck)); 
 
                     AccountDetailsModel acctDetails = db.GetAccountDetials(acctNum);
                     //FIAccountNumber
@@ -101,7 +100,7 @@ namespace Project_XML.Presenters.ExportPanel
                     CorrectableAccountReport_Type account = new CorrectableAccountReport_Type();
                     //DocSpec
                     account.DocSpec = DocSpec
-                        (d["DocSpecType"], i, acctNum, d["CorrFileSerialNumber"], d["CorrDocRefId"], d["CorrAcctNumber"]);
+                        (d["DocSpecType"], i, acctNum, d["CorrFileSerialNumber"], d["CorrDocRefId"], d["CorrAcctNumber"], db.GetAccountID(acctNum, acctTypeCheck));
 
                     AccountDetailsModel acctDetails = db.GetAccountDetials(acctNum);
                     //FIAccountNumber
@@ -250,7 +249,7 @@ namespace Project_XML.Presenters.ExportPanel
          * *******************************************************************************/
 
         //DocSpec_ype
-        public DocSpec_Type DocSpec(string docType, int acctIndex, string acctNum, string corrFSN, string corrDocRef, string corrAcct)
+        public DocSpec_Type DocSpec(string docType, int acctIndex, string acctNum, string corrFSN, string corrDocRef, string corrAcct, int acctID)
         {
             DocSpec_Type docSpec = new DocSpec_Type();
 
@@ -278,7 +277,7 @@ namespace Project_XML.Presenters.ExportPanel
 
             //Add entry to docspec table
             DbImportManager dbImport = new DbImportManager();
-            dbImport.NewDocSpec(refId, docType, messageRefId, corrFSN, corrDocRef, corrAcct, acctNum);
+            dbImport.NewDocSpec(refId, docType, messageRefId, corrFSN, corrDocRef, corrAcct, acctNum, acctID);
 
             return docSpec;
 
