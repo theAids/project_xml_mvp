@@ -148,13 +148,13 @@ namespace Project_XML.Views {
         protected global::System.Web.UI.WebControls.Repeater CorrRepeater;
         
         /// <summary>
-        /// LinkButton1 control.
+        /// corrDataBtn control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton LinkButton1;
+        protected global::System.Web.UI.WebControls.LinkButton corrDataBtn;
         
         /// <summary>
         /// delContact control.
@@ -202,13 +202,13 @@ namespace Project_XML.Views {
         protected global::System.Web.UI.WebControls.Repeater delDocRefList;
         
         /// <summary>
-        /// LinkButton2 control.
+        /// delDataBtn control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton LinkButton2;
+        protected global::System.Web.UI.WebControls.LinkButton delDataBtn;
         
         /// <summary>
         /// UploadPanel control.
@@ -247,13 +247,13 @@ namespace Project_XML.Views {
         protected global::System.Web.UI.WebControls.FileUpload FileUpload1;
         
         /// <summary>
-        /// uploadXML control.
+        /// uploadNew control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton uploadXML;
+        protected global::System.Web.UI.WebControls.LinkButton uploadNew;
         
         /// <summary>
         /// FileUpload2 control.
@@ -272,6 +272,24 @@ namespace Project_XML.Views {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.LinkButton uploadCorr;
+        
+        /// <summary>
+        /// FileUpload3 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.FileUpload FileUpload3;
+        
+        /// <summary>
+        /// uploadDelete control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton uploadDelete;
         
         /// <summary>
         /// clearBtn control.

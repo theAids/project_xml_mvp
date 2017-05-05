@@ -28,7 +28,7 @@ namespace Project_XML.Presenters.ExportPanel
             this.view = view;
         }
 
-        public void InitView(bool PageIsPostback, HttpServerUtility server, string messageRefID)
+        public void InitView(bool PageIsPostback, HttpServerUtility server, string corrMessageRefID, string delMessageRefID)
         {
             if (!PageIsPostback)
             {
@@ -51,13 +51,27 @@ namespace Project_XML.Presenters.ExportPanel
                 view.AccountsList = db.GetAllAccounts();
 
                 view.MessageRefIDList = db.GetAllMsgRefId();
+                view.DelMessageRefIDList = db.GetAllMsgRefId();
 
                 List<string> messageRef = db.GetAllMsgRefId();
 
-                if (messageRef != null && messageRef.Count > 0)
-                    view.CorrAccountsList = db.GetCorrAccounts(messageRef.FirstOrDefault().ToString());
+                if ((messageRef != null && messageRef.Count > 0) || corrMessageRefID != null || corrMessageRefID != "")
+                {
+                    view.CorrAccountsList = db.GetCorrAccounts(corrMessageRefID);
+                }
                 else
-                    view.CorrAccountsList = db.GetCorrAccounts(null); 
+                {
+                    view.CorrAccountsList = db.GetCorrAccounts(null);
+                }
+
+                if ((messageRef != null && messageRef.Count > 0) || delMessageRefID != null || delMessageRefID != "")
+                {
+                    view.DeleteAccountsList = db.GetDeletedAccounts(delMessageRefID);
+                }
+                else
+                {
+                    view.DeleteAccountsList = db.GetDeletedAccounts(null);
+                }
 
             }
 
@@ -113,6 +127,24 @@ namespace Project_XML.Presenters.ExportPanel
                         accountListContent.Add("AcctHolderId", str.Split(':')[1]);
                         accountListContent.Add("Country", str.Split(':')[2]);
                         accountListContent.Add("DocSpecType", "OECD1");
+                        accountListContent.Add("CorrFileSerialNumber", null);
+                        accountListContent.Add("CorrDocRefId", null);
+                        accountListContent.Add("CorrAcctNumber", null);
+
+                        accountList.Add(accountListContent);
+                    };
+                }
+
+                else if (typeCheck == "Deleted")
+                {
+                    foreach (string str in accounts)
+                    {
+                        var accountListContent = new Dictionary<string, string>();
+
+                        accountListContent.Add("AcctNumber", str.Split(':')[0]);
+                        accountListContent.Add("AcctHolderId", str.Split(':')[1]);
+                        accountListContent.Add("Country", str.Split(':')[2]);
+                        accountListContent.Add("DocSpecType", "OECD3");
                         accountListContent.Add("CorrFileSerialNumber", null);
                         accountListContent.Add("CorrDocRefId", null);
                         accountListContent.Add("CorrAcctNumber", null);
@@ -315,6 +347,38 @@ namespace Project_XML.Presenters.ExportPanel
         {
             DbExportManager db = new DbExportManager();
             return db.GetFileSerialNumber();
+        }
+
+        public void ShowCorrAccounts(string corrMessageRefID)
+        {
+            DbExportManager db = new DbExportManager();
+            
+            List<string> messageRef = db.GetAllMsgRefId();
+            
+            if ((messageRef != null && messageRef.Count > 0) || corrMessageRefID != null || corrMessageRefID != "")
+            {
+                view.CorrAccountsList = db.GetCorrAccounts(corrMessageRefID);
+            }
+            else
+            {
+                view.CorrAccountsList = db.GetCorrAccounts(null);
+            }
+        }
+
+        public void ShowDelAccounts(string delMessageRefID)
+        {
+            DbExportManager db = new DbExportManager();
+
+            List<string> messageRef = db.GetAllMsgRefId();
+
+            if ((messageRef != null && messageRef.Count > 0) || delMessageRefID != null || delMessageRefID != "")
+            {
+                view.DeleteAccountsList = db.GetDeletedAccounts(delMessageRefID);
+            }
+            else
+            {
+                view.DeleteAccountsList = db.GetDeletedAccounts(null);
+            }
         }
 
     }

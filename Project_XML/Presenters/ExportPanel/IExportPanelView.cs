@@ -16,6 +16,8 @@ namespace Project_XML.Presenters.ExportPanel
         string UploadID { set;}
         List<AccountModel> AccountsList { set; }
         List<CorrAccountModel> CorrAccountsList { set; }
+        List<DeleteAccountModel> DeleteAccountsList { set; }
         List<string> MessageRefIDList { set; }
+        List<string> DelMessageRefIDList { set; }
     }
 }

@@ -90,7 +90,7 @@
                                     </div>
                                 </div>
                                 <div class="btn-export-panel">
-                                    <asp:LinkButton runat="server" ID="newDataBtn" class="btn btn-export btn-md" OnClick="CreateNewData" OnClientClick="getCheckedAccounts()">Export XML<span class="glyphicon glyphicon-download-alt"></span></asp:LinkButton>
+                                    <asp:LinkButton runat="server" ID="newDataBtn" class="btn btn-export btn-md" OnClick="ExportData" OnClientClick="getCheckedAccounts()" AutoPostBack="true">Export XML<span class="glyphicon glyphicon-download-alt"></span></asp:LinkButton>
                                 </div>
                             </div>
                         </div>
@@ -108,8 +108,7 @@
                                     <!-- Message Ref Id -->
                                     <div class="form-group required">
                                         <label class="control-label" for="corrMessageRefId">Message Reference Id:</label>
-                                        <asp:DropDownList runat="server" ID="corrMessageRefId" CssClass="form-control"></asp:DropDownList>
-
+                                        <asp:DropDownList runat="server" ID="corrMessageRefId" CssClass="form-control" OnSelectedIndexChanged="DisplayCorrAccounts" AutoPostBack="true" EnableViewState="True"></asp:DropDownList>
                                     </div>
                                     <!-- File Serial Number -->
                                     <div class="form-group  required">
@@ -117,7 +116,7 @@
                                         <asp:TextBox runat="server" ID="addCorrFSNText" CssClass="form-control"></asp:TextBox>
                                     </div>
                                     <div class="btn-upload-panel">
-                                        <asp:LinkButton runat="server" ID="addCorrFSNBtn" OnClick="AddCorrectedFSN" class="btn btn-import btn-md" enctype="multipart/form-data">Add<span class="glyphicon glyphicon glyphicon-upload"></span></asp:LinkButton>
+                                        <asp:LinkButton runat="server" ID="addCorrFSNBtn" OnClick="AddCorrectedFSN" class="btn btn-import btn-md" enctype="multipart/form-data" AutoPostBack="true">Add<span class="glyphicon glyphicon glyphicon-upload"></span></asp:LinkButton>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
@@ -180,7 +179,7 @@
                                     </div>
                                 </div>
                                 <div class="btn-export-panel">
-                                    <asp:LinkButton runat="server" ID="LinkButton1" class="btn btn-export btn-md" OnClientClick="getCheckedCorrAccounts()" OnClick ="CorrectData">Export XML<span class="glyphicon glyphicon-download-alt"></span></asp:LinkButton>
+                                    <asp:LinkButton runat="server" ID="corrDataBtn" class="btn btn-export btn-md" OnClientClick="getCheckedCorrAccounts()" OnClick ="ExportData" AutoPostBack="true">Export XML<span class="glyphicon glyphicon-download-alt"></span></asp:LinkButton>
                                 </div>
                             </div>
                         </div>
@@ -198,7 +197,7 @@
                                     <!-- Message Ref Id -->
                                     <div class="form-group required">
                                         <label class="control-label" for="delMessageRefId">Message Reference Id:</label>
-                                        <asp:DropDownList runat="server" ID="delMessageRefId" CssClass="form-control"></asp:DropDownList>
+                                        <asp:DropDownList runat="server" ID="delMessageRefId" CssClass="form-control" OnSelectedIndexChanged="DisplayDelAccounts" AutoPostBack="true" EnableViewState="True"></asp:DropDownList>
                                     </div>
                                 </div>
 
@@ -227,21 +226,22 @@
                                                         <thead>
                                                             <tr>
                                                                 <th>
-                                                                    <input type="checkbox" id="selectAllDocBox_del" class="form-control chkbox" /></th>
-                                                                <th>Doc Ref ID</th>
+                                                                    <input type="checkbox" id="selectAllDelAccountsBox" class="form-control chkbox" /></th>
                                                                 <th>Account Number</th>
                                                                 <th>Account Holder</th>
+                                                                <th>Country</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
                                                 </HeaderTemplate>
                                                 <ItemTemplate>
                                                     <tr>
-                                                        <td class="delDocCheckBox">
-                                                            <input type="checkbox" name="delDocCheckGroup" class="form-control chkbox" /></td>
-                                                        <td class="delDocRefId">00001234</td>
-                                                        <td class="delDocAcctNumber">3099984</td>
-                                                        <td class="delDocAcctHolder">Adrian Perez</td>
+                                                        <td class="accountCheckBox">
+                                                            <input type="checkbox" name="accountCheckGroup" class="form-control chkbox" value='<%# Eval("AcctNumber") %>' /></td>
+                                                        <td class="delAcctNumber"><%# Eval("AcctNumber") %></td>
+                                                        <td class="delAcctHolder"><%# Eval("AcctHolder") %></td>
+                                                        <td class="delCountry"><%# Eval("Country") %></td>
+                                                        <td class="delAcctHolderId" style="display: none;"><%# Eval("AcctHolderId") %></td>
                                                     </tr>
                                                 </ItemTemplate>
                                                 <FooterTemplate>
@@ -253,7 +253,7 @@
                                     </div>
                                 </div>
                                 <div class="btn-export-panel">
-                                    <asp:LinkButton runat="server" ID="LinkButton2" class="btn btn-export btn-md">Export XML<span class="glyphicon glyphicon-download-alt"></span></asp:LinkButton>
+                                    <asp:LinkButton runat="server" ID="delDataBtn" class="btn btn-export btn-md">Export XML<span class="glyphicon glyphicon-download-alt"></span></asp:LinkButton>
                                 </div>
                             </div>
                         </div>
@@ -279,7 +279,7 @@
                         <label class="control-label">Upload New Data</label>
                         <asp:FileUpload ID="FileUpload1" runat="server" CssClass="filestyle" data-icon="false" />
                         <div class="btn-upload-panel">
-                            <asp:LinkButton runat="server" ID="uploadXML" OnClick="UploadNewFile" class="btn btn-import btn-md" enctype="multipart/form-data">Upload<span class="glyphicon glyphicon glyphicon-upload"></span></asp:LinkButton>
+                            <asp:LinkButton runat="server" ID="uploadNew" OnClick="UploadFile" class="btn btn-import btn-md" enctype="multipart/form-data">Upload<span class="glyphicon glyphicon glyphicon-upload"></span></asp:LinkButton>
                         </div>
 
                         <br />
@@ -287,8 +287,17 @@
                         <label class="control-label">Upload Corrected Data</label>
                         <asp:FileUpload ID="FileUpload2" runat="server" CssClass="filestyle" data-icon="false" />
                         <div class="btn-upload-panel">
-                            <asp:LinkButton runat="server" ID="uploadCorr" OnClick="UploadCorrectedFile" class="btn btn-import btn-md" enctype="multipart/form-data">Upload<span class="glyphicon glyphicon glyphicon-upload"></span></asp:LinkButton>
+                            <asp:LinkButton runat="server" ID="uploadCorr" OnClick="UploadFile" class="btn btn-import btn-md" enctype="multipart/form-data">Upload<span class="glyphicon glyphicon glyphicon-upload"></span></asp:LinkButton>
                         </div>
+
+                        <br />
+
+                        <label class="control-label">Upload Deleted Data</label>
+                        <asp:FileUpload ID="FileUpload3" runat="server" CssClass="filestyle" data-icon="false" />
+                        <div class="btn-upload-panel">
+                            <asp:LinkButton runat="server" ID="uploadDelete" OnClick="UploadFile" class="btn btn-import btn-md" enctype="multipart/form-data">Upload<span class="glyphicon glyphicon glyphicon-upload"></span></asp:LinkButton>
+                        </div>
+
                     </div>
                 </div>
             </div>

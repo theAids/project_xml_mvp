@@ -149,10 +149,89 @@ namespace Project_XML.Models.DbManager
 
                     return corrAccounts;
                 }
-
             }
         }
-        
+
+        public List<DeleteAccountModel> GetDeletedAccounts(string messageRef)
+        {
+            using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
+            {
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+                    string cmdstr = string.Empty;
+                    if (string.IsNullOrEmpty(messageRef))
+                    {
+                        cmdstr = @"SELECT DISTINCT A.AcctNumber, t2.Name, t2.AcctHolderId, B.CountryCode
+                                        FROM Account A
+                                        LEFT JOIN(SELECT A.AcctID, A.AcctNumber, E.Name, EntityId AS AcctHolderId
+			                                        FROM Account A, Entity E 
+			                                        WHERE A.AcctNumber=E.AcctNumber
+                                                  UNION
+                                                  SELECT A.AcctID, A.AcctNumber, P.LastName+', '+P.FirstName AS Name, P.PId AS AcctHolderId
+			                                        FROM Account A, Person P, PersonAcctHolder PH
+		                                            WHERE A.AcctNumber=PH.AcctNumber AND P.PId=PH.PId)t2 
+                                        ON t2.AcctID=A.AcctID
+                                        LEFT JOIN ResCountryCode B 
+	                                        ON B.P_Ent_Id = t2.AcctHolderId
+                                        ORDER BY t2.Name ASC";
+                        cmd.CommandText = cmdstr;
+                        cmd.Prepare();
+                    }
+                    else
+                    {
+                        cmdstr = @"SELECT DISTINCT A.AcctNumber, t2.Name, t2.AcctHolderId, B.CountryCode
+                                        FROM Account A
+                                        LEFT JOIN(SELECT A.AcctID, A.AcctNumber, E.Name, EntityId AS AcctHolderId
+                                                    FROM Account A, Entity E
+                                                    WHERE A.AcctNumber=E.AcctNumber
+                                                  UNION
+                                                  SELECT A.AcctID, A.AcctNumber, P.LastName+', '+P.FirstName AS Name, P.PId AS AcctHolderId
+                                                    FROM Account A, Person P, PersonAcctHolder PH
+                                                    WHERE A.AcctNumber=PH.AcctNumber AND P.PId=PH.PId)t2 
+                                        ON t2.AcctID=A.AcctID
+                                        LEFT JOIN dbo.ResCountryCode B 
+                                            ON B.P_Ent_Id = t2.AcctHolderId
+                                        LEFT JOIN dbo.DocSpec DS
+	                                        ON A.AcctID = DS.AcctID
+                                        LEFT JOIN dbo.MessageSpec MS 
+	                                        ON DS.MessageRefId = MS.MessageRefid
+                                        WHERE MS.MessageRefid = @MessageRef
+                                        ORDER BY t2.Name ASC";
+                        cmd.CommandText = cmdstr;
+                        cmd.Parameters.Add(new SqlParameter("@MessageRef", SqlDbType.NVarChar, 40));
+                        cmd.Prepare();
+                        cmd.Parameters["@MessageRef"].Value = messageRef;
+                    }
+
+                    List<DeleteAccountModel> delAccounts = new List<DeleteAccountModel>();
+
+                    try
+                    {
+                        SqlDataReader reader = cmd.ExecuteReader();
+
+                        while (reader.Read())
+                        {
+                            DeleteAccountModel model = new DeleteAccountModel();
+
+                            model.AcctNumber = reader[0].ToString();
+                            model.AcctHolder = reader[1].ToString();
+                            model.AcctHolderId = Convert.ToInt32(reader[2]);
+                            model.Country = reader[3].ToString();
+                            delAccounts.Add(model);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine("Get Deleted Accounts Error: " + e.Message);
+                        return null;
+                    }
+
+                    return delAccounts;
+                }
+            }
+        }
+
         public List<string> GetCorrAcctNum ()
         {
         using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))

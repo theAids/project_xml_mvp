@@ -71,12 +71,30 @@ namespace Project_XML.Views
             }
         }
 
+        public List<DeleteAccountModel> DeleteAccountsList
+        {
+            set
+            {
+                delDocRefList.DataSource = value;
+                delDocRefList.DataBind();
+            }
+        }
+
         public List<string> MessageRefIDList
         {
             set
             {
                 corrMessageRefId.DataSource = value;
                 corrMessageRefId.DataBind();
+            }
+        }
+
+        public List<string> DelMessageRefIDList
+        {
+            set
+            {
+                delMessageRefId.DataSource = value;
+                delMessageRefId.DataBind();
             }
         }
         // Seperate public... for dropdown and table 
@@ -107,8 +125,8 @@ namespace Project_XML.Views
             UserMenuPresenter umPresenter = new UserMenuPresenter(UserMenu1);
             UserMenu1.AttachPresenter(umPresenter);
             umPresenter.RenderMenu(HttpContext.Current);
-                        
-            presenter.InitView(Page.IsPostBack, Server, corrMessageRefId.SelectedValue.ToString());
+            
+            presenter.InitView(Page.IsPostBack, Server, corrMessageRefId.SelectedValue.ToString(), delMessageRefId.SelectedValue.ToString());
 
             List<string> values = new List<string>();
             values = presenter.ReturnCorrAcctNum();
@@ -134,23 +152,59 @@ namespace Project_XML.Views
             Response.Redirect("~/Views/Login.aspx", true);
         }
 
-        protected void CreateNewData(object sender, EventArgs e)
+        protected void ExportData(object sender, EventArgs e)
         {
+            LinkButton clickedButton = (LinkButton)sender;
+            object[] obj = null; 
 
-            Dictionary<string, string> reportArgs = new Dictionary<string, string>()
+            if (clickedButton.ID.ToString() == "newDataBtn")
             {
-                { "year", newYear.SelectedValue},
-                { "aeoiId", "AZ00099"},
-                { "msgSpecType", "CRS701"}, //CRS702 for corrected 
-                { "contact", newContact.Text},
-                { "attentionNote", newAttentionNote.Text},
-                
-            };
+                Dictionary<string, string> reportArgs = new Dictionary<string, string>()
+                {
+                    { "year", newYear.SelectedValue},
+                    { "aeoiId", "AZ00099"},
+                    { "msgSpecType", "CRS701"}, //CRS702 for corrected 
+                    { "contact", newContact.Text},
+                    { "attentionNote", newAttentionNote.Text},
+                };
 
-            object[] obj = presenter.exportXML
-                (accountSelected.Value, reportArgs, Server.MapPath("~/schema"), "New");
+                obj = presenter.exportXML
+                    (accountSelected.Value, reportArgs, Server.MapPath("~/schema"), "New");
+            }
+            else if (clickedButton.ID.ToString() == "corrDataBtn")
+            {
+                Dictionary<string, string> reportArgs = new Dictionary<string, string>()
+                {
+                    { "year", newYear.SelectedValue},
+                    { "aeoiId", "AZ00099"},
+                    { "msgSpecType", "CRS702"}, //CRS702 for corrected 
+                    { "contact", newContact.Text},
+                    { "attentionNote", newAttentionNote.Text},
 
-            if (obj != null)
+                };
+
+                obj = presenter.exportXML
+                    (accountSelected.Value, reportArgs,
+                    Server.MapPath("~/schema"), "Corrected");
+            }
+            else if (clickedButton.ID.ToString() == "delDataBtn")
+            {
+                Dictionary<string, string> reportArgs = new Dictionary<string, string>()
+                {
+                    { "year", newYear.SelectedValue},
+                    { "aeoiId", "AZ00099"},
+                    { "msgSpecType", "CRS703"}, //CRS702 for corrected 
+                    { "contact", newContact.Text},
+                    { "attentionNote", newAttentionNote.Text},
+
+                };
+
+                obj = presenter.exportXML
+                    (accountSelected.Value, reportArgs,
+                    Server.MapPath("~/schema"), "Deleted");
+            }
+
+                if (obj != null)
             {
                 XmlDocument xmlDoc = (XmlDocument)obj[0];
 
@@ -173,58 +227,21 @@ namespace Project_XML.Views
                 Response.BinaryWrite(bytes);
                 Response.End();
                 Response.Flush();
+
+                Response.Redirect(Request.RawUrl);
+                Response.Redirect(".");
+                Response.Redirect("ExportPanel.aspx");
             }
         }
 
-        protected void CorrectData(object sender, EventArgs e)
+        protected void UploadFile(object sender, EventArgs e)
         {
+            LinkButton clickedButton = (LinkButton)sender;
 
-            Dictionary<string, string> reportArgs = new Dictionary<string, string>()
-            {
-                { "year", newYear.SelectedValue},
-                { "aeoiId", "AZ00099"},
-                { "msgSpecType", "CRS702"}, //CRS702 for corrected 
-                { "contact", newContact.Text},
-                { "attentionNote", newAttentionNote.Text},
-
-            };
-            
-            object[] obj = presenter.exportXML
-                (accountSelected.Value, reportArgs, 
-                Server.MapPath("~/schema"), "Corrected"); 
-
-
-            if (obj != null)
-            {
-                XmlDocument xmlDoc = (XmlDocument)obj[0];
-
-                MemoryStream mem = new MemoryStream();
-                XmlTextWriter writer = new XmlTextWriter(mem, Encoding.Unicode);
-
-                writer.Formatting = Formatting.Indented;    //for indented format XML
-
-                xmlDoc.WriteContentTo(writer);
-                writer.Flush();
-
-                byte[] bytes = mem.ToArray();
-                mem.Close();
-
-                Response.Buffer = true;
-                Response.Clear();
-                Response.ContentType = "text/xml";
-                Response.AddHeader("content-disposition", String.Format("attachment; filename={0}.xml", obj[1].ToString()));
-                Response.AppendHeader("Content-Length", bytes.Length.ToString());
-                Response.BinaryWrite(bytes);
-                Response.End();
-                Response.Flush();
-            }
-        }
-
-        protected void UploadNewFile(object sender, EventArgs e)
-        {
             string folderPath = Server.MapPath("~/Uploads/");
-            string fullPath = folderPath + Path.GetFileName(FileUpload1.FileName);
-           
+            string fullPath = string.Empty; 
+
+            
             //Check whether Directory (Folder) exists.
             if (!Directory.Exists(folderPath))
             {
@@ -235,15 +252,56 @@ namespace Project_XML.Views
             //Save the File to the Directory (Folder).
             try
             {
-                FileUpload1.SaveAs(fullPath);
-                presenter.Import(fullPath, "New");
-                UploadPanel.Visible = true; 
-                UploadID = "Upload Success!";
-                UploadPanel.CssClass = "alert alert-success user-status";
-                UploadIcon.CssClass = "glyphicon glyphicon-ok-circle";
+                if (clickedButton.ID.ToString() == "uploadNew")
+                {
+                    fullPath = folderPath + Path.GetFileName(FileUpload1.FileName);
+                    FileUpload1.SaveAs(fullPath);
+                    presenter.Import(fullPath, "New");
+                    UploadPanel.Visible = true;
+                    UploadID = "Upload Success!";
+                    UploadPanel.CssClass = "alert alert-success user-status";
+                    UploadIcon.CssClass = "glyphicon glyphicon-ok-circle";
+                    
+                    Response.Redirect(Request.RawUrl);
+                    Response.Redirect(".");
+                    Response.Redirect("ExportPanel.aspx");
 
-                presenter.LogAction("none", Path.GetFileName(FileUpload1.FileName).ToString(), "New File Save", "Success");
-                //Response.Redirect(Request.RawUrl);
+                    presenter.LogAction("none", Path.GetFileName(FileUpload1.FileName).ToString(), "New File Save", "Success");
+
+                }
+                else if (clickedButton.ID.ToString() == "uploadCorr")
+                {
+                    fullPath = folderPath + Path.GetFileName(FileUpload2.FileName);
+                    FileUpload2.SaveAs(fullPath);
+                    presenter.Import(fullPath, "Corrected");
+
+                    UploadPanel.Visible = true;
+                    UploadID = "Upload Success!";
+                    UploadPanel.CssClass = "alert alert-success user-status";
+                    UploadIcon.CssClass = "glyphicon glyphicon-ok-circle";
+
+                    Response.Redirect(Request.RawUrl);
+                    Response.Redirect(".");
+                    Response.Redirect("ExportPanel.aspx");
+
+                    presenter.LogAction("none", Path.GetFileName(FileUpload2.FileName).ToString(), "Corrected File Save", "Success");
+                }
+                else if (clickedButton.ID.ToString() == "uploadDelete")
+                {
+                    fullPath = folderPath + Path.GetFileName(FileUpload3.FileName);
+                    FileUpload1.SaveAs(fullPath);
+                    presenter.Import(fullPath, "Deleted");
+                    UploadPanel.Visible = true;
+                    UploadID = "Upload Success!";
+                    UploadPanel.CssClass = "alert alert-success user-status";
+                    UploadIcon.CssClass = "glyphicon glyphicon-ok-circle";
+
+                    Response.Redirect(Request.RawUrl);
+                    Response.Redirect(".");
+                    Response.Redirect("ExportPanel.aspx");
+
+                    presenter.LogAction("none", Path.GetFileName(FileUpload3.FileName).ToString(), "Deleted File Save", "Success");
+                }
             }
             catch (Exception ex)
             {
@@ -252,45 +310,19 @@ namespace Project_XML.Views
                 UploadID = "Upload Failed!";
                 UploadPanel.CssClass = "alert alert-danger user-status";
                 UploadIcon.CssClass = "glyphicon glyphicon-remove-circle";
-                presenter.LogAction("none", Path.GetFileName(FileUpload1.FileName).ToString(), "New File Save", "Failed");
-            }
-        }
 
-        protected void UploadCorrectedFile(object sender, EventArgs e)
-        {
-            string folderPath = Server.MapPath("~/Uploads/");
-            string fullPath = folderPath + Path.GetFileName(FileUpload2.FileName);
-
-            List<string> strlist = new List<string>();
-
-            //Check whether Directory (Folder) exists.
-            if (!Directory.Exists(folderPath))
-            {
-                Directory.CreateDirectory(folderPath);
-            }
-
-            //Save the File to the Directory (Folder).
-            try
-            {
-                FileUpload2.SaveAs(fullPath);
-                presenter.Import(fullPath, "Corrected");
-                                
-                UploadPanel.Visible = true;
-                UploadID = "Upload Success!";
-                UploadPanel.CssClass = "alert alert-success user-status";
-                UploadIcon.CssClass = "glyphicon glyphicon-ok-circle";
-
-                presenter.LogAction("none", Path.GetFileName(FileUpload2.FileName).ToString(), "Corrected File Save", "Success");
-                //Response.Redirect(Request.RawUrl);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("Uploading error:" + ex.Message);
-                UploadPanel.Visible = true;
-                UploadID = "Upload Failed!";
-                UploadPanel.CssClass = "alert alert-danger user-status";
-                UploadIcon.CssClass = "glyphicon glyphicon-remove-circle";
-                presenter.LogAction("none", Path.GetFileName(FileUpload2.FileName).ToString(), "Corrected File Save", "Failed");
+                if (clickedButton.ID.ToString() == "uploadNew")
+                {
+                    presenter.LogAction("none", Path.GetFileName(FileUpload1.FileName).ToString(), "New File Save", "Failed");
+                }
+                else if (clickedButton.ID.ToString() == "uploadCorr")
+                {
+                    presenter.LogAction("none", Path.GetFileName(FileUpload1.FileName).ToString(), "Corrected File Save", "Failed");
+                }
+                else if (clickedButton.ID.ToString() == "uploadDelete")
+                {
+                    presenter.LogAction("none", Path.GetFileName(FileUpload1.FileName).ToString(), "Deleted File Save", "Failed");
+                }
             }
         }
 
@@ -298,13 +330,46 @@ namespace Project_XML.Views
         {
             try
             {
-                presenter.UploadFSN(addCorrFSNText.Text, corrMessageRefId.SelectedValue.ToString()); 
+                presenter.UploadFSN(addCorrFSNText.Text, corrMessageRefId.SelectedValue.ToString());
+
+                Response.Redirect(Request.RawUrl);
+                Response.Redirect(".");
+                Response.Redirect("ExportPanel.aspx");
+
                 presenter.LogAction("none", "","Add Corrected FSN", "Success");
             }
             catch (Exception ex)
             {
                 Debug.WriteLine("Adding FSN error:" + ex.Message);
                 presenter.LogAction("none", "", "Add Corrected FSN", "Failed");
+            }
+        }
+
+        protected void DisplayCorrAccounts(object sender, EventArgs e)
+        {
+            try
+            {
+                presenter.ShowCorrAccounts(corrMessageRefId.SelectedValue.ToString());
+                presenter.LogAction("none", "", "Display Corrected Accounts", "Success");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Adding FSN error:" + ex.Message);
+                presenter.LogAction("none", "", "Display Corrected Accounts", "Failed");
+            }
+        }
+
+        protected void DisplayDelAccounts(object sender, EventArgs e)
+        {
+            try
+            {
+                presenter.ShowDelAccounts(delMessageRefId.SelectedValue.ToString());
+                presenter.LogAction("none", "", "Display Deleted Accounts", "Success");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Adding FSN error:" + ex.Message);
+                presenter.LogAction("none", "", "Display Deleted Accounts", "Failed");
             }
         }
     }
