@@ -47,6 +47,7 @@ namespace Project_XML.Presenters.ExportPanel
 
                 DbExportManager db = new DbExportManager();
 
+                
                 //populate Accounts table
                 view.AccountsList = db.GetAllAccounts();
 
@@ -72,7 +73,7 @@ namespace Project_XML.Presenters.ExportPanel
                 {
                     view.DeleteAccountsList = db.GetDeletedAccounts(null);
                 }
-
+                
             }
 
             view.LogPath = Directory.CreateDirectory(server.MapPath("~/logs")).FullName; // set log directory
@@ -195,7 +196,7 @@ namespace Project_XML.Presenters.ExportPanel
         }
 
 
-        public void Import(string fullPath, string typeCheck)
+        public void Import(string fullPath, string typeCheck, string scriptPath)
         {
             string action = "Upload";
             DbImportManager db = new DbImportManager();
@@ -321,7 +322,7 @@ namespace Project_XML.Presenters.ExportPanel
                 LogAction(database, server, action, status);
             }
             
-            db.ImportEntityTable();
+            db.ImportEntityTable(scriptPath);
             db.ImportIndividualTable();
             db.DeleteSourceTables();
         }

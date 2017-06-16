@@ -130,7 +130,7 @@ namespace Project_XML.Views
 
             List<string> values = new List<string>();
             values = presenter.ReturnCorrAcctNum();
-            corrAccountNumList.Value = string.Join("|", values.ToArray());
+            //corrAccountNumList.Value = string.Join("|", values.ToArray());
 
             List<string> FSN = new List<string>();
             FSN = presenter.ReturnFileSerialNumbers();
@@ -239,7 +239,8 @@ namespace Project_XML.Views
             LinkButton clickedButton = (LinkButton)sender;
 
             string folderPath = Server.MapPath("~/Uploads/");
-            string fullPath = string.Empty; 
+            string fullPath = string.Empty;
+            string scriptPath = Server.MapPath("~/Models/DbScript/"); //SQL scripts
 
             
             //Check whether Directory (Folder) exists.
@@ -256,7 +257,7 @@ namespace Project_XML.Views
                 {
                     fullPath = folderPath + Path.GetFileName(FileUpload1.FileName);
                     FileUpload1.SaveAs(fullPath);
-                    presenter.Import(fullPath, "New");
+                    presenter.Import(fullPath, "New", scriptPath);
                     UploadPanel.Visible = true;
                     UploadID = "Upload Success!";
                     UploadPanel.CssClass = "alert alert-success user-status";
@@ -273,7 +274,7 @@ namespace Project_XML.Views
                 {
                     fullPath = folderPath + Path.GetFileName(FileUpload2.FileName);
                     FileUpload2.SaveAs(fullPath);
-                    presenter.Import(fullPath, "Corrected");
+                   // presenter.Import(fullPath, "Corrected");
 
                     UploadPanel.Visible = true;
                     UploadID = "Upload Success!";
@@ -290,7 +291,7 @@ namespace Project_XML.Views
                 {
                     fullPath = folderPath + Path.GetFileName(FileUpload3.FileName);
                     FileUpload1.SaveAs(fullPath);
-                    presenter.Import(fullPath, "Deleted");
+                    //presenter.Import(fullPath, "Deleted");
                     UploadPanel.Visible = true;
                     UploadID = "Upload Success!";
                     UploadPanel.CssClass = "alert alert-success user-status";

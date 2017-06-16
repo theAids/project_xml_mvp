@@ -25,11 +25,11 @@ namespace Project_XML.Models.DbManager
                                         FROM Account A
                                         LEFT JOIN(SELECT A.AcctID, A.AcctNumber, E.Name, EntityId AS AcctHolderId
 			                                        FROM Account A, Entity E 
-			                                        WHERE A.AcctNumber=E.AcctNumber
+			                                        WHERE A.AcctID=E.AcctID
                                                   UNION
                                                   SELECT A.AcctID, A.AcctNumber, P.LastName+', '+P.FirstName AS Name, P.PId AS AcctHolderId
 			                                        FROM Account A, Person P, PersonAcctHolder PH
-		                                            WHERE A.AcctNumber=PH.AcctNumber AND P.PId=PH.PId)t2 
+		                                            WHERE A.AcctID=PH.AcctID AND P.PId=PH.PId)t2 
                                         ON t2.AcctID=A.AcctID
                                         LEFT JOIN ResCountryCode B 
 	                                        ON B.P_Ent_Id = t2.AcctHolderId
