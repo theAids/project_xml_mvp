@@ -76,9 +76,11 @@
                                                         <td class="accountCheckBox">
                                                             <input type="checkbox" name="accountCheckGroup" class="form-control chkbox" value='<%# Eval("AcctNumber") %>' /></td>
                                                         <td class="newAcctNumber"><%# Eval("AcctNumber") %></td>
-                                                        <td class="newAcctHolder"><%# Eval("AcctHolder") %></td>
+                                                        <td class="newAcctHolderID">
+                                                            <span class="acctHolderName"><%# Eval("AcctHolder") %></span>
+                                                            <span class="acctHolderID" style="display: none;"><%# Eval("AcctHolderId") %></span>f
+                                                        </td>
                                                         <td class="Country"><%# Eval("Country") %></td>
-                                                        <td class="newAcctHolderId" style="display: none;"><%# Eval("AcctHolderId") %></td>
                                                     </tr>
                                                 </ItemTemplate>
                                                 <FooterTemplate>
@@ -179,7 +181,7 @@
                                     </div>
                                 </div>
                                 <div class="btn-export-panel">
-                                    <asp:LinkButton runat="server" ID="corrDataBtn" class="btn btn-export btn-md" OnClientClick="getCheckedCorrAccounts()" OnClick ="ExportData" AutoPostBack="true">Export XML<span class="glyphicon glyphicon-download-alt"></span></asp:LinkButton>
+                                    <asp:LinkButton runat="server" ID="corrDataBtn" class="btn btn-export btn-md" OnClientClick="getCheckedCorrAccounts()" OnClick="ExportData" AutoPostBack="true">Export XML<span class="glyphicon glyphicon-download-alt"></span></asp:LinkButton>
                                 </div>
                             </div>
                         </div>
@@ -338,8 +340,8 @@
             var corAcountList = JSON.stringify($("#<%=corrAccountNumList.ClientID%>").val());
             corAcountList = corAcountList.substring(1, corAcountList.length - 1);
             var correctedAccounts = corAcountList.split('|');
-            
-            
+
+
             var fsnAcountList = JSON.stringify($("#<%=corrFSNList.ClientID%>").val());
             fsnAcountList = fsnAcountList.substring(1, fsnAcountList.length - 1);
             var fsnList = fsnAcountList.split('|');
@@ -371,9 +373,9 @@
                     text: item.text
                 }));
             });*/
-                //Populate select tag using hidden field value 
+            //Populate select tag using hidden field value 
 
-                //$('#newDataFile').fileinput();
+            //$('#newDataFile').fileinput();
         }
 
         /*
@@ -385,79 +387,78 @@
 
         //new data panel
         $('#new-data-link').click(function () {
-                if (!$(this).parent().hasClass('active')) {
-                    $(this).parent().addClass('active');
-                }
+            if (!$(this).parent().hasClass('active')) {
+                $(this).parent().addClass('active');
+            }
 
-                $(this).parent().siblings().each(function () {
-                    $(this).removeClass('active');
-                });
-
-
-                $('.correction-data').css('display', 'none');
-                $('.delete-data').css('display', 'none');
-                $('.new-data').css('display', 'block');
-            });
-
-            //correction data panel
-            $('#corr-data-link').click(function () {
-                if (!$(this).parent().hasClass('active')) {
-                    $(this).parent().addClass('active');
-                }
-
-                $(this).parent().siblings().each(function () {
-                    $(this).removeClass('active');
-                });
-
-                $('.delete-data').css('display', 'none');
-                $('.new-data').css('display', 'none');
-                $('.correction-data').css('display', 'block');
-            });
-
-            //delete data panel
-            $('#del-data-link').click(function () {
-                if (!$(this).parent().hasClass('active')) {
-                    $(this).parent().addClass('active');
-                }
-
-                $(this).parent().siblings().each(function () {
-                    $(this).removeClass('active');
-                });
-
-                $('.new-data').css('display', 'none');
-                $('.correction-data').css('display', 'none');
-                $('.delete-data').css('display', 'block');
+            $(this).parent().siblings().each(function () {
+                $(this).removeClass('active');
             });
 
 
+            $('.correction-data').css('display', 'none');
+            $('.delete-data').css('display', 'none');
+            $('.new-data').css('display', 'block');
+        });
 
+        //correction data panel
+        $('#corr-data-link').click(function () {
+            if (!$(this).parent().hasClass('active')) {
+                $(this).parent().addClass('active');
+            }
 
-            //select all accounts checkbox
-            $('#selectAllAccountsBox').click(function () {
-                $('input[name=accountCheckGroup]').toggleCheckBoxes(this.checked);
+            $(this).parent().siblings().each(function () {
+                $(this).removeClass('active');
             });
 
-            //add selected accounts to list
-            var accounts;
+            $('.delete-data').css('display', 'none');
+            $('.new-data').css('display', 'none');
+            $('.correction-data').css('display', 'block');
+        });
 
-            function getCheckedAccounts() {
-                accounts = [];
+        //delete data panel
+        $('#del-data-link').click(function () {
+            if (!$(this).parent().hasClass('active')) {
+                $(this).parent().addClass('active');
+            }
 
-                $('input[name=accountCheckGroup]').each(addSelected);
+            $(this).parent().siblings().each(function () {
+                $(this).removeClass('active');
+            });
 
-                var newConversion = accounts.join('|');
+            $('.new-data').css('display', 'none');
+            $('.correction-data').css('display', 'none');
+            $('.delete-data').css('display', 'block');
+        });
 
-                $('#<%= accountSelected.ClientID%>').val(newConversion); //hiddenfield
+
+
+
+        //select all accounts checkbox
+        $('#selectAllAccountsBox').click(function () {
+            $('input[name=accountCheckGroup]').toggleCheckBoxes(this.checked);
+        });
+
+        //add selected accounts to list
+        var accounts;
+
+        function getCheckedAccounts() {
+            accounts = [];
+
+            $('input[name=accountCheckGroup]').each(addSelected);
+
+            var newConversion = accounts.join('|');
+
+            $('#<%= accountSelected.ClientID%>').val(newConversion); //hiddenfield
                 alert(newConversion);
             }
 
-                function addSelected() {
-                    if (this.checked)
-                        accounts.push(this.value + ':' + $(this).parent().siblings('.newAcctHolderId').text() + ':' + $(this).parent().siblings('.Country').text()
-                                       + ':' + $(this).parent().siblings('.DocRefId').text());
-                }
+            function addSelected() {
+                if (this.checked)
+                    accounts.push(this.value + ':' + $(this).parent().siblings('.newAcctHolderID').find('.acctHolderID').text() + ':' + $(this).parent().siblings('.Country').text());
+            }
 
-                
+
 
             //select all corrected accounts checkbox
             $('#selectAllCorrAccountsBox').click(function () {
@@ -471,7 +472,7 @@
                 corrAccounts = [];
 
                 $('input[name=corrAccountCheckGroup]').each(addSelectedCorr);
-                
+
                 var corrConversion = corrAccounts.join('|');
 
                 $('#<%= accountSelected.ClientID%>').val(corrConversion); //hiddenfield
@@ -480,34 +481,34 @@
                 alert(corrConversion);
             }
 
-        
 
-        function addSelectedCorr() {
-            if (this.checked)
-                corrAccounts.push(this.value
-                               + ':' + $(this).parent().siblings('.newAcctHolderId').text()
-                               + ':' + $(this).parent().siblings('.CountryCorr').text()
-                               + ':' + $(this).parent().siblings('.docRefId').text()
-                               + ':' + $(this).parent().siblings('.Cselect').find('.corrSelect').find(':selected').text()
-                               + ':' + $(this).parent().siblings('.Fselect').find('.fsnSelect').find(':selected').text());
 
-        }
+            function addSelectedCorr() {
+                if (this.checked)
+                    corrAccounts.push(this.value
+                                   + ':' + $(this).parent().siblings('.newAcctHolderId').text()
+                                   + ':' + $(this).parent().siblings('.CountryCorr').text()
+                                   + ':' + $(this).parent().siblings('.docRefId').text()
+                                   + ':' + $(this).parent().siblings('.Cselect').find('.corrSelect').find(':selected').text()
+                                   + ':' + $(this).parent().siblings('.Fselect').find('.fsnSelect').find(':selected').text());
 
-        //alert(accounts)
+            }
+
+            //alert(accounts)
 
             //toggle all checkboxes function
-        $.fn.toggleCheckBoxes = function (checked) {
-            if (checked) {
-                this.prop('checked', true);
-            }
-            else {
-                this.prop('checked', false);
-            }
-        };
+            $.fn.toggleCheckBoxes = function (checked) {
+                if (checked) {
+                    this.prop('checked', true);
+                }
+                else {
+                    this.prop('checked', false);
+                }
+            };
 
             //clear log async progress status
-        function showClearProgress() {
-            $('.log-panel-body').addClass('clear-log').css('opacity', 0.5);
-        }
+            function showClearProgress() {
+                $('.log-panel-body').addClass('clear-log').css('opacity', 0.5);
+            }
     </script>
 </asp:Content>

@@ -787,8 +787,8 @@ namespace Project_XML.Models.DbManager
                 {
                     conn.Open();
                     string cmdstr = @"SELECT P.PId FROM Person P, ControllingPerson C, Account A, ResCountryCode R, Entity E
-                                        WHERE C.PId=P.PId AND A.AcctNumber=C.AcctNumber AND P.PId=R.P_Ent_Id AND E.AcctNumber=A.AcctNumber 
-		                                AND R.CountryCode=@countryCode AND A.AcctNumber=@acctNumber AND EntityId=@entityId";
+                                        WHERE C.PId=P.PId AND A.AcctID=C.AcctID AND P.PId=R.P_Ent_Id AND E.AcctID=A.AcctID
+		                                AND R.CountryCode=@countryCode AND A.AcctID=@acctNumber AND EntityId=@entityId";
                     cmd.CommandText = cmdstr;
                     cmd.Parameters.Add(new SqlParameter("@entityId", SqlDbType.Int));
                     cmd.Parameters.Add(new SqlParameter("@countryCode", SqlDbType.NVarChar, 2));
