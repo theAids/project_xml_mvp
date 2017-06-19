@@ -162,7 +162,7 @@ namespace Project_XML.Views
                 Dictionary<string, string> reportArgs = new Dictionary<string, string>()
                 {
                     { "year", newYear.SelectedValue},
-                    { "aeoiId", "AZ00099"},
+                    { "aeoiId", "AU66356"}, // for testing
                     { "msgSpecType", "CRS701"}, //CRS702 for corrected 
                     { "contact", newContact.Text},
                     { "attentionNote", newAttentionNote.Text},
@@ -176,7 +176,7 @@ namespace Project_XML.Views
                 Dictionary<string, string> reportArgs = new Dictionary<string, string>()
                 {
                     { "year", newYear.SelectedValue},
-                    { "aeoiId", "AZ00099"},
+                    { "aeoiId", "AZ0009"},
                     { "msgSpecType", "CRS702"}, //CRS702 for corrected 
                     { "contact", newContact.Text},
                     { "attentionNote", newAttentionNote.Text},

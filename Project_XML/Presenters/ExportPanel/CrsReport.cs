@@ -33,7 +33,7 @@ namespace Project_XML.Presenters.ExportPanel
             List<CorrectableAccountReport_Type> correctableAccounts = new List<CorrectableAccountReport_Type>();
             int i = 0;
 
-            foreach (Dictionary<string, string> d in entries) 
+            foreach (Dictionary<string, string> d in entries)
             {
 
                 int acctID = Convert.ToInt32(d["AcctID"]);
@@ -47,7 +47,7 @@ namespace Project_XML.Presenters.ExportPanel
                     CorrectableAccountReport_Type account = new CorrectableAccountReport_Type();
                     //DocSpec
                     account.DocSpec = DocSpec
-                        (d["DocSpecType"], i, acctNum, d["CorrFileSerialNumber"], d["CorrDocRefId"], d["CorrAcctNumber"], acctID); 
+                        (d["DocSpecType"], i, acctNum, d["CorrFileSerialNumber"], d["CorrDocRefId"], d["CorrAcctNumber"], acctID);
 
                     AccountDetailsModel acctDetails = db.GetAccountDetials(acctNum);
                     //FIAccountNumber
@@ -161,7 +161,7 @@ namespace Project_XML.Presenters.ExportPanel
                 xmlDoc.Load(stream);
             }
 
-            if(Validate_XML(xmlDoc, schemaPath))
+            if (Validate_XML(xmlDoc, schemaPath))
             {
                 object[] obj = { xmlDoc, report.MessageSpec.MessageRefId };//[0] - xmldoc, [1] - name of the file
                 return obj;
@@ -170,9 +170,7 @@ namespace Project_XML.Presenters.ExportPanel
             {
                 return null;
             }
-                
 
-            
         }
         /***********************************************************************************
         * 
@@ -530,7 +528,7 @@ namespace Project_XML.Presenters.ExportPanel
 
             foreach (PropertyInfo p in typeof(BirthDateModel).GetProperties())
             {
-                // instantiate/assign only NON-NULL values
+                // instantiate/assign only NON-NULL valuess
                 if (p.GetValue(birthdate) != null && !p.GetValue(birthdate).Equals(""))
                 {
                     switch (p.Name)
@@ -795,18 +793,27 @@ namespace Project_XML.Presenters.ExportPanel
          * *******************************************/
         public static bool Validate_XML(XmlDocument doc, string schemaPath)
         {
-
+            /*
             XmlSchemaSet schema = new XmlSchemaSet();
+            
             schema.Add("http://www.ird.gov.hk/AEOI/crs/v1", schemaPath+"/HK_XMLSchema_v0.1.xsd");
             schema.Add("urn:oecd:ties:isocrstypes:v1", schemaPath + "/isocrstypes_v1.0.xsd");
             schema.Add("http://www.ird.gov.hk/AEOI/aeoitypes/v1", schemaPath + "/aeoitypes_v0.1.xsd");
+            */
+            XmlReaderSettings settings = new XmlReaderSettings();
+            settings.Schemas.Add("http://www.ird.gov.hk/AEOI/crs/v1", schemaPath + "/HK_XMLSchema_v0.1.xsd");
+            settings.Schemas.Add("urn:oecd:ties:isocrstypes:v1", schemaPath + "/isocrstypes_v1.0.xsd");
+            settings.Schemas.Add("http://www.ird.gov.hk/AEOI/aeoitypes/v1", schemaPath + "/aeoitypes_v0.1.xsd");
+            settings.ValidationType = ValidationType.Schema;
 
-            ValidationEventHandler eventHandler = new ValidationEventHandler(ValidationEventHandler);
-            doc.Schemas = schema;
+            XmlReader reader = XmlReader.Create(new StringReader(doc.OuterXml), settings);
+            XmlDocument document = new XmlDocument();
+
+            Debug.WriteLine("Schema validation starting...");
             try
             {
-                doc.Validate(eventHandler);
-                Debug.WriteLine("XML Validation Success!");
+                document.Load(reader);
+                Debug.WriteLine("XML Validation Successful!");
                 return true;
             }
             catch (XmlSchemaValidationException e)
@@ -814,9 +821,7 @@ namespace Project_XML.Presenters.ExportPanel
                 Debug.WriteLine("XML Validation Error: " + e.Message);
                 return false;
             }
-            
         }
-
         //for testing
         public void Validate_XML()
         {
@@ -826,6 +831,7 @@ namespace Project_XML.Presenters.ExportPanel
             settings.Schemas.Add("http://www.ird.gov.hk/AEOI/crs/v1", "C:\\Users\\adrian.m.perez\\Documents\\Visual Studio 2015\\Projects\\Project_XML\\Project_XML\\schema\\HK_XMLSchema_v0.1.xsd");
             settings.Schemas.Add("urn:oecd:ties:isocrstypes:v1", "C:\\Users\\adrian.m.perez\\Documents\\Visual Studio 2015\\Projects\\Project_XML\\Project_XML\\schema\\isocrstypes_v1.0.xsd");
             settings.Schemas.Add("http://www.ird.gov.hk/AEOI/aeoitypes/v1", "C:\\Users\\adrian.m.perez\\Documents\\Visual Studio 2015\\Projects\\Project_XML\\Project_XML\\schema\\aeoitypes_v0.1.xsd");
+
             settings.ValidationType = ValidationType.Schema;
 
             XmlReader reader = XmlReader.Create("C:/Users/adrian.m.perez/Desktop/sample1.xml", settings);

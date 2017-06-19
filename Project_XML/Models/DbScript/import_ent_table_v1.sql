@@ -40,6 +40,8 @@ UPDATE Entity_tbl SET
 	[CP3 TIN 2 issuedBy] = ISNULL((SELECT CountryCode FROM CountryList WHERE CountryName=UPPER([CP3 TIN 2 issuedBy]) OR CountryCode=UPPER([CP3 TIN 2 issuedBy])),NULL),
 	[CP3 TIN 3 issuedBy] = ISNULL((SELECT CountryCode FROM CountryList WHERE CountryName=UPPER([CP3 TIN 3 issuedBy]) OR CountryCode=UPPER([CP3 TIN 3 issuedBy])),NULL)
 
+	--CRS Status Conversion for AcctHolderType
+
     --Cursor for Entity Account holder
     /* Entity */
     DECLARE @Name nvarchar(255)

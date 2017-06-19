@@ -323,7 +323,7 @@ namespace Project_XML.Presenters.ExportPanel
             }
             
             db.ImportEntityTable(scriptPath);
-            db.ImportIndividualTable();
+            db.ImportIndividualTable(scriptPath);
             db.DeleteSourceTables();
         }
 

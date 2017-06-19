@@ -4,7 +4,7 @@ GO
 --DELETE all content except CountryList table
 DELETE FROM dbo.Account
 DELETE FROM dbo.Address
-DELETE FROM dbo.AeoiProfile
+--DELETE FROM dbo.AeoiProfile
 DELETE FROM dbo.ControllingPerson
 DELETE FROM dbo.DocSpec
 DELETE FROM dbo.Entity
@@ -19,3 +19,7 @@ DELETE FROM dbo.ResCountryCode
 
 SELECT * FROM dbo.Person
 SELECT * FROM dbo.Entity
+
+--Sample AEOI Profile
+INSERT INTO dbo.AeoiProfile([AeoiId],[FIName])
+VALUES('AU66356','Industrial and Commercial Bank of China (Asia) Limited')

@@ -2,6 +2,7 @@
 using Project_XML.Models.DbManager;
 using Project_XML.Models.EntityModels;
 using Project_XML.Presenters.ExportPanel;
+using Project_XML.Presenters;
 using Project_XML.Schema;
 using System;
 using System.Collections.Generic;
@@ -12,22 +13,73 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
+using System.Xml.Schema;
 
 namespace Project_XMLTests
 {
-    //[TestClass()]
+    [TestClass()]
     public class GenerateXMLTests
     {
 
-        //[TestMethod()]
+      //  [TestMethod()]
         public void InitViewTest()
         {
-            //Validate_XML();
+            CrsReport crs = new CrsReport();
+            crs.Validate_XML();
+            
         }
 
         [TestMethod()]
-        public void NewReport()
+        public void ValidateTest()
         {
+            AEOI_Report report = new AEOI_Report();
+
+            XmlReaderSettings settings = new XmlReaderSettings();
+            settings.Schemas.Add("http://www.ird.gov.hk/AEOI/crs/v1", "C:\\Users\\adrian.m.perez\\Documents\\Visual Studio 2015\\Projects\\Project_XML\\Project_XML\\schema\\HK_XMLSchema_v0.1.xsd");
+            settings.Schemas.Add("urn:oecd:ties:isocrstypes:v1", "C:\\Users\\adrian.m.perez\\Documents\\Visual Studio 2015\\Projects\\Project_XML\\Project_XML\\schema\\isocrstypes_v1.0.xsd");
+            settings.Schemas.Add("http://www.ird.gov.hk/AEOI/aeoitypes/v1", "C:\\Users\\adrian.m.perez\\Documents\\Visual Studio 2015\\Projects\\Project_XML\\Project_XML\\schema\\aeoitypes_v0.1.xsd");
+            settings.ValidationType = ValidationType.Schema;
+
+            XmlReader reader = XmlReader.Create("C:/Users/adrian.m.perez/Desktop/2017AU663562017060911363900.xml", settings);
+            XmlDocument document = new XmlDocument();
+
+            document.Load(reader);
+
+
+            ValidationEventHandler eventHandler = new ValidationEventHandler(ValidationEventHandler);
+            string stat;
+            try
+            {
+                document.Validate(eventHandler);
+                Debug.WriteLine("Success!");
+                stat = "success";
+            }
+            catch (XmlSchemaValidationException e)
+            {
+                Debug.WriteLine("Error: " + e.Message);
+                stat = "failed";
+            }
+
+            Assert.AreEqual("success", stat, "Succesful");
+        }
+
+        static void ValidationEventHandler(object sender, ValidationEventArgs e)
+        {
+            switch (e.Severity)
+            {
+                case XmlSeverityType.Error:
+                    Console.WriteLine("Error: {0}", e.Message);
+                    break;
+                case XmlSeverityType.Warning:
+                    Console.WriteLine("Warning {0}", e.Message);
+                    break;
+            }
+
+        }
+
+        //[TestMethod()]
+        public void NewReport()
+        {   /*
             CrsReport crs = new CrsReport();
             //single data for testing:
             string entries = "10572008:2001";
@@ -153,7 +205,7 @@ namespace Project_XMLTests
                             ControllingPerson_Type[] ctrlPersons = ControllingPerson(ctrlList);
                             account.ControllingPerson = ctrlPersons;
                         }
-                        */
+                        
 
                         correctableAccounts.Add(account);
                         i++;
@@ -180,6 +232,7 @@ namespace Project_XMLTests
             //  Validate_XML(doc);
             Assert.IsTrue(true);
             //Assert.AreEqual("EY Hong Kong", report.MessageSpec.FIName);
+            */
         }
     }
 }
