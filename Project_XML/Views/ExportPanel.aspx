@@ -74,7 +74,7 @@
                                                 <ItemTemplate>
                                                     <tr>
                                                         <td class="accountCheckBox">
-                                                            <input type="checkbox" name="accountCheckGroup" class="form-control chkbox" value='<%# Eval("AcctNumber") %>' /></td>
+                                                            <input type="checkbox" name="accountCheckGroup" class="form-control chkbox" value='<%# Eval("AcctID") %>' /></td>
                                                         <td class="newAcctNumber"><%# Eval("AcctNumber") %></td>
                                                         <td class="newAcctHolderID">
                                                             <span class="acctHolderName"><%# Eval("AcctHolder") %></span>

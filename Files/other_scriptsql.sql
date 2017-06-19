@@ -16,3 +16,6 @@ DELETE FROM dbo.Payment
 DELETE FROM dbo.Person
 DELETE FROM dbo.PersonAcctHolder
 DELETE FROM dbo.ResCountryCode
+
+SELECT * FROM dbo.Person
+SELECT * FROM dbo.Entity

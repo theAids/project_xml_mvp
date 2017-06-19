@@ -36,9 +36,10 @@ namespace Project_XML.Presenters.ExportPanel
             foreach (Dictionary<string, string> d in entries) 
             {
 
-                string acctNum = d["AcctNumber"];
+                int acctID = Convert.ToInt32(d["AcctID"]);
                 int acctHolderId = Convert.ToInt32(d["AcctHolderId"]);
                 string country = d["Country"];
+                string acctNum = db.GetAccountNumber(acctID);
 
                 if (db.isEntity(acctHolderId))
                 {
@@ -46,7 +47,7 @@ namespace Project_XML.Presenters.ExportPanel
                     CorrectableAccountReport_Type account = new CorrectableAccountReport_Type();
                     //DocSpec
                     account.DocSpec = DocSpec
-                        (d["DocSpecType"], i, acctNum, d["CorrFileSerialNumber"], d["CorrDocRefId"], d["CorrAcctNumber"], db.GetAccountID(acctNum, acctTypeCheck)); 
+                        (d["DocSpecType"], i, acctNum, d["CorrFileSerialNumber"], d["CorrDocRefId"], d["CorrAcctNumber"], acctID); 
 
                     AccountDetailsModel acctDetails = db.GetAccountDetials(acctNum);
                     //FIAccountNumber
@@ -69,7 +70,7 @@ namespace Project_XML.Presenters.ExportPanel
 
                     //ControllingPerson
                     Debug.WriteLine("Input: {0} {1} {2}", acctHolderId, country, acctNum);
-                    List<ControllingPersonModel> ctrlList = db.GetEntityCtrlPerson(acctHolderId, country, acctNum);
+                    List<ControllingPersonModel> ctrlList = db.GetEntityCtrlPerson(acctHolderId, country, acctID);
                     if (ctrlList != null && ctrlList.Count != 0)
                     {
                         ControllingPerson_Type[] ctrlPersons = ControllingPerson(ctrlList);
@@ -100,7 +101,7 @@ namespace Project_XML.Presenters.ExportPanel
                     CorrectableAccountReport_Type account = new CorrectableAccountReport_Type();
                     //DocSpec
                     account.DocSpec = DocSpec
-                        (d["DocSpecType"], i, acctNum, d["CorrFileSerialNumber"], d["CorrDocRefId"], d["CorrAcctNumber"], db.GetAccountID(acctNum, acctTypeCheck));
+                        (d["DocSpecType"], i, acctNum, d["CorrFileSerialNumber"], d["CorrDocRefId"], d["CorrAcctNumber"], acctID);
 
                     AccountDetailsModel acctDetails = db.GetAccountDetials(acctNum);
                     //FIAccountNumber

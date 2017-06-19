@@ -7,6 +7,7 @@ namespace Project_XML.Models.EntityModels
 {
     public class AccountModel
     {
+        public int AcctID { set; get; }
         public string AcctNumber { set; get;}
         public string AcctHolder { set; get; }
         public int AcctHolderId { set; get; }

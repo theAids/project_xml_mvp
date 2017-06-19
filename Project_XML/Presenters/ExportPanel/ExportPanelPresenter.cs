@@ -124,7 +124,7 @@ namespace Project_XML.Presenters.ExportPanel
                     {
                         var accountListContent = new Dictionary<string, string>();
 
-                        accountListContent.Add("AcctNumber", str.Split(':')[0]);
+                        accountListContent.Add("AcctID", str.Split(':')[0]);
                         accountListContent.Add("AcctHolderId", str.Split(':')[1]);
                         accountListContent.Add("Country", str.Split(':')[2]);
                         accountListContent.Add("DocSpecType", "OECD1");

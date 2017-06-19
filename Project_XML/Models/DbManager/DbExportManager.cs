@@ -21,7 +21,7 @@ namespace Project_XML.Models.DbManager
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     conn.Open();
-                    string cmdstr = @"SELECT DISTINCT A.AcctNumber, t2.Name, t2.AcctHolderId, B.CountryCode
+                    string cmdstr = @"SELECT DISTINCT A.AcctID, A.AcctNumber, t2.Name, t2.AcctHolderId, B.CountryCode
                                         FROM Account A
                                         LEFT JOIN(SELECT A.AcctID, A.AcctNumber, E.Name, EntityId AS AcctHolderId
 			                                        FROM Account A, Entity E 
@@ -47,11 +47,11 @@ namespace Project_XML.Models.DbManager
                         {
                             AccountModel model = new AccountModel();
 
-                            model.AcctNumber = reader[0].ToString();
-
-                            model.AcctHolder = reader[1].ToString();
-                            model.AcctHolderId = Convert.ToInt32(reader[2]);
-                            model.Country = reader[3].ToString();
+                            model.AcctID = Convert.ToInt32(reader[0]);
+                            model.AcctNumber = reader[1].ToString();
+                            model.AcctHolder = reader[2].ToString();
+                            model.AcctHolderId = Convert.ToInt32(reader[3]);
+                            model.Country = reader[4].ToString();
 
                             accounts.Add(model);
                         }
@@ -324,6 +324,35 @@ namespace Project_XML.Models.DbManager
             }
         }
 
+        public string GetAccountNumber(int AcctID)
+        {
+            using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
+            {
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+                    string cmdstr = @"SELECT DISTINCT [AcctNumber] FROM [dbo].[Account] WHERE [AcctID] = @AcctID";
+                    cmd.CommandText = cmdstr;
+                    cmd.Parameters.Add(new SqlParameter("@AcctID", SqlDbType.Int));
+                    cmd.Prepare();
+                    cmd.Parameters["@AcctID"].Value = AcctID;
+
+                    try
+                    {
+                        return cmd.ExecuteScalar().ToString();
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine("Get Account ID Error: " + e.Message);
+                    }
+
+                    return null;
+                }
+
+            }
+        }
+
+        /*
         public int GetAccountID(string AcctNumber, string AcctType)
         {
             using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
@@ -359,7 +388,7 @@ namespace Project_XML.Models.DbManager
 
             }
         }
-
+        */
         public List<MessageSpecModel> GetAllMessageSpec()
         {
             using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
@@ -779,7 +808,7 @@ namespace Project_XML.Models.DbManager
             }
         }
 
-        public List<ControllingPersonModel> GetEntityCtrlPerson(int entityId, string countryCode, string acctNumber)
+        public List<ControllingPersonModel> GetEntityCtrlPerson(int entityId, string countryCode, int acctID)
         {
             using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
             {
@@ -788,16 +817,16 @@ namespace Project_XML.Models.DbManager
                     conn.Open();
                     string cmdstr = @"SELECT P.PId FROM Person P, ControllingPerson C, Account A, ResCountryCode R, Entity E
                                         WHERE C.PId=P.PId AND A.AcctID=C.AcctID AND P.PId=R.P_Ent_Id AND E.AcctID=A.AcctID
-		                                AND R.CountryCode=@countryCode AND A.AcctID=@acctNumber AND EntityId=@entityId";
+		                                AND R.CountryCode=@countryCode AND A.AcctID=@acctID AND EntityId=@entityId";
                     cmd.CommandText = cmdstr;
                     cmd.Parameters.Add(new SqlParameter("@entityId", SqlDbType.Int));
                     cmd.Parameters.Add(new SqlParameter("@countryCode", SqlDbType.NVarChar, 2));
-                    cmd.Parameters.Add(new SqlParameter("@acctNumber", SqlDbType.NVarChar, 72));
+                    cmd.Parameters.Add(new SqlParameter("@acctID", SqlDbType.Int));
                     cmd.Prepare();
 
                     cmd.Parameters["@entityId"].Value = entityId;
                     cmd.Parameters["@countryCode"].Value = countryCode;
-                    cmd.Parameters["@acctNumber"].Value = acctNumber;
+                    cmd.Parameters["@acctID"].Value = acctID;
 
                     List<ControllingPersonModel> ctrlList = new List<ControllingPersonModel>();
 
@@ -808,7 +837,7 @@ namespace Project_XML.Models.DbManager
                         while(reader.Read())
                         {
                             ControllingPersonModel model = new ControllingPersonModel();
-                            model = GetCtrlPersonDetails(Convert.ToInt32(reader[0]), acctNumber);
+                            model = GetCtrlPersonDetails(Convert.ToInt32(reader[0]), acctID);
                             ctrlList.Add(model);
                         }
                         return ctrlList;
@@ -823,7 +852,7 @@ namespace Project_XML.Models.DbManager
             }
         }
 
-        public List<ControllingPersonModel> GetIndividualCtrlPerson(int pId, string countryCode, string acctNumber)
+        public List<ControllingPersonModel> GetIndividualCtrlPerson(int pId, string countryCode, int acctID)
         {
             using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
             {
@@ -831,17 +860,17 @@ namespace Project_XML.Models.DbManager
                 {
                     conn.Open();
                     string cmdstr = @"SELECT P.PId FROM Person P, ControllingPerson C, Account A, ResCountryCode R, PersonAcctHolder PH
-                                        WHERE C.PId=P.PId AND A.AcctNumber=C.AcctNumber AND P.PId=R.P_Ent_Id AND A.AcctNumber=PH.AcctNumber
-		                                AND R.CountryCode=@countryCode AND A.AcctNumber=@acctNumber AND P.PId=@pId";
+                                        WHERE C.PId=P.PId AND A.AcctNumber=C.AcctNumber AND P.PId=R.P_Ent_Id AND A.AcctID=PH.AcctID
+		                                AND R.CountryCode=@countryCode AND A.AcctID=@acctID AND P.PId=@pId";
                                                             cmd.CommandText = cmdstr;
                     cmd.Parameters.Add(new SqlParameter("@pId", SqlDbType.Int));
                     cmd.Parameters.Add(new SqlParameter("@countryCode", SqlDbType.NVarChar, 2));
-                    cmd.Parameters.Add(new SqlParameter("@acctNumber", SqlDbType.NVarChar, 72));
+                    cmd.Parameters.Add(new SqlParameter("@acctNumber", SqlDbType.Int));
                     cmd.Prepare();
 
                     cmd.Parameters["@pId"].Value = pId;
                     cmd.Parameters["@countryCode"].Value = countryCode;
-                    cmd.Parameters["@acctNumber"].Value = acctNumber;
+                    cmd.Parameters["@acctID"].Value = acctID;
 
                     List<ControllingPersonModel> ctrlList = new List<ControllingPersonModel>();
 
@@ -852,7 +881,7 @@ namespace Project_XML.Models.DbManager
                         while (reader.Read())
                         {
                             ControllingPersonModel model = new ControllingPersonModel();
-                            model = GetCtrlPersonDetails(Convert.ToInt32(reader[0]), acctNumber);
+                            model = GetCtrlPersonDetails(Convert.ToInt32(reader[0]), acctID);
                             ctrlList.Add(model);
                         }
                         return ctrlList;
@@ -867,7 +896,7 @@ namespace Project_XML.Models.DbManager
             }
         }
 
-        public ControllingPersonModel GetCtrlPersonDetails(int pId, string acctNumber)
+        public ControllingPersonModel GetCtrlPersonDetails(int pId, int acctID)
         {
             using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
             {
@@ -875,18 +904,18 @@ namespace Project_XML.Models.DbManager
                 {
                     conn.Open();
                     string cmdstr = @"SELECT P.*,STUFF((SELECT ';'+Value+','+ISNULL(CountryCode,'')+','+IType 
-			                                        FROM INType, Person WHERE P_Ent_Id=PId AND PId=1004
+			                                        FROM INType, Person WHERE P_Ent_Id=PId AND PId=@pId
 			                                        FOR XML PATH('')),1,1,'') AS INVal,
 			                                        CtrlPersonType
                                         FROM Person P, ControllingPerson C, Account A
-                                        WHERE C.PId=P.PId AND C.AcctNumber=A.AcctNumber AND A.AcctNumber=@acctNumber AND P.PId=@pId";
+                                        WHERE C.PId=P.PId AND C.AcctID=A.AcctID AND A.AcctID=@acctID AND P.PId=@pId";
                     cmd.CommandText = cmdstr;
                     cmd.Parameters.Add(new SqlParameter("@pId", SqlDbType.Int));
-                    cmd.Parameters.Add(new SqlParameter("@acctNumber", SqlDbType.NVarChar, 72));
+                    cmd.Parameters.Add(new SqlParameter("@acctID", SqlDbType.Int));
                     cmd.Prepare();
 
                     cmd.Parameters["@pId"].Value = pId;
-                    cmd.Parameters["@acctNumber"].Value = acctNumber;
+                    cmd.Parameters["@acctID"].Value = acctID;
                     
 
                     try
