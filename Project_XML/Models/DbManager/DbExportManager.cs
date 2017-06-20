@@ -24,8 +24,8 @@ namespace Project_XML.Models.DbManager
                     string cmdstr = @"SELECT DISTINCT A.AcctID, A.AcctNumber, t2.Name, t2.AcctHolderId, B.CountryCode
                                         FROM Account A
                                         LEFT JOIN(SELECT A.AcctID, A.AcctNumber, E.Name, EntityId AS AcctHolderId
-			                                        FROM Account A, Entity E 
-			                                        WHERE A.AcctID=E.AcctID
+			                                        FROM Account A, Entity E, ResCountryCode R
+			                                        WHERE A.AcctID=E.AcctID and R.isReportable != 0
                                                   UNION
                                                   SELECT A.AcctID, A.AcctNumber, P.LastName+', '+P.FirstName AS Name, P.PId AS AcctHolderId
 			                                        FROM Account A, Person P, PersonAcctHolder PH
@@ -59,6 +59,55 @@ namespace Project_XML.Models.DbManager
                     catch (Exception e)
                     {
                         Debug.WriteLine("Get All Accounts Error: " + e.Message);
+                        return null;
+                    }
+
+                    return accounts;
+                }
+
+            }
+        }
+
+        public List<AccountModel> GetAllReportableAccounts()
+        {
+            using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
+            {
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+                    string cmdstr = @"SELECT A.AcctID, A.AcctNumber, E.Name, EntityId AS AcctHolderId, R.CountryCode
+                                        FROM Account A, Entity E, ResCountryCode R
+                                        WHERE A.AcctID=E.AcctID AND E.EntityId=R.P_Ent_Id AND R.isReportable != 0
+                                        UNION
+                                        SELECT A.AcctID, A.AcctNumber, P.LastName+', '+P.FirstName AS Name, P.PId AS AcctHolderId, R.CountryCode
+                                        FROM Account A, Person P, PersonAcctHolder PH,ResCountryCode R
+                                        WHERE A.AcctID=PH.AcctID AND P.PId=PH.PId AND P.PId=R.P_Ent_Id AND R.isReportable != 0
+                                        ORDER BY Name ASC";
+                    cmd.CommandText = cmdstr;
+                    cmd.Prepare();
+
+                    List<AccountModel> accounts = new List<AccountModel>();
+
+                    try
+                    {
+                        SqlDataReader reader = cmd.ExecuteReader();
+
+                        while (reader.Read())
+                        {
+                            AccountModel model = new AccountModel();
+
+                            model.AcctID = Convert.ToInt32(reader[0]);
+                            model.AcctNumber = reader[1].ToString();
+                            model.AcctHolder = reader[2].ToString();
+                            model.AcctHolderId = Convert.ToInt32(reader[3]);
+                            model.Country = reader[4].ToString();
+
+                            accounts.Add(model);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine("Get All Reportable Accounts Error: " + e.Message);
                         return null;
                     }
 
@@ -546,7 +595,7 @@ namespace Project_XML.Models.DbManager
             }
         }
 
-        public List<PaymentModel> GetPayments(string acctNumber)
+        public List<PaymentModel> GetPayments(int acctID)
         {
             using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
             {
@@ -555,12 +604,12 @@ namespace Project_XML.Models.DbManager
                     conn.Open();
                     string cmdstr = @"SELECT PaymentType, Amount, P.CurrCode
                                         FROM Payment P, Account A
-                                        WHERE P.AcctNumber = A.AcctNumber AND A.AcctNumber=@acctNumber";
+                                        WHERE P.AcctID = A.AcctID AND A.AcctID=@acctID";
                     cmd.CommandText = cmdstr;
-                    cmd.Parameters.Add(new SqlParameter("@acctNumber", SqlDbType.NVarChar, 72));
+                    cmd.Parameters.Add(new SqlParameter("@acctID", SqlDbType.Int));
                     cmd.Prepare();
 
-                    cmd.Parameters["@acctNumber"].Value = acctNumber;
+                    cmd.Parameters["@acctID"].Value = acctID;
 
                     List<PaymentModel> payments = new List<PaymentModel>();
 

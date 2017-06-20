@@ -78,7 +78,7 @@
                                                         <td class="newAcctNumber"><%# Eval("AcctNumber") %></td>
                                                         <td class="newAcctHolderID">
                                                             <span class="acctHolderName"><%# Eval("AcctHolder") %></span>
-                                                            <span class="acctHolderID" style="display: none;"><%# Eval("AcctHolderId") %></span>f
+                                                            <span class="acctHolderID" style="display: none;"><%# Eval("AcctHolderId") %></span>
                                                         </td>
                                                         <td class="Country"><%# Eval("Country") %></td>
                                                     </tr>

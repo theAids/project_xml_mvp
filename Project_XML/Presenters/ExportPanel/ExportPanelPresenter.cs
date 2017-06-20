@@ -49,7 +49,7 @@ namespace Project_XML.Presenters.ExportPanel
 
                 
                 //populate Accounts table
-                view.AccountsList = db.GetAllAccounts();
+                view.AccountsList = db.GetAllReportableAccounts();
 
                 view.MessageRefIDList = db.GetAllMsgRefId();
                 view.DelMessageRefIDList = db.GetAllMsgRefId();
@@ -324,7 +324,7 @@ namespace Project_XML.Presenters.ExportPanel
             
             db.ImportEntityTable(scriptPath);
             db.ImportIndividualTable(scriptPath);
-            db.DeleteSourceTables();
+            //db.DeleteSourceTables();
         }
 
         public void ClearLogs()

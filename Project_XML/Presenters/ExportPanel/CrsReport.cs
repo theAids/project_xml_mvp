@@ -55,7 +55,7 @@ namespace Project_XML.Presenters.ExportPanel
                     //MonAmnt
                     account.AccountBalance = MonAmntBalance(acctDetails);
                     //Payment
-                    List<Payment_Type> payments = Payment(acctNum);
+                    List<Payment_Type> payments = Payment(acctID);
                     if (payments != null)
                         account.Payment = payments.ToArray();
 
@@ -109,7 +109,7 @@ namespace Project_XML.Presenters.ExportPanel
                     //MonAmnt
                     account.AccountBalance = MonAmntBalance(acctDetails);
                     //Payment
-                    List<Payment_Type> payments = Payment(acctNum);
+                    List<Payment_Type> payments = Payment(acctID);
                     if (payments != null)
                         account.Payment = payments.ToArray();
 
@@ -352,12 +352,12 @@ namespace Project_XML.Presenters.ExportPanel
 
 
         //Payment_Type
-        public List<Payment_Type> Payment(string acctNumber)
+        public List<Payment_Type> Payment(int acctID)
         {
 
             DbExportManager db = new DbExportManager();
 
-            List<PaymentModel> paymentList = db.GetPayments(acctNumber);
+            List<PaymentModel> paymentList = db.GetPayments(acctID);
 
             if (paymentList == null)
                 return null;

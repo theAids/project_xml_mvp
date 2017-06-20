@@ -99,8 +99,11 @@ namespace Project_XML.Models.DbManager
                                         "[City][nvarchar](255) NOT NULL," +
                                         "[Country][nvarchar](255) NOT NULL," +
                                         "[Jurisdiction 1] [nvarchar](255) NULL," +
+                                        "[CRS Status 1] [nvarchar](255) NULL,"+
                                         "[Jurisdiction 2] [nvarchar](255) NULL," +
+                                        "[CRS Status 2] [nvarchar](255) NULL,"+
                                         "[Jurisdiction 3] [nvarchar](255) NULL," +
+                                        "[CRS Status 3] [nvarchar](255) NULL,"+
                                         "[TIN 1][nvarchar](255) NULL," +
                                         "[TIN 1 issuedBy][nvarchar](255) NULL," +
                                         "[TIN 2][nvarchar](255) NULL," +
@@ -108,7 +111,6 @@ namespace Project_XML.Models.DbManager
                                         "[TIN 3][nvarchar](255) NULL," +
                                         "[TIN 3 issuedBy][nvarchar](255) NULL," +
                                         "[Account Number][nvarchar](255) NOT NULL," +
-                                        "[CRS Status][nvarchar](255) NOT NULL," +
                                         "[Currency Code][nvarchar](255) NOT NULL," +
                                         "[Account Balance][decimal](16, 2) NOT NULL," +
                                         "[Gross amount of interest][decimal](16, 2) NULL," +

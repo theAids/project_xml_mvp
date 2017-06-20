@@ -38,9 +38,12 @@ UPDATE Entity_tbl SET
 	[CP3 Place of birth] = ISNULL((SELECT CountryCode FROM CountryList WHERE CountryName=UPPER([CP3 Place of birth]) OR CountryCode=UPPER([CP3 Place of birth])),NULL),
 	[CP3 TIN 1 issuedBy] = ISNULL((SELECT CountryCode FROM CountryList WHERE CountryName=UPPER([CP3 TIN 1 issuedBy]) OR CountryCode=UPPER([CP3 TIN 1 issuedBy])),NULL),
 	[CP3 TIN 2 issuedBy] = ISNULL((SELECT CountryCode FROM CountryList WHERE CountryName=UPPER([CP3 TIN 2 issuedBy]) OR CountryCode=UPPER([CP3 TIN 2 issuedBy])),NULL),
-	[CP3 TIN 3 issuedBy] = ISNULL((SELECT CountryCode FROM CountryList WHERE CountryName=UPPER([CP3 TIN 3 issuedBy]) OR CountryCode=UPPER([CP3 TIN 3 issuedBy])),NULL)
+	[CP3 TIN 3 issuedBy] = ISNULL((SELECT CountryCode FROM CountryList WHERE CountryName=UPPER([CP3 TIN 3 issuedBy]) OR CountryCode=UPPER([CP3 TIN 3 issuedBy])),NULL),
 
 	--CRS Status Conversion for AcctHolderType
+	[CRS Status 1] = UPPER([CRS Status 1]),
+	[CRS Status 2] = UPPER([CRS Status 2]),
+	[CRS Status 3] = UPPER([CRS Status 3])
 
     --Cursor for Entity Account holder
     /* Entity */
@@ -48,17 +51,19 @@ UPDATE Entity_tbl SET
     DECLARE @AddressFree nvarchar(255)
     DECLARE @City nvarchar(255) 
     DECLARE @Country nvarchar(255) 
-    DECLARE @Jurisdiction1 nvarchar(255) 
+    DECLARE @Jurisdiction1 nvarchar(255)
+	DECLARE @CrsStatus1 nvarchar(255)
     DECLARE @Jurisdiction2 nvarchar(255) 
+	DECLARE @CrsStatus2 nvarchar(255)
     DECLARE @Jurisdiction3 nvarchar(255) 
+	DECLARE @CrsStatus3 nvarchar(255)
     DECLARE @TIN1 nvarchar(255) 
     DECLARE @TIN1issuedBy nvarchar(255) 
     DECLARE @TIN2 nvarchar(255) 
     DECLARE @TIN2issuedBy nvarchar(255) 
     DECLARE @TIN3 nvarchar(255) 
     DECLARE @TIN3issuedBy nvarchar(255) 
-    DECLARE @AccountNumber nvarchar(255)  
-    DECLARE @CRSStatus nvarchar(255)  
+    DECLARE @AccountNumber nvarchar(255) 
     DECLARE @CurrencyCode nvarchar(255)  
     DECLARE @AccountBalance decimal(16, 2)  
     DECLARE @Gross_amount_of_interest decimal(16, 2) 
@@ -124,6 +129,7 @@ UPDATE Entity_tbl SET
     DECLARE @AcctID int
 	DECLARE @EntityId int
 	DECLARE @PId int
+	DECLARE @isReportable bit
 
 	DECLARE entity_cursor CURSOR FOR SELECT * FROM Entity_tbl
 
@@ -131,9 +137,9 @@ UPDATE Entity_tbl SET
     FETCH NEXT FROM entity_cursor
     INTO
 	/* Entity */
-	@Name, @AddressFree, @City, @Country, @Jurisdiction1, @Jurisdiction2, @Jurisdiction3,
-	@TIN1, @TIN1issuedBy, @TIN2, @TIN2issuedBy, @TIN3, @TIN3issuedBy, @AccountNumber,   
-	@CRSStatus, @CurrencyCode, @AccountBalance, @Gross_amount_of_interest, @Gross_amount_of_dividend,  
+	@Name, @AddressFree, @City, @Country, @Jurisdiction1, @CrsStatus1, @Jurisdiction2,@CrsStatus2, @Jurisdiction3,@CrsStatus3,
+	@TIN1, @TIN1issuedBy, @TIN2, @TIN2issuedBy, @TIN3, @TIN3issuedBy, @AccountNumber,
+	@CurrencyCode, @AccountBalance, @Gross_amount_of_interest, @Gross_amount_of_dividend,  
 	@Gross_amount_of_other_income, @Gross_proceeds,
 	/* Controlling Person 1 */
 	@CP1FirstName, @CP1LastName, @CP1AddressFree, @CP1City, @CP1Country, @CP1BirthDate, @CP1BirthPlace, 
@@ -175,26 +181,30 @@ UPDATE Entity_tbl SET
 		  	--Entity Address
 		 	INSERT INTO Address(FreeLine, City, CountryCode, P_Ent_Id)
 		  	VALUES(@AddressFree, @City,@Country, @EntityId)
+
 		  	--Entity ResCountry
 	      	IF(@Jurisdiction1 IS NOT NULL)
 	      	BEGIN
-		    	IF (SELECT COUNT(*) FROM ResCountryCode WHERE P_Ent_id = @EntityId AND CountryCode = @Jurisdiction1) = 0 
-			    	INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
-			      	VALUES(@EntityId,@Jurisdiction1,1)
+				SET @isReportable = CASE WHEN @CrsStatus1 NOT LIKE '%CRS104%' THEN 1 ELSE 0 END
+		    	IF (SELECT COUNT(*) FROM ResCountryCode WHERE P_Ent_id = @EntityId AND CountryCode = @Jurisdiction1) = 0
+			    	INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,AcctHolderType,isReportable)
+			      	VALUES(@EntityId,@Jurisdiction1,@CrsStatus1, @isReportable)
 	      	END
 	      	IF(@Jurisdiction2 IS NOT NULL)
 	      	BEGIN
-		    	IF (SELECT COUNT(*) FROM ResCountryCode WHERE P_Ent_id = @EntityId AND CountryCode = @Jurisdiction2) = 0 
-			    	INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
-			    	VALUES(@EntityId,@Jurisdiction2,1)
+				SET @isReportable = CASE WHEN @CrsStatus2 NOT LIKE '%CRS104%' THEN 1 ELSE 0 END
+		    	IF (SELECT COUNT(*) FROM ResCountryCode WHERE P_Ent_id = @EntityId AND CountryCode = @Jurisdiction2) = 0
+			    	INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,AcctHolderType,isReportable)
+			      	VALUES(@EntityId,@Jurisdiction2,@CrsStatus2, @isReportable)
 	      	END
 	      	IF(@Jurisdiction3 IS NOT NULL)
 	     	BEGIN
-		  	IF (SELECT COUNT(*) FROM ResCountryCode WHERE P_Ent_id = @EntityId AND CountryCode = @Jurisdiction3) = 0 
-				INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,isReportable)
-			  	VALUES(@EntityId,@Jurisdiction3,1)
+				SET @isReportable = CASE WHEN @CrsStatus3 NOT LIKE '%CRS104%' THEN 1 ELSE 0 END
+		  		IF (SELECT COUNT(*) FROM ResCountryCode WHERE P_Ent_id = @EntityId AND CountryCode = @Jurisdiction3) = 0	
+					INSERT INTO ResCountryCode(P_Ent_Id,CountryCode,AcctHolderType,isReportable)
+			      	VALUES(@EntityId,@Jurisdiction3,@CrsStatus3, @isReportable)
 	     	 END
-		  	
+		  		
 		  	--Entity TIN
 		  	IF(@TIN1 IS NOT NULL)
 			  	INSERT INTO INType(Value,CountryCode,IType,P_Ent_Id)
@@ -206,6 +216,20 @@ UPDATE Entity_tbl SET
 			  	INSERT INTO INType(Value,CountryCode,IType,P_Ent_Id)
 			  	VALUES(@TIN3,@TIN3issuedBy,'TIN',@EntityId)
 			
+			--Entity Payment
+			IF(@Gross_amount_of_interest IS NOT NULL)
+				INSERT INTO Payment(PaymentType,Amount,CurrCode,AcctID)
+				VALUES('CRS502',@Gross_amount_of_interest,@CurrencyCode,@AcctID)
+			IF (@Gross_amount_of_dividend IS NOT NULL)
+				INSERT INTO Payment(PaymentType,Amount,CurrCode,AcctID)
+				VALUES('CRS501',@Gross_amount_of_interest,@CurrencyCode,@AcctID)
+			IF(@Gross_amount_of_other_income IS NOT NULL)
+				INSERT INTO Payment(PaymentType,Amount,CurrCode,AcctID)
+				VALUES('CRS504',@Gross_amount_of_interest,@CurrencyCode,@AcctID)
+			IF(@Gross_proceeds IS NOT NULL)
+				INSERT INTO Payment(PaymentType,Amount,CurrCode,AcctID)
+				VALUES('CRS503',@Gross_amount_of_interest,@CurrencyCode,@AcctID)
+
 			--For New XML testing
 			/* Controlling Person 1 */
 			--CP1 Individual AcctHolder and Account Mapping
@@ -354,9 +378,9 @@ UPDATE Entity_tbl SET
 			END
 		
 		    FETCH NEXT FROM entity_cursor
-		    INTO @Name, @AddressFree, @City, @Country, @Jurisdiction1, @Jurisdiction2, @Jurisdiction3,
+		    INTO @Name, @AddressFree, @City, @Country, @Jurisdiction1, @CrsStatus1, @Jurisdiction2,@CrsStatus2, @Jurisdiction3,@CrsStatus3,
 		    @TIN1, @TIN1issuedBy, @TIN2, @TIN2issuedBy, @TIN3, @TIN3issuedBy, @AccountNumber,   
-		    @CRSStatus, @CurrencyCode, @AccountBalance, @Gross_amount_of_interest, @Gross_amount_of_dividend,  
+			@CurrencyCode, @AccountBalance, @Gross_amount_of_interest, @Gross_amount_of_dividend,  
 		    @Gross_amount_of_other_income, @Gross_proceeds,
 			
 			@CP1FirstName, @CP1LastName, @CP1AddressFree, @CP1City, @CP1Country, @CP1BirthDate, @CP1BirthPlace,

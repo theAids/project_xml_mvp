@@ -28,10 +28,10 @@ UPDATE Individual_tbl SET
     DECLARE @AccountNumber nvarchar(255) 
     DECLARE @CurrencyCode nvarchar(255) 
     DECLARE @AccountBalance decimal(16, 2) 
-    DECLARE @Interest decimal(16, 2)
-    DECLARE @Dividend decimal(16, 2)
-    DECLARE @OtherIncome decimal(16, 2)
-    DECLARE @Proceeds decimal(16, 2)
+    DECLARE @Gross_amount_of_interest decimal(16, 2)
+    DECLARE @Gross_amount_of_dividend decimal(16, 2)
+    DECLARE @Gross_amount_of_other_income decimal(16, 2)
+    DECLARE @Gross_proceeds decimal(16, 2)
     DECLARE @AcctType nvarchar(10)
     DECLARE @AcctID int
 	DECLARE @PId int
@@ -42,7 +42,7 @@ UPDATE Individual_tbl SET
 	FETCH NEXT FROM indiv_cursor
 	INTO @FirstName,@LastName,@AddressFree,@City,@Country,@BirthDate,
 	@BirthPlace,@Jurisdiction1,@Jurisdiction2,@Jurisdiction3,@TIN1,@TIN1Ctry,@TIN2,@TIN2Ctry,@TIN3,@TIN3Ctry,@AccountNumber,
-	@CurrencyCode,@AccountBalance,@Interest,@Dividend,@OtherIncome,@Proceeds, @AcctType
+	@CurrencyCode,@AccountBalance,@Gross_amount_of_interest,@Gross_amount_of_dividend,@Gross_amount_of_other_income,@Gross_proceeds, @AcctType
 
     WHILE @@FETCH_STATUS = 0
     BEGIN
@@ -93,13 +93,27 @@ UPDATE Individual_tbl SET
 			    INSERT INTO INType(Value,CountryCode,IType,P_Ent_Id)
 			    VALUES(@TIN3,@TIN1Ctry,'TIN',@PId)
 
+			--Person Payment
+			IF(@Gross_amount_of_interest IS NOT NULL)
+				INSERT INTO Payment(PaymentType,Amount,CurrCode,AcctID)
+				VALUES('CRS502',@Gross_amount_of_interest,@CurrencyCode,@AcctID)
+			IF (@Gross_amount_of_dividend IS NOT NULL)
+				INSERT INTO Payment(PaymentType,Amount,CurrCode,AcctID)
+				VALUES('CRS501',@Gross_amount_of_interest,@CurrencyCode,@AcctID)
+			IF(@Gross_amount_of_other_income IS NOT NULL)
+				INSERT INTO Payment(PaymentType,Amount,CurrCode,AcctID)
+				VALUES('CRS504',@Gross_amount_of_interest,@CurrencyCode,@AcctID)
+			IF(@Gross_proceeds IS NOT NULL)
+				INSERT INTO Payment(PaymentType,Amount,CurrCode,AcctID)
+				VALUES('CRS503',@Gross_amount_of_interest,@CurrencyCode,@AcctID)
+
 		    INSERT INTO PersonAcctHolder(AcctID, PId)
 		    VALUES(@AcctID,@PId)
 		
 			FETCH NEXT FROM indiv_cursor
 			INTO @FirstName,@LastName,@AddressFree,@City,@Country,@BirthDate,
 			@BirthPlace,@Jurisdiction1,@Jurisdiction2,@Jurisdiction3,@TIN1,@TIN1Ctry,@TIN2,@TIN2Ctry,@TIN3,@TIN3Ctry,@AccountNumber,
-			@CurrencyCode,@AccountBalance,@Interest,@Dividend,@OtherIncome,@Proceeds, @AcctType
+			@CurrencyCode,@AccountBalance,@Gross_amount_of_interest,@Gross_amount_of_dividend,@Gross_amount_of_other_income,@Gross_proceeds, @AcctType
 		END
    	END
 
