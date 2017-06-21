@@ -276,7 +276,7 @@ namespace Project_XML.Presenters.ExportPanel
 
             //Add entry to docspec table
             DbImportManager dbImport = new DbImportManager();
-            dbImport.NewDocSpec(refId, docType, messageRefId, corrFSN, corrDocRef, corrAcct, acctNum, acctID);
+            dbImport.NewDocSpec(refId, docType, messageRefId, corrFSN, corrDocRef, corrAcct, acctID);
 
             return docSpec;
 

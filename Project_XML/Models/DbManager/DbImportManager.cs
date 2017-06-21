@@ -378,15 +378,15 @@ namespace Project_XML.Models.DbManager
             }
         }
 
-        public void NewDocSpec(string docRefId, string docType, string msgRefId, string corrFSN, string corrDocRef, string corrAcct, string acctNum, int acctID)
+        public void NewDocSpec(string docRefId, string docType, string msgRefId, string corrFSN, string corrDocRef, string corrAcct, int acctID)
         {
             using (SqlConnection conn = base.GetDbConnection("AeoiConnection"))
             {
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     conn.Open();
-                    string cmdstr = @"INSERT INTO DocSpec(DocRefId, DocTypeIndic, MessageRefId, CorrFileSerialNumber, CorrDocRefId, CorrAccountNumber, AcctNumber, AcctID)
-                                        VALUES(@docRefId,@docType,@msgRefId,@corrFSN, @corrDocRef, @corrAcct, @acctNum, @acctID)";
+                    string cmdstr = @"INSERT INTO DocSpec(DocRefId, DocTypeIndic, MessageRefId, CorrFileSerialNumber, CorrDocRefId, CorrAccountNumber, AcctID)
+                                        VALUES(@docRefId,@docType,@msgRefId,@corrFSN, @corrDocRef, @corrAcct, @acctID)";
                     cmd.CommandText = cmdstr;
                     cmd.Parameters.Add(new SqlParameter("@docRefId", SqlDbType.NVarChar, 40));
                     cmd.Parameters.Add(new SqlParameter("@docType", SqlDbType.NVarChar, 12));
@@ -395,8 +395,6 @@ namespace Project_XML.Models.DbManager
                     cmd.Parameters.Add(new SqlParameter("@corrFSN", SqlDbType.NVarChar, 20));
                     cmd.Parameters.Add(new SqlParameter("@corrDocRef", SqlDbType.NVarChar, 40));
                     cmd.Parameters.Add(new SqlParameter("@corrAcct", SqlDbType.NVarChar, 72));
-
-                    cmd.Parameters.Add(new SqlParameter("@acctNum", SqlDbType.NVarChar, 72));
                     cmd.Parameters.Add(new SqlParameter("@acctID", SqlDbType.Int));
                     cmd.Prepare();
 
@@ -407,8 +405,7 @@ namespace Project_XML.Models.DbManager
                     cmd.Parameters["@corrFSN"].Value = corrFSN == null ? (object)DBNull.Value : corrFSN;
                     cmd.Parameters["@corrDocRef"].Value = corrDocRef == null ? (object)DBNull.Value : corrDocRef;
                     cmd.Parameters["@corrAcct"].Value = corrAcct == null ? (object)DBNull.Value : corrAcct;
-
-                    cmd.Parameters["@acctNum"].Value = acctNum;
+                    
                     cmd.Parameters["@acctID"].Value = acctID;
 
                     try
