@@ -223,9 +223,9 @@ namespace Project_XML.Presenters.ExportPanel
             else
                 note = null;
 
-            if (msgType.Equals(CrsMessageTypeIndic_EnumType.CRS701))
+            if (msgType.Equals("CRS701"))
                 msg.MessageTypeIndic = CrsMessageTypeIndic_EnumType.CRS701; // new data
-            else
+            else if (msgType.Equals("CRS702"))
                 msg.MessageTypeIndic = CrsMessageTypeIndic_EnumType.CRS702; // correction data
 
             //get FI name based on ID
